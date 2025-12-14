@@ -1,0 +1,725 @@
+<!DOCTYPE html>
+<html lang="cs" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DarkDash - Gothic Dashboard</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">      
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/games.css">
+    
+    <style>
+        /* POZADÍ - STŘED */
+        #main-content-layer {
+            z-index: 1; /* Nejnižší vrstva */
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            /* Odsazení, aby nelezl pod panely */
+            left: 300px; 
+            right: 220px; 
+            overflow-y: auto;
+        }
+
+        /* POPŘEDÍ - LEVÝ PANEL */
+        #left-panel-layer {
+            z-index: 100; /* Vysoká vrstva */
+            width: 300px;
+        }
+
+        /* POPŘEDÍ - PRAVÝ PANEL */
+        #right-panel-layer {
+            z-index: 100; /* Vysoká vrstva */
+            width: 220px;
+        }
+
+        /* SUPER POPŘEDÍ - MODALY (Aby byly nad panely) */
+        .modal-backdrop { z-index: 9999 !important; }
+        .modal { z-index: 10000 !important; }
+        .offcanvas { z-index: 10000 !important; }
+        .offcanvas-backdrop { z-index: 9999 !important; }
+    </style>
+</head>
+<body class="bg-dark text-light overflow-hidden"> 
+
+    <div id="player" style="display: none;"></div>
+
+    <div id="main-content-layer" class="d-flex flex-column align-items-center justify-content-start pt-4">
+        
+        <div class="card bg-black bg-opacity-75 border-secondary text-light mb-4 shadow w-75" style="max-width: 800px; backdrop-filter: blur(5px);">
+            <div class="card-body p-3 d-flex justify-content-between align-items-center">
+                <div class="d-flex align-items-center gap-3">
+                    
+                    <img src="assets/icons/music.png" id="musicIcon" class="icon-hud" style="width: 70px; height: 70px; transition: transform 0.5s;" alt="Hudba">
+                    
+                    <div style="display: flex; flex-direction: column;">
+                        
+                        <div class="marquee-container">
+                            <div id="musicTrack" class="fw-bold brand-font fs-3 marquee-text" style="color: var(--primary-glow);">
+                                Ticho...
+                            </div>
+                        </div>
+
+                        <div id="musicAuthor" class="text-muted fs-6 text-truncate" style="max-width: 280px;">
+                            Neznámý autor
+                        </div>
+
+                    </div>
+                </div>
+                <div class="d-flex align-items-center">
+                    <div class="btn-group align-items-center me-3">
+                        <button class="btn btn-outline-light border-0 p-2" onclick="prevTrack()"><img src="assets/icons/prev.png" style="width: 28px; height: 28px;"></button>
+                        <button class="btn btn-outline-light border-0 p-2 mx-2" onclick="toggleMusic()"><img src="assets/icons/play.png" style="width: 36px; height: 36px;" id="btnPlayIcon"></button>
+                        <button class="btn btn-outline-light border-0 p-2" onclick="nextTrack()"><img src="assets/icons/next.png" style="width: 28px; height: 28px;"></button>
+                    </div>
+                    <div class="d-flex align-items-center bg-dark bg-opacity-50 rounded px-2 py-1 border border-secondary">
+                        <button id="btnMute" class="btn btn-link p-0 me-2" onclick="toggleMute()"><img id="btnMuteIcon" src="assets/icons/volume.png" style="width: 24px; height: 24px;"></button>
+                        <input type="range" id="volumeSlider" class="form-range" min="0" max="1" step="0.05" value="0.5" oninput="setVolume(this.value)" style="width: 80px; cursor: pointer;">
+                    </div>
+                    <button class="btn btn-outline-light border-0 p-2 ms-3" onclick="restartTrack()"><img src="assets/icons/restart.png" style="width: 24px; height: 24px;"></button>
+                </div>
+            </div>
+        </div>
+
+        <div class="card bg-dark border-secondary text-light mb-4 shadow-lg w-75" style="max-width: 800px;">
+            <div class="card-body text-center p-4">
+                <h6 class="text-secondary text-uppercase ls-2 small mb-3">Temná moudrost & Fakta</h6>
+                <p id="quoteText" class="fs-5 fst-italic brand-font" style="min-height: 3rem;">"Načítám vědění..."</p>
+                <button class="btn btn-sm btn-link text-muted text-decoration-none" onclick="generateQuote()">Další poznatek</button>
+            </div>
+        </div>
+
+        <div class="card bg-dark border-secondary text-light mb-4 shadow-lg w-75" style="max-width: 800px;">
+            <div class="card-header border-secondary d-flex justify-content-between align-items-center">
+                <span class="text-uppercase ls-2 small">Předpověď počasí</span>
+                <div class="btn-group btn-group-sm">
+                    <button class="btn btn-outline-secondary active" id="btnDaily" onclick="showWeatherTab('daily')">Dnes</button>
+                    <button class="btn btn-outline-secondary" id="btnWeekly" onclick="showWeatherTab('weekly')">Týden</button>
+                </div>
+            </div>
+            <div class="card-body text-center p-4">
+                <div class="d-flex align-items-center justify-content-center gap-4 mb-4">
+                    <div id="weatherIconDisplay" class="display-3"></div> 
+                    <div class="text-start">
+                        <h2 id="currentTemp" class="m-0 brand-font">--°C</h2>
+                        <div id="currentDesc" class="text-info">Načítám...</div>
+                        <div id="currentCity" class="text-muted small">...</div>
+                    </div>
+                </div>
+                <hr class="border-secondary">
+                <div id="forecastContainer" class="d-flex justify-content-center gap-3 mt-3 overflow-auto pb-2"></div>
+            </div>
+        </div>
+
+        <div class="card bg-dark border-secondary text-light mb-5 shadow-lg w-75" style="max-width: 800px;">
+            <div class="card-header border-secondary d-flex justify-content-between align-items-center">
+                <span class="text-uppercase ls-2 small">Zprávy z povrchu</span>
+                <div class="btn-group btn-group-sm" id="newsSourceButtons">
+                    <button class="btn btn-outline-secondary active" onclick="loadNews('tech')">Tech</button>
+                    <button class="btn btn-outline-secondary" onclick="loadNews('world')">Svět</button>
+                    <button class="btn btn-outline-secondary" onclick="loadNews('science')">Věda</button>
+                </div>
+            </div>
+            <div class="card-body p-0">
+                <div id="newsContainer" class="d-flex flex-column gap-0 overflow-auto custom-scrollbar" style="height: 350px;"></div>
+            </div>
+        </div>
+
+        <div class="card bg-black bg-opacity-75 border-secondary text-light mb-4 shadow w-75" style="max-width: 800px; backdrop-filter: blur(5px); min-height: 480px; overflow: visible;">
+            <div class="card-header border-secondary d-flex justify-content-between align-items-center bg-transparent">
+                <h5 class="m-0 brand-font text-uppercase" style="letter-spacing: 2px; color: #9d4edd; text-shadow: 0 0 10px #9d4edd;">
+                    <i class="fas fa-gamepad me-2"></i>Digihry
+                </h5>
+                <div class="btn-group btn-group-sm">
+                    <button class="btn btn-outline-secondary active" id="btnSnake" onclick="switchGame('snake')">Snake</button>
+                    <button class="btn btn-outline-secondary" id="btnTictac" onclick="switchGame('tictac')">Piškvorky</button>
+                </div>
+            </div>
+            <div class="card-body p-0 position-relative d-flex justify-content-center align-items-center bg-dark">
+                <div id="game-snake" class="game-container w-100 h-100 d-flex flex-column align-items-center justify-content-center p-3 position-relative">
+                    <canvas id="snakeCanvas" width="320" height="320"></canvas>
+                    <div id="snakeOverlay" class="position-absolute top-0 start-0 w-100 h-100 d-flex flex-column align-items-center justify-content-center bg-black bg-opacity-75" style="z-index: 10;">
+                        <h2 class="brand-font text-white mb-3" style="text-shadow: 0 0 10px #9d4edd;">SNAKE</h2>
+                        <button class="btn btn-outline-warning btn-lg px-4" onclick="startSnakeGame()"><i class="fas fa-play me-2"></i>HRÁT</button>
+                        <small class="text-muted mt-2">Kliknutím získáš ovládání</small>
+                    </div>
+                    <div class="mt-2 text-muted small">Ovládání: Šipky | Skóre: <span id="snakeScore" class="text-white fw-bold">0</span></div>
+                </div>
+                <div id="game-tictac" class="game-container w-100 h-100 flex-column align-items-center justify-content-center p-3" style="display: none;">
+                    <div class="tictac-grid" id="tictacGrid"></div>
+                    <div class="mt-3 text-muted small" id="tictacStatus">Jsi na tahu (X)</div>
+                    <button class="btn btn-sm btn-outline-danger mt-2" onclick="initTicTac()">Restart</button>
+                </div>
+                <div id="doom-container" class="position-absolute top-0 start-0 w-100 h-100 bg-black flex-column align-items-center justify-content-center" style="display: none; z-index: 50;">
+                    <div id="doom-loading" class="text-warning brand-font fs-4 mb-3" style="display: none;"><span class="spinner-border spinner-border-sm me-2"></span> Načítám...</div>
+                    <div id="dosbox" style="width: 100%; height: 80%;"></div>
+                    <button class="btn btn-sm btn-danger position-absolute top-0 end-0 m-3" onclick="closeDoom()">X</button>
+                </div>
+            </div>
+            <div class="card-footer border-secondary bg-transparent d-flex justify-content-between align-items-center">
+                <button class="btn btn-sm btn-outline-secondary d-flex align-items-center gap-2" onclick="this.closest('.card').style.display='none'" oncontextmenu="event.preventDefault(); triggerDoom(event);" title="Pravý klik pro překvapení"><i class="fas fa-times"></i> Zavřít sekci</button>
+                <span class="text-muted small fst-italic">Gothic Edition</span>
+            </div>
+        </div>
+    </div>
+
+    <div id="left-panel-layer" class="position-fixed top-0 start-0 h-100 p-4 d-flex flex-column justify-content-between border-end border-secondary bg-black bg-opacity-75" style="backdrop-filter: blur(10px);">
+        <div>
+            <div class="mb-5">
+                <h6 class="text-secondary text-uppercase ls-2 small">Právě je</h6>
+                <h1 id="clock" class="display-4 brand-font fw-bold text-white">--:--</h1>
+                <h4 id="dateDisplay" class="text-light brand-font">...</h4>
+                <div id="yearDisplay" class="text-muted small"></div>
+            </div>
+            <div class="mb-4">
+                <h6 class="text-secondary text-uppercase ls-2 small">Svátek má</h6>
+                <h3 id="nameDayText" class="text-warning brand-font">...</h3>
+            </div>
+            <div class="mb-4">
+                <h6 class="text-secondary text-uppercase ls-2 small">Znamení</h6>
+                <div class="d-flex align-items-center gap-2">
+                    <span id="zodiacIcon" class="fs-1 text-info"></span>
+                    <span id="zodiacText" class="text-info fs-4 brand-font">...</span>
+                </div>
+            </div>
+            <div class="mb-4">
+                <h6 class="text-secondary text-uppercase ls-2 small">Měsíc</h6>
+                <div class="d-flex align-items-center gap-3">
+                    <div id="moonIconDisplay"></div>
+                    <div>
+                        <div id="moonText" class="brand-font fs-5">...</div>
+                        <div id="moonPercent" class="text-muted small">...</div>
+                    </div>
+                </div>
+            </div>
+            <div class="mb-4">
+                <h6 class="text-secondary text-uppercase ls-2 small">Slunce</h6>
+                <div class="d-flex justify-content-between small text-muted mb-1">
+                    <span id="sunriseTime">--:--</span>
+                    <span id="sunsetTime">--:--</span>
+                </div>
+                <div class="progress bg-black border border-secondary" style="height: 6px;">
+                    <div id="sunProgress" class="progress-bar bg-warning" style="width: 0%;"></div>
+                </div>
+                <div class="text-center small text-muted mt-1" id="sunStatus">...</div>
+            </div>
+        </div>
+        <button class="btn btn-outline-light w-100 mt-auto d-flex align-items-center justify-content-center gap-2" onclick="openModal('themesModal')">
+            <img src="assets/icons/themes.png" class="icon-btn" alt="Témata"> Změnit Styl
+        </button>
+    </div>
+
+    <div id="right-panel-layer" class="position-fixed top-0 end-0 h-100 p-3 d-flex flex-column justify-content-center gap-2 bg-black bg-opacity-25 overflow-y-auto custom-scrollbar">
+        
+        <button class="btn btn-gothic-lg w-100 text-start d-flex align-items-center" data-bs-toggle="modal" data-bs-target="#fitnessModal">
+             <img src="assets/icons/fitness.png" class="me-2 icon-btn"> Fitness
+        </button>
+
+        <button class="btn btn-gothic-lg w-100 text-start d-flex align-items-center" data-bs-toggle="modal" data-bs-target="#todoModal">
+            <img src="assets/icons/todo.png" class="me-2 icon-btn"> Úkoly
+        </button>
+
+        <button class="btn btn-gothic-lg w-100 text-start d-flex align-items-center" data-bs-toggle="modal" data-bs-target="#journalCalendarModal">
+            <img src="assets/icons/diary.png" class="me-2 icon-btn"> Deník
+        </button>
+        
+        <button class="btn btn-gothic-lg w-100 text-start d-flex align-items-center" type="button" data-bs-toggle="offcanvas" data-bs-target="#cookbookSidebar">
+            <img src="assets/icons/cookbook.png" class="me-2 icon-btn"> Kuchařka
+        </button>
+        
+        <button class="btn btn-gothic-lg w-100 text-start d-flex align-items-center" type="button" data-bs-toggle="offcanvas" data-bs-target="#notesSidebar">
+            <img src="assets/icons/notes.png" class="me-2 icon-btn"> Poznámky
+        </button>
+        
+        <button class="btn btn-gothic-lg w-100 text-start d-flex align-items-center" data-bs-toggle="modal" data-bs-target="#calendarModal">
+            <img src="assets/icons/calendar.png" class="me-2 icon-btn"> Kalendář
+        </button>
+
+        <button class="btn btn-gothic-lg w-100 text-start d-flex align-items-center" data-bs-toggle="modal" data-bs-target="#pomodoroModal">
+            <img src="assets/icons/timer.png" class="me-2 icon-btn"> Časovač
+        </button>
+
+        <button class="btn btn-gothic-lg w-100 text-start d-flex align-items-center" data-bs-toggle="modal" data-bs-target="#countdownModal">
+            <img src="assets/icons/countdown.png" class="me-2 icon-btn"> Odpočet
+        </button>
+
+        <button class="btn btn-gothic-lg w-100 text-start d-flex align-items-center" type="button" data-bs-toggle="offcanvas" data-bs-target="#dreamSidebar">
+            <img src="assets/icons/dreams.png" class="me-2 icon-btn"> Sny
+        </button>
+
+        <button class="btn btn-gothic-lg w-100 text-start d-flex align-items-center" data-bs-toggle="modal" data-bs-target="#linksModal">
+            <img src="assets/icons/links.png" class="me-2 icon-btn"> Odkazy
+        </button>
+
+    </div>
+
+    </div>
+
+    <div class="modal fade" id="fitnessModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-xl">
+            <div class="modal-content bg-dark text-light border-secondary shadow-lg">
+                <div class="modal-header border-secondary">
+                    <h5 class="modal-title text-warning brand-font">Fitness Centrum</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-0">
+                    <ul class="nav nav-tabs border-secondary bg-black bg-opacity-25 px-3 pt-2" id="fitnessTab" role="tablist">
+                        <li class="nav-item"><button class="nav-link active text-light d-flex align-items-center gap-2" id="log-tab" data-bs-toggle="tab" data-bs-target="#fitness-log" type="button"><img src="assets/icons/edit.png" style="width: 18px;"> Zápis</button></li>
+                        <li class="nav-item"><button class="nav-link text-light d-flex align-items-center gap-2" id="stats-tab" data-bs-toggle="tab" data-bs-target="#fitness-stats" type="button"><img src="assets/icons/chart.png" style="width: 18px;"> Progres</button></li>
+                        <li class="nav-item"><button class="nav-link text-light d-flex align-items-center gap-2" id="diet-tab" data-bs-toggle="tab" data-bs-target="#fitness-diet" type="button"><img src="assets/icons/diet.png" style="width: 18px;"> Jídlo</button></li>
+                        <li class="nav-item"><button class="nav-link text-light d-flex align-items-center gap-2" id="challenges-tab" data-bs-toggle="tab" data-bs-target="#fitness-challenges" type="button"><img src="assets/icons/challenge-done.png" style="width: 18px;"> Výzvy</button></li>
+                        <li class="nav-item"><button class="nav-link text-light d-flex align-items-center gap-2" id="tools-tab" data-bs-toggle="tab" data-bs-target="#fitness-tools" type="button"><img src="assets/icons/tools.png" style="width: 18px;"> Nástroje</button></li>
+                    </ul>
+                    <div class="tab-content p-4" id="fitnessTabContent">
+                        <div class="tab-pane fade show active" id="fitness-log">
+                            <div class="row">
+                                <div class="col-md-4 border-end border-secondary">
+                                    <h6 class="text-warning mb-3">Přidat aktivitu</h6>
+                                    <div class="mb-3"><label class="small text-muted">Datum</label><input type="date" id="fitDate" class="form-control bg-dark text-light border-secondary"></div>
+                                    <div class="mb-3"><label class="small text-muted">Typ cvičení</label><select id="fitCategory" class="form-select bg-dark text-light border-secondary mb-2" onchange="toggleFitInputs()"><option value="strength">Síla</option><option value="cardio">Kardio</option><option value="calisthenics">Kalistenika</option><option value="sport">Sport</option></select><input type="text" id="fitExercise" class="form-control bg-dark text-light border-secondary" placeholder="Název"></div>
+                                    <div id="inputStrength" class="fit-inputs"><div class="row g-2"><div class="col-6"><input type="number" id="valWeight" class="form-control bg-dark text-light border-secondary" placeholder="Váha (kg)"></div><div class="col-6"><input type="number" id="valReps" class="form-control bg-dark text-light border-secondary" placeholder="Opakování"></div></div></div>
+                                    <div id="inputCardio" class="fit-inputs" style="display:none;"><div class="row g-2"><div class="col-6"><input type="number" id="valDist" class="form-control bg-dark text-light border-secondary" placeholder="Km"></div><div class="col-6"><input type="text" id="valTime" class="form-control bg-dark text-light border-secondary" placeholder="Čas"></div></div></div>
+                                    <div id="inputCalisthenics" class="fit-inputs" style="display:none;"><input type="number" id="valCount" class="form-control bg-dark text-light border-secondary" placeholder="Počet"></div>
+                                    <div id="inputSport" class="fit-inputs" style="display:none;"><input type="number" id="valScore" class="form-control bg-dark text-light border-secondary" placeholder="Skóre"></div>
+                                    <div class="mt-3"><input type="text" id="fitNote" class="form-control bg-dark text-light border-secondary" placeholder="Poznámka"></div>
+                                    <button class="btn btn-warning w-100 mt-3" onclick="addFitnessLog()">Uložit záznam</button>
+                                </div>
+                                <div class="col-md-8 ps-md-4">
+                                    <h6 class="text-info mb-3">Tréninkový Deník</h6>
+                                    <div id="fitnessLogContainer" class="overflow-auto custom-scrollbar" style="height: 450px;"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="tab-pane fade" id="fitness-stats">
+                            <div class="d-flex justify-content-between align-items-center mb-4"><h5 class="m-0 text-success">Analýza Výkonu</h5><select id="chartExerciseSelect" class="form-select bg-dark text-light border-secondary w-auto" onchange="updateChart()"><option value="">Vyber aktivitu...</option></select></div>
+                            <div class="bg-black bg-opacity-50 p-3 rounded border border-secondary" style="height: 300px;"><canvas id="fitnessChart"></canvas></div>
+                            <div class="row mt-4 text-center g-3">
+                                <div class="col-md-3"><div class="p-3 border border-secondary rounded bg-dark h-100"><small class="text-muted d-block">Celkem Dní</small><span class="text-warning brand-font fs-3" id="statTotalWorkouts">0</span></div></div>
+                                <div class="col-md-3"><div class="p-3 border border-secondary rounded bg-dark h-100"><small class="text-muted d-block">Celkem Km</small><span class="text-info brand-font fs-3" id="statTotalKm">0</span></div></div>
+                                <div class="col-md-3"><div class="p-3 border border-secondary rounded bg-dark h-100"><small class="text-muted d-block">Volume (Tuny)</small><span class="text-success brand-font fs-3" id="statTotalVolume">0</span></div></div>
+                                <div class="col-md-3"><div class="p-3 border border-secondary rounded bg-dark h-100"><small class="text-muted d-block">Bodyweight Reps</small><span class="text-danger brand-font fs-3" id="statTotalReps">0</span></div></div>
+                            </div>
+                        </div>
+                        <div class="tab-pane fade" id="fitness-diet">
+                            <div class="row">
+                                <div class="col-md-4 border-end border-secondary">
+                                    <h6 class="text-danger mb-3">Přidat Jídlo</h6>
+                                    <input type="text" id="dietFood" class="form-control bg-dark text-light border-secondary mb-2" placeholder="Název">
+                                    <input type="number" id="dietKcal" class="form-control bg-dark text-light border-secondary mb-3" placeholder="Kalorie">
+                                    <button class="btn btn-danger w-100" onclick="addDietEntry()">Sníst</button>
+                                    <div class="mt-4 p-3 bg-black bg-opacity-50 rounded border border-secondary text-center"><small class="text-muted">Dnes přijato</small><h2 class="text-light brand-font m-0" id="dailyKcalDisplay">0 kcal</h2></div>
+                                </div>
+                                <div class="col-md-8 ps-md-4"><h6 class="text-danger mb-3">Dnešní Menu</h6><ul id="dietList" class="list-group list-group-flush"></ul></div>
+                            </div>
+                        </div>
+                        <div class="tab-pane fade" id="fitness-challenges">
+                            <h5 class="text-info mb-4 text-center">Aktivní Výzvy</h5>
+                            <div id="challengesContainer" class="d-flex flex-wrap gap-3 justify-content-center"></div>
+                        </div>
+                        <div class="tab-pane fade" id="fitness-tools">
+                            <div class="row justify-content-center g-4">
+                                <div class="col-md-6"><div class="p-4 border border-secondary rounded bg-black bg-opacity-25 h-100"><h5 class="text-warning mb-3">Kalkulačka 1RM</h5><div class="input-group mb-3"><input type="number" id="rmWeight" class="form-control bg-dark text-light border-secondary" placeholder="Váha (kg)"><input type="number" id="rmReps" class="form-control bg-dark text-light border-secondary" placeholder="Opakování"><button class="btn btn-outline-warning" onclick="calculate1RM()">Vypočítat</button></div><div id="rmResult" class="text-center d-none"><small class="text-muted">Tvůj odhad 1 Rep Max:</small><h1 class="text-success brand-font display-4" id="rmValue">0 kg</h1></div></div></div>
+                                <div class="col-md-6"><div class="p-4 border border-secondary rounded bg-black bg-opacity-25 h-100 text-center"><h5 class="text-info mb-3">Záloha Dat</h5><button class="btn btn-outline-info w-100 mb-2" onclick="exportFitnessData()">⬇ Stáhnout data</button><button class="btn btn-outline-secondary w-100" onclick="document.getElementById('importFile').click()">⬆ Nahrát data</button><input type="file" id="importFile" style="display: none;" onchange="importFitnessData(this)"></div></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="linksModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content bg-dark text-light border-secondary shadow-lg">
+                <div class="modal-header border-secondary">
+                    <h5 class="modal-title text-info brand-font">Knihovna Odkazů</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="input-group mb-4">
+                        <input type="text" id="linkName" class="form-control bg-dark text-light border-secondary" placeholder="Název">
+                        <input type="url" id="linkUrl" class="form-control bg-dark text-light border-secondary" placeholder="URL">
+                        <button class="btn btn-info" onclick="addLink()">+ Přidat</button>
+                    </div>
+                    <div id="linksContainer" class="d-flex flex-wrap gap-3 justify-content-center"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="todoModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content bg-dark text-light border-secondary shadow-lg">
+                <div class="modal-header border-secondary">
+                    <h5 class="modal-title text-success brand-font">Mise & Úkoly</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-4">
+                        <div class="d-flex justify-content-between text-secondary small mb-1">
+                            <span>Postup dne</span>
+                            <span id="todoProgressText">0%</span>
+                        </div>
+                        <div class="progress bg-black border border-secondary" style="height: 10px;">
+                            <div id="todoProgressBar" class="progress-bar bg-success" style="width: 0%"></div>
+                        </div>
+                    </div>
+                    <div class="input-group mb-4">
+                        <select class="form-select bg-dark text-light border-secondary" id="todoPriority" style="max-width: 120px;">
+                            <option value="normal">Běžný</option>
+                            <option value="important">! Důležitý</option>
+                            <option value="critical">!! Kritický</option>
+                        </select>
+                        <input type="date" id="todoDeadline" class="form-control bg-dark text-light border-secondary" style="max-width: 140px;">
+                        <input type="text" id="todoInput" class="form-control bg-dark text-light border-secondary" placeholder="Co musíš vykonat?">
+                        <button class="btn btn-success" onclick="addTodo()">Přidat</button>
+                    </div>
+                    <ul id="todoList" class="list-group list-group-flush"></ul>
+                    <div id="todoEmptyState" class="text-center text-muted py-5" style="display: none;">Všechny mise splněny. Odpočívej.</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="journalCalendarModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-lg">
+            <div class="modal-content bg-dark text-light border-secondary">
+                <div class="modal-header border-secondary">
+                    <h5 class="modal-title text-success">Můj Deník & Nálada</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <button class="btn btn-sm btn-secondary" onclick="changeJournalMonth(-1)">&#9664;</button>
+                        <h4 id="journalMonthYearDisplay" class="m-0 brand-font"></h4>
+                        <button class="btn btn-sm btn-secondary" onclick="changeJournalMonth(1)">&#9654;</button>
+                    </div>
+                    <div class="calendar-grid mb-4" id="journalGrid"></div>
+                    <div class="text-center text-muted small">Klikni na den pro zápis zážitků a hodnocení.</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="journalEditorModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content bg-dark text-light border-secondary shadow-lg">
+                <div class="modal-header border-secondary">
+                    <h5 class="modal-title" id="journalEditorTitle">Zápis dne</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-4 text-center">
+                        <label class="d-block text-secondary mb-2">Jaký byl tvůj den?</label>
+                        <div id="starContainer">
+                            <span class="star-rating" onclick="setRating(1)">★</span>
+                            <span class="star-rating" onclick="setRating(2)">★</span>
+                            <span class="star-rating" onclick="setRating(3)">★</span>
+                            <span class="star-rating" onclick="setRating(4)">★</span>
+                            <span class="star-rating" onclick="setRating(5)">★</span>
+                        </div>
+                        <p id="ratingText" class="small mt-2 text-warning fw-bold">Nehodnoceno</p>
+                    </div>
+                    <div class="mb-3">
+                        <label class="text-success fw-bold d-flex align-items-center"><img src="assets/icons/mood-good.png" style="width:24px; margin-right:5px;"> Co se povedlo</label>
+                        <textarea id="journalPositive" class="form-control bg-dark text-light border-secondary mt-1" rows="3"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="text-danger fw-bold d-flex align-items-center"><img src="assets/icons/mood-bad.png" style="width:24px; margin-right:5px;"> Co se nepovedlo</label>
+                        <textarea id="journalNegative" class="form-control bg-dark text-light border-secondary mt-1" rows="3"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer border-secondary">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Zrušit</button>
+                    <button type="button" class="btn btn-success d-flex align-items-center" onclick="saveJournalEntry()"><img src="assets/icons/save.png" style="width:18px; margin-right:5px;"> Uložit den</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="offcanvas offcanvas-end text-bg-dark border-start border-secondary" tabindex="-1" id="cookbookSidebar" style="width: 450px;">
+        <div class="offcanvas-header border-bottom border-secondary">
+            <h5 class="offcanvas-title text-warning"> Moje Kuchařka</h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+        <div class="offcanvas-body d-flex flex-column">
+            <ul id="recipeList" class="list-group list-group-flush mb-3 flex-grow-1 overflow-auto"></ul>
+            <div class="mt-auto pt-3 border-top border-secondary">
+                <button class="btn btn-warning w-100" onclick="openRecipeEditor()">+ Nový recept</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="recipeEditorModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
+        <div class="modal-dialog modal-dialog-centered modal-xl">
+            <div class="modal-content bg-dark text-light border-secondary shadow-lg">
+                <div class="modal-header border-secondary">
+                    <h5 class="modal-title text-warning" id="recipeEditorTitle">Editor Receptu</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-4">
+                        <label class="form-label text-secondary">Název pokrmu</label>
+                        <input type="text" id="recipeName" class="form-control bg-dark text-light border-secondary form-control-lg" placeholder="Např. Svíčková na smetaně">
+                    </div>
+                    <div class="row">
+                        <div class="col-md-5 border-end border-secondary">
+                            <h6 class="text-info mb-3 d-flex align-items-center"><img src="assets/icons/ingredients.png" width="20" class="me-2"> Ingredience</h6>
+                            <div id="ingredientsContainer" class="d-flex flex-column gap-2 mb-3"></div>
+                            <button class="btn btn-sm btn-outline-info w-100" onclick="addIngredientRow()">+ Přidat ingredienci</button>
+                        </div>
+                        <div class="col-md-7">
+                            <h6 class="text-success mb-3 d-flex align-items-center"><img src="assets/icons/steps.png" width="20" class="me-2"> Postup</h6>
+                            <div id="stepsContainer" class="d-flex flex-column gap-2 mb-3"></div>
+                            <button class="btn btn-sm btn-outline-success w-100" onclick="addStepRow()">+ Přidat krok</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-secondary justify-content-between">
+                    <button type="button" class="btn btn-outline-info d-flex align-items-center" onclick="exportRecipePDF()"><img src="assets/icons/pdf.png" style="width:18px; margin-right:5px;"> Exportovat</button>
+                    <div>
+                        <button type="button" class="btn btn-secondary me-2" data-bs-dismiss="modal">Zrušit</button>
+                        <button type="button" class="btn btn-warning d-flex align-items-center" onclick="saveRecipe()"><img src="assets/icons/save.png" style="width:18px; margin-right:5px;"> Uložit</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="offcanvas offcanvas-end text-bg-dark border-start border-secondary" tabindex="-1" id="notesSidebar" style="width: 400px;">
+        <div class="offcanvas-header border-bottom border-secondary">
+            <h5 class="offcanvas-title">Knihovna poznámek</h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+        <div class="offcanvas-body d-flex flex-column">
+            <ul id="notesList" class="list-group list-group-flush mb-3 flex-grow-1 overflow-auto"></ul>
+            <div class="mt-auto pt-3 border-top border-secondary">
+                <button class="btn btn-success w-100" onclick="openEditor()">+ Nová poznámka</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="noteEditorModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content bg-dark text-light border-secondary shadow-lg">
+                <div class="modal-header border-secondary">
+                    <h5 class="modal-title" id="editorTitle">Editor</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <textarea id="editorTextarea" class="form-control bg-dark text-light border-secondary" rows="12" placeholder="Začni psát..."></textarea>
+                </div>
+                <div class="modal-footer border-secondary justify-content-between">
+                    <button type="button" class="btn btn-outline-info d-flex align-items-center" onclick="exportCurrentNotePDF()"><img src="assets/icons/pdf.png" style="width:18px; margin-right:5px;"> Exportovat</button>
+                    <div>
+                        <button type="button" class="btn btn-secondary me-2" data-bs-dismiss="modal">Zrušit</button>
+                        <button type="button" class="btn btn-primary d-flex align-items-center" onclick="saveNote()"><img src="assets/icons/save.png" style="width:18px; margin-right:5px;"> Uložit</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="calendarModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content bg-dark text-light border-secondary">
+                <div class="modal-header border-secondary">
+                    <h5 class="modal-title">Plánovač akcí</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <button class="btn btn-sm btn-secondary" onclick="changeMonth(-1)">&#9664;</button>
+                        <h4 id="monthYearDisplay" class="m-0"></h4>
+                        <button class="btn btn-sm btn-secondary" onclick="changeMonth(1)">&#9654;</button>
+                    </div>
+                    <div class="calendar-grid mb-4" id="calendarGrid"></div>
+                    <div id="eventSection" class="border-top border-secondary pt-3" style="display:none;">
+                        <h5 id="selectedDateDisplay">Vybrané datum</h5>
+                        <ul id="eventList" class="list-group list-group-flush mb-2 text-dark"></ul>
+                        <div class="input-group">
+                            <input type="time" id="eventTime" class="form-control" style="max-width: 110px;">
+                            <input type="text" id="eventInput" class="form-control" placeholder="Co se bude dít?">
+                            <button class="btn btn-primary" onclick="addEvent()">Přidat</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="pomodoroModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content bg-dark text-light border-secondary shadow-lg">
+                <div class="modal-header border-secondary">
+                    <h5 class="modal-title text-danger brand-font">Rituál Času</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body text-center">
+                    <div class="pomodoro-circle mx-auto mb-4 d-flex align-items-center justify-content-center">
+                        <div>
+                            <h1 id="timerDisplay" class="display-3 fw-bold m-0 brand-font">25:00</h1>
+                            <p id="timerStatus" class="text-muted small text-uppercase ls-2">Práce</p>
+                        </div>
+                    </div>
+                    <div class="d-flex justify-content-center gap-2 mb-4">
+                        <button class="btn btn-outline-light" onclick="toggleTimer()" id="startStopBtn">▶ Start</button>
+                        <button class="btn btn-outline-secondary" onclick="resetTimer()">↺ Reset</button>
+                    </div>
+                    <div class="btn-group w-100 mb-3">
+                        <button class="btn btn-outline-danger active" onclick="setMode('work')" id="btnWork">Práce (25)</button>
+                        <button class="btn btn-outline-info" onclick="setMode('short')" id="btnShort">Pauza (5)</button>
+                        <button class="btn btn-outline-primary" onclick="setMode('long')" id="btnLong">Dlouhá (15)</button>
+                    </div>
+                    <div class="input-group justify-content-center">
+                        <span class="input-group-text bg-dark border-secondary text-secondary">Vlastní (min)</span>
+                        <input type="number" id="customTimeInput" class="form-control bg-dark text-light border-secondary" style="max-width: 80px;" min="1" max="180" placeholder="..." onchange="setCustomTime()">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="countdownModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content bg-dark text-light border-secondary shadow-lg">
+                <div class="modal-header border-secondary">
+                    <h5 class="modal-title text-warning brand-font">Odpočty Času</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="input-group mb-4">
+                        <input type="text" id="cdName" class="form-control bg-dark text-light border-secondary" placeholder="Název události">
+                        <input type="datetime-local" id="cdDate" class="form-control bg-dark text-light border-secondary" style="max-width: 250px;">
+                        <button class="btn btn-warning" onclick="addCountdown()">+ Přidat</button>
+                    </div>
+                    <div id="countdownList" class="d-flex flex-column gap-3 overflow-auto" style="max-height: 400px;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="offcanvas offcanvas-end text-bg-dark border-start border-secondary" tabindex="-1" id="dreamSidebar" style="width: 450px;">
+        <div class="offcanvas-header border-bottom border-secondary">
+            <h5 class="offcanvas-title text-info">Kniha Snů</h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+        <div class="offcanvas-body d-flex flex-column">
+            <p class="text-muted small">Zaznamenej své sny, než se rozplynou...</p>
+            <ul id="dreamList" class="list-group list-group-flush mb-3 flex-grow-1 overflow-auto"></ul>
+            <div class="mt-auto pt-3 border-top border-secondary">
+                <button class="btn btn-outline-info w-100" onclick="openDreamEditor()">+ Nový sen</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="dreamEditorModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content bg-dark text-light border-secondary shadow-lg">
+                <div class="modal-header border-secondary">
+                    <h5 class="modal-title text-info" id="dreamEditorTitle">Záznam Snu</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label text-secondary">Datum</label>
+                        <input type="date" id="dreamDate" class="form-control bg-dark text-light border-secondary">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label text-secondary">Popis snu</label>
+                        <textarea id="dreamDescription" class="form-control bg-dark text-light border-secondary" rows="6" placeholder="Co se ti zdálo?"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label text-secondary">Štítky</label>
+                        <input type="text" id="dreamTags" class="form-control bg-dark text-light border-secondary" placeholder="např. noční můra, létání">
+                    </div>
+                </div>
+                <div class="modal-footer border-secondary">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Zrušit</button>
+                    <button type="button" class="btn btn-info" onclick="saveDream()">Uložit sen</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="themesModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content bg-dark text-light border-secondary shadow-lg">
+                <div class="modal-header border-secondary">
+                    <h5 class="modal-title brand-font">Atmosféra & Hudba</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="text-muted small mb-4">Vyber si styl. Hudba se načte ze složky <code>assets/audio/</code>.</p>
+                    <div class="row g-3" id="themeContainer"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/icons.js"></script> 
+    <script src="js/main.js"></script> 
+    <script src="js/world.js"></script>
+    <script src="js/weather.js"></script> 
+    <script src="js/news.js"></script>
+    <script src="js/calendar.js"></script>
+    <script src="js/notes.js"></script>
+    <script src="js/cookbook.js"></script>
+    <script src="js/journal.js"></script>
+    <script src="js/todo.js"></script>
+    <script src="js/pomodoro.js"></script>
+    <script src="js/countdown.js"></script>
+    <script src="js/dream.js"></script>
+    <script src="js/fitness.js"></script>
+    <script src="js/links.js"></script>
+    <script src="js/themes.js"></script>
+    <script src="js/games.js"></script>
+    <!--- script src="https://js-dos.com/cdn/js-dos-api.js"></script--->
+
+    <script>
+        // Funkce pro otevření modalu (okna)
+        function openModal(id) {
+            // 1. Kontrola, jestli máme Bootstrap
+            if (typeof bootstrap === 'undefined') {
+                alert("CHYBA: Bootstrap se nenačetl! Zkontroluj internet nebo zkus jiný prohlížeč.");
+                return;
+            }
+
+            const el = document.getElementById(id);
+            if (!el) {
+                alert("CHYBA: Nemůžu najít okno s ID: " + id);
+                return;
+            }
+
+            try {
+                const modal = bootstrap.Modal.getOrCreateInstance(el);
+                modal.show();
+            } catch (err) {
+                alert("CHYBA JS: " + err.message);
+                console.error(err);
+            }
+        }
+
+        // Funkce pro otevření bočního panelu
+        function openOffcanvas(id) {
+            if (typeof bootstrap === 'undefined') {
+                alert("CHYBA: Bootstrap se nenačetl!");
+                return;
+            }
+            
+            const el = document.getElementById(id);
+            try {
+                const offcanvas = bootstrap.Offcanvas.getOrCreateInstance(el);
+                offcanvas.show();
+            } catch (err) {
+                console.error(err);
+            }
+        }
+    </script>
+</body>
+</html>
