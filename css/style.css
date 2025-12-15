@@ -342,66 +342,111 @@ input:focus, textarea:focus, select:focus {
 }
 
 /* === RESPONSIVITA (MOBILNÍ ZOBRAZENÍ) === */
-        /* Skrytí mobilní navigace na PC */
-        .mobile-only { display: none !important; }
+/* Skrytí mobilní navigace na PC */
+.mobile-only { display: none !important; }
 
-        @media (max-width: 992px) {
-            /* 1. Schováme boční panely */
-            #left-panel-layer, #right-panel-layer {
-                display: none !important;
-            }
+@media (max-width: 992px) {
+    /* 1. Schováme boční panely */
+    #left-panel-layer, #right-panel-layer {
+        display: none !important;
+    }
 
-            /* 2. Roztáhneme střed přes celou šířku */
-            #main-content-layer {
-                left: 0 !important;
-                right: 0 !important;
-                padding-top: 80px !important; /* Místo pro horní lištu */
-                width: 100% !important;
-            }
+    /* 2. Roztáhneme střed přes celou šířku */
+    #main-content-layer {
+        left: 0 !important;
+        right: 0 !important;
+        padding-top: 80px !important; /* Místo pro horní lištu */
+        width: 100% !important;
+    }
 
-            /* 3. Zobrazíme mobilní prvky */
-            .mobile-only {
-                display: flex !important;
-            }
+    /* 3. Zobrazíme mobilní prvky */
+    .mobile-only {
+        display: flex !important;
+    }
 
-            /* 4. Úprava widgetů na mobilu */
-            .card {
-                width: 95% !important; /* Aby nebyly moc úzké */
-            }
-            
-            /* Zmenšení písma hodin na mobilu */
-            #clock { font-size: 3rem !important; }
-        }
-        /* --- OPRAVA PŘEHRÁVAČE NA MOBILU --- */
-            #player-ui {
-                flex-direction: column !important; /* Prvky pod sebe */
-                gap: 15px; /* Mezera mezi názvem a tlačítky */
-            }
+    /* 4. Úprava widgetů na mobilu */
+    .card {
+        width: 95% !important; /* Aby nebyly moc úzké */
+    }
+    
+    /* Zmenšení písma hodin na mobilu */
+    #clock { font-size: 3rem !important; }
+}
 
-            /* 1. Horní část (Ikona + Text) */
-            #player-ui > div:first-child {
-                flex-direction: column !important; /* Ikona nad textem */
-                text-align: center;
-                width: 100%;
-            }
+/* 1. STAV PRO POČÍTAČ (VÝCHOZÍ) */
+#player-ui {
+    display: flex !important;
+    flex-direction: row !important;
+    justify-content: space-between !important;
+    align-items: center !important; /* Vertikální centr */
+    gap: 0;
+    
+    /* OPRAVA: Vyvážené odsazení (10px nahoře i dole) */
+    padding: 10px 15px !important; 
+    min-height: 90px; /* Dostatek místa na výšku */
+}
 
-            /* 2. Dolní část (Tlačítka + Hlasitost) */
-            #player-ui > div:last-child {
-                width: 100%;
-                justify-content: center !important; /* Vycentrovat tlačítka */
-                flex-wrap: wrap; /* Kdyby se nevešly, zalomí se */
-                gap: 15px;
-            }
-            
-            /* Zmenšení ikony na mobilu */
-            #player-ui img.icon-hud {
-                width: 60px !important;
-                height: 60px !important;
-                margin-bottom: 10px;
-            }
+/* PC: Levá část (Ikona + Text) */
+#player-ui > div:first-child {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important; /* Text přesně na střed ikony */
+    justify-content: flex-start !important;
+    width: auto;
+    gap: 20px; /* Dostatečná mezera mezi ikonou a textem */
+}
 
-            /* Úprava běžícího textu na střed */
-            .marquee-container {
-                margin: 0 auto; /* Vycentrování krabičky */
-                max-width: 250px; /* Aby nebyla moc široká */
-            }
+/* PC: Pravá část (Tlačítka) */
+#player-ui > div:last-child {
+    display: flex !important;
+    align-items: center !important;
+    width: auto;
+    justify-content: flex-end !important;
+}
+
+/* PC: Velikost ikony */
+#player-ui img.icon-hud {
+    width: 70px !important;
+    height: 70px !important;
+    margin-bottom: 0 !important;
+    display: block;
+}
+
+/* Pojistka pro text, aby neutíkal */
+#player-ui .marquee-container {
+    margin: 0 !important;
+    display: flex;
+    align-items: center;
+}
+
+
+/* 2. STAV PRO MOBIL (JEN KDYŽ JE DISPLEJ MENŠÍ NEŽ 992px) */
+@media (max-width: 992px) {
+    
+    #player-ui {
+        flex-direction: column !important;
+        justify-content: center !important;
+        gap: 15px !important;
+        padding: 20px !important; /* Na mobilu větší odsazení ze všech stran */
+    }
+
+    /* Mobil: Ikona a text na střed */
+    #player-ui > div:first-child {
+        width: 100%;
+        flex-direction: row !important;
+        justify-content: center !important;
+        gap: 15px;
+    }
+
+    /* Mobil: Tlačítka na střed */
+    #player-ui > div:last-child {
+        width: 100%;
+        justify-content: center !important;
+        flex-wrap: wrap;
+    }
+    
+    #player-ui img.icon-hud {
+        width: 60px !important;
+        height: 60px !important;
+    }
+}
