@@ -48,12 +48,23 @@
 </head>
 <body class="bg-dark text-light overflow-hidden"> 
 
+<nav class="navbar fixed-top bg-dark border-bottom border-secondary mobile-only p-2" style="z-index: 2000; backdrop-filter: blur(10px); background-color: rgba(0,0,0,0.8) !important;">
+        <div class="container-fluid d-flex justify-content-between align-items-center">
+            
+            <span class="brand-font text-warning fs-4">DarkDash</span>
+            
+            <button class="btn btn-outline-warning border-0" type="button" data-bs-toggle="offcanvas" data-bs-target="#mobileMenu">
+                <i class="fas fa-bars fs-2">☰</i>
+            </button>
+        </div>
+    </nav>
+
     <div id="player" style="display: none;"></div>
 
     <div id="main-content-layer" class="d-flex flex-column align-items-center justify-content-start pt-4">
         
         <div class="card bg-black bg-opacity-75 border-secondary text-light mb-4 shadow w-75" style="max-width: 800px; backdrop-filter: blur(5px);">
-            <div class="card-body p-3 d-flex justify-content-between align-items-center">
+            <div id="player-ui" class="card-body p-3 d-flex justify-content-between align-items-center">
                 <div class="d-flex align-items-center gap-3">
                     
                     <img src="assets/icons/music.png" id="musicIcon" class="icon-hud" style="width: 70px; height: 70px; transition: transform 0.5s;" alt="Hudba">
@@ -700,6 +711,80 @@
                     </div>
                     <p class="text-muted small fst-italic mt-3 mb-0">Kódy se generují na bílém pozadí pro lepší čitelnost skenery.</p>
                 </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="offcanvas offcanvas-end text-bg-dark border-start border-secondary" tabindex="-1" id="mobileMenu" style="width: 85%;">
+        <div class="offcanvas-header border-bottom border-secondary">
+            <h5 class="offcanvas-title brand-font text-warning">Menu</h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+        <div class="offcanvas-body d-flex flex-column gap-3">
+            
+            <div class="p-3 border border-secondary rounded bg-black bg-opacity-25 text-center">
+                <h2 id="mobileClock" class="brand-font text-white m-0">--:--</h2>
+                <div id="mobileDate" class="text-muted small">...</div>
+                <script>
+                    // Rychlý hack, aby se čas ukazoval i tady (zkopíruje hodnotu z hlavního času)
+                    setInterval(() => {
+                        document.getElementById('mobileClock').innerText = document.getElementById('clock').innerText;
+                        document.getElementById('mobileDate').innerText = document.getElementById('dateDisplay').innerText;
+                    }, 1000);
+                </script>
+            </div>
+
+            <h6 class="text-secondary text-uppercase ls-2 small mt-2">Aplikace</h6>
+            
+            <button class="btn btn-gothic-lg w-100 text-start d-flex align-items-center" data-bs-toggle="modal" data-bs-target="#fitnessModal">
+             <img src="assets/icons/fitness.png" class="me-2 icon-btn"> Fitness
+        </button>
+
+        <button class="btn btn-gothic-lg w-100 text-start d-flex align-items-center" data-bs-toggle="modal" data-bs-target="#todoModal">
+            <img src="assets/icons/todo.png" class="me-2 icon-btn"> Úkoly
+        </button>
+
+        <button class="btn btn-gothic-lg w-100 text-start d-flex align-items-center" data-bs-toggle="modal" data-bs-target="#journalCalendarModal">
+            <img src="assets/icons/diary.png" class="me-2 icon-btn"> Deník
+        </button>
+        
+        <button class="btn btn-gothic-lg w-100 text-start d-flex align-items-center" type="button" data-bs-toggle="offcanvas" data-bs-target="#cookbookSidebar">
+            <img src="assets/icons/cookbook.png" class="me-2 icon-btn"> Kuchařka
+        </button>
+        
+        <button class="btn btn-gothic-lg w-100 text-start d-flex align-items-center" type="button" data-bs-toggle="offcanvas" data-bs-target="#notesSidebar">
+            <img src="assets/icons/notes.png" class="me-2 icon-btn"> Poznámky
+        </button>
+        
+        <button class="btn btn-gothic-lg w-100 text-start d-flex align-items-center" data-bs-toggle="modal" data-bs-target="#calendarModal">
+            <img src="assets/icons/calendar.png" class="me-2 icon-btn"> Kalendář
+        </button>
+
+        <button class="btn btn-gothic-lg w-100 text-start d-flex align-items-center" data-bs-toggle="modal" data-bs-target="#pomodoroModal">
+            <img src="assets/icons/timer.png" class="me-2 icon-btn"> Časovač
+        </button>
+
+        <button class="btn btn-gothic-lg w-100 text-start d-flex align-items-center" data-bs-toggle="modal" data-bs-target="#countdownModal">
+            <img src="assets/icons/countdown.png" class="me-2 icon-btn"> Odpočet
+        </button>
+
+        <button class="btn btn-gothic-lg w-100 text-start d-flex align-items-center" type="button" data-bs-toggle="offcanvas" data-bs-target="#dreamSidebar">
+            <img src="assets/icons/dreams.png" class="me-2 icon-btn"> Sny
+        </button>
+
+        <button class="btn btn-gothic-lg w-100 text-start d-flex align-items-center" data-bs-toggle="modal" data-bs-target="#linksModal">
+            <img src="assets/icons/links.png" class="me-2 icon-btn"> Odkazy
+        </button>
+
+        <button class="btn btn-gothic-lg w-100 text-start d-flex align-items-center" data-bs-toggle="modal" data-bs-target="#qrModal">
+             <img src="assets/icons/generator.png" class="me-2 icon-btn"> QR 
+        </button>
+            
+            <div class="mt-auto pt-3 border-top border-secondary">
+                 <button class="btn btn-outline-light w-100 d-flex align-items-center justify-content-center gap-2" data-bs-toggle="modal" data-bs-target="#themesModal">
+                    <img src="assets/icons/themes.png" class="icon-btn"> Styl
+                </button>
             </div>
         </div>
     </div>

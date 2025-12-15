@@ -340,3 +340,68 @@ input:focus, textarea:focus, select:focus {
     0%   { transform: translateX(0); }
     100% { transform: translateX(-100%); }
 }
+
+/* === RESPONSIVITA (MOBILNÍ ZOBRAZENÍ) === */
+        /* Skrytí mobilní navigace na PC */
+        .mobile-only { display: none !important; }
+
+        @media (max-width: 992px) {
+            /* 1. Schováme boční panely */
+            #left-panel-layer, #right-panel-layer {
+                display: none !important;
+            }
+
+            /* 2. Roztáhneme střed přes celou šířku */
+            #main-content-layer {
+                left: 0 !important;
+                right: 0 !important;
+                padding-top: 80px !important; /* Místo pro horní lištu */
+                width: 100% !important;
+            }
+
+            /* 3. Zobrazíme mobilní prvky */
+            .mobile-only {
+                display: flex !important;
+            }
+
+            /* 4. Úprava widgetů na mobilu */
+            .card {
+                width: 95% !important; /* Aby nebyly moc úzké */
+            }
+            
+            /* Zmenšení písma hodin na mobilu */
+            #clock { font-size: 3rem !important; }
+        }
+        /* --- OPRAVA PŘEHRÁVAČE NA MOBILU --- */
+            #player-ui {
+                flex-direction: column !important; /* Prvky pod sebe */
+                gap: 15px; /* Mezera mezi názvem a tlačítky */
+            }
+
+            /* 1. Horní část (Ikona + Text) */
+            #player-ui > div:first-child {
+                flex-direction: column !important; /* Ikona nad textem */
+                text-align: center;
+                width: 100%;
+            }
+
+            /* 2. Dolní část (Tlačítka + Hlasitost) */
+            #player-ui > div:last-child {
+                width: 100%;
+                justify-content: center !important; /* Vycentrovat tlačítka */
+                flex-wrap: wrap; /* Kdyby se nevešly, zalomí se */
+                gap: 15px;
+            }
+            
+            /* Zmenšení ikony na mobilu */
+            #player-ui img.icon-hud {
+                width: 60px !important;
+                height: 60px !important;
+                margin-bottom: 10px;
+            }
+
+            /* Úprava běžícího textu na střed */
+            .marquee-container {
+                margin: 0 auto; /* Vycentrování krabičky */
+                max-width: 250px; /* Aby nebyla moc široká */
+            }
