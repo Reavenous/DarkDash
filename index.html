@@ -793,6 +793,23 @@
         </div>
     </div>
 
+
+
+    </div> <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 11000;">
+        <div id="systemToast" class="toast bg-dark text-white border-secondary" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="toast-header bg-black text-white border-bottom border-secondary">
+<img id="toastIcon" src="assets/icons/notification.png" class="me-2" alt="System" style="width: 24px; height: 24px; filter: drop-shadow(0 0 5px #9d4edd);">                <small class="text-muted">Právě teď</small>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+            <div class="toast-body">
+                <span id="toastMessage">Načítání systému...</span>
+                <div id="toastActionContainer" class="mt-2 pt-2 border-top border-secondary d-none">
+                    <button id="toastBtn" class="btn btn-sm btn-outline-warning w-100">Provést akci</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="js/icons.js"></script> 
     <script src="js/main.js"></script> 
@@ -812,6 +829,7 @@
     <script src="js/themes.js"></script>
     <script src="js/games.js"></script>
     <script src="js/generator.js"></script>
+    <script src="js/notification.js"></script>
     <!--- script src="https://js-dos.com/cdn/js-dos-api.js"></script--->
 
     <script>

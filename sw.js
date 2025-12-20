@@ -32,6 +32,7 @@ const ASSETS = [
   './js/todo.js',
   './js/weather.js',
   './js/world.js',
+  './js/notification.js',
 
   // --- IKONY (assets/icons/) ---
   './assets/icons/aquarius.png',
