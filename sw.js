@@ -102,6 +102,7 @@ const ASSETS = [
   './assets/icons/uplnek.png',
   './assets/icons/virgo.png',
   './assets/icons/volume.png',
+    './assets/icons/notification.png',
 
   // --- HUDBA (assets/audio/) ---
   './assets/audio/_SteelForHumans.mp3',
