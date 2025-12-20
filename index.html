@@ -45,6 +45,10 @@
         .offcanvas { z-index: 10000 !important; }
         .offcanvas-backdrop { z-index: 9999 !important; }
     </style>
+
+    <link rel="manifest" href="manifest.json">
+        <meta name="theme-color" content="#9d4edd">
+    <link rel="apple-touch-icon" href="assets/icons/icon-192.png">
 </head>
 <body class="bg-dark text-light overflow-hidden"> 
 
@@ -848,6 +852,17 @@
             } catch (err) {
                 console.error(err);
             }
+        }
+    </script>
+
+    <script>
+        // Registrace Service Workeru pro PWA
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js')
+                    .then(reg => console.log('Service Worker registrován:', reg.scope))
+                    .catch(err => console.log('Service Worker chyba:', err));
+            });
         }
     </script>
 </body>
