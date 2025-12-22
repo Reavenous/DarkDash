@@ -33,6 +33,7 @@ const ASSETS = [
   './js/weather.js',
   './js/world.js',
   './js/notification.js',
+  './js/transport.js',
 
   // --- IKONY (assets/icons/) ---
   './assets/icons/aquarius.png',
@@ -102,7 +103,12 @@ const ASSETS = [
   './assets/icons/uplnek.png',
   './assets/icons/virgo.png',
   './assets/icons/volume.png',
-    './assets/icons/notification.png',
+  './assets/icons/notification.png',
+  './assets/icons/transport.png',
+  './assets/icons/air.png',
+  './assets/icons/parking.png',
+  './assets/icons/bike.png',
+  './assets/icons/waste.png',
 
   // --- HUDBA (assets/audio/) ---
   './assets/audio/_SteelForHumans.mp3',

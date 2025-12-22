@@ -450,3 +450,52 @@ input:focus, textarea:focus, select:focus {
         height: 60px !important;
     }
 }
+/* --- PORTÁL PRAŽANA STYL --- */
+.nav-pills .nav-link {
+    background: rgba(0,0,0,0.5);
+    color: #666;
+    border-bottom: 2px solid transparent;
+    transition: all 0.3s;
+}
+
+/* Aktivní záložka (MHD - Zlatá) */
+CSS
+
+.nav-pills .nav-link.active {
+    background: rgba(255, 193, 7, 0.1) !important; /* Průhledná zlatá */
+    color: #ffc107 !important;
+    border-bottom: 2px solid #ffc107;
+}
+
+/* Aktivní záložka (Ovzduší - Modrá/Tyrkysová) */
+.nav-pills .nav-link[id*="air"].active {
+    background: rgba(13, 202, 240, 0.1) !important;
+    color: #0dcaf0 !important;
+    border-bottom: 2px solid #0dcaf0;
+}
+
+/* Aktivní záložka (Parking) */
+.nav-pills .nav-link[id*="pr"].active {
+    background: rgba(13, 202, 240, 0.1) !important;
+    color: #ef0303e6 !important;
+    border-bottom: 2px solid #ef0303e6;
+}
+
+/* Aktivní záložka (Bikes) */
+.nav-pills .nav-link[id*="bike"].active {
+    background: rgba(13, 202, 240, 0.1) !important;
+    color: #370df0 !important;
+    border-bottom: 2px solid #370df0;
+}
+
+/* Aktivní záložka (Waste) */
+.nav-pills .nav-link[id*="waste"].active {
+    background: rgba(13, 202, 240, 0.1) !important;
+    color: #036b03 !important;
+    border-bottom: 2px solid #036b03;
+}
+
+.nav-pills .nav-link:hover {
+    color: #e0e0e0;
+    background: rgba(255,255,255,0.05);
+}
