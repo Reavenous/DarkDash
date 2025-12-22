@@ -450,52 +450,50 @@ input:focus, textarea:focus, select:focus {
         height: 60px !important;
     }
 }
-/* --- PORTÁL PRAŽANA STYL --- */
-.nav-pills .nav-link {
-    background: rgba(0,0,0,0.5);
-    color: #666;
-    border-bottom: 2px solid transparent;
-    transition: all 0.3s;
+/* --- CHAT STYLY (WhatsApp Dark) --- */
+
+/* Položka v seznamu kontaktů */
+.user-item {
+    transition: all 0.2s;
+    cursor: pointer;
+    border-radius: 8px;
+}
+.user-item:hover {
+    background: rgba(255, 255, 255, 0.05);
 }
 
-/* Aktivní záložka (MHD - Zlatá) */
-CSS
-
-.nav-pills .nav-link.active {
-    background: rgba(255, 193, 7, 0.1) !important; /* Průhledná zlatá */
-    color: #ffc107 !important;
-    border-bottom: 2px solid #ffc107;
+/* Bublina zprávy - OSTATNÍ */
+.msg-bubble {
+    max-width: 75%;
+    padding: 10px 15px;
+    border-radius: 15px;
+    border-bottom-left-radius: 2px; /* Špička vlevo */
+    background: #202c33; /* Tmavě šedá */
+    color: #e9edef;
+    position: relative;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.3);
 }
 
-/* Aktivní záložka (Ovzduší - Modrá/Tyrkysová) */
-.nav-pills .nav-link[id*="air"].active {
-    background: rgba(13, 202, 240, 0.1) !important;
-    color: #0dcaf0 !important;
-    border-bottom: 2px solid #0dcaf0;
+/* Bublina zprávy - MOJE */
+.msg-bubble.me {
+    align-self: flex-end;
+    background: #005c4b; /* WhatsApp Zelená */
+    border-bottom-left-radius: 15px;
+    border-bottom-right-radius: 2px; /* Špička vpravo */
 }
 
-/* Aktivní záložka (Parking) */
-.nav-pills .nav-link[id*="pr"].active {
-    background: rgba(13, 202, 240, 0.1) !important;
-    color: #ef0303e6 !important;
-    border-bottom: 2px solid #ef0303e6;
+/* Jméno autora */
+.msg-author {
+    font-size: 0.75rem;
+    font-weight: bold;
+    color: #ffc107; /* Žlutá pro jména */
+    margin-bottom: 2px;
 }
 
-/* Aktivní záložka (Bikes) */
-.nav-pills .nav-link[id*="bike"].active {
-    background: rgba(13, 202, 240, 0.1) !important;
-    color: #370df0 !important;
-    border-bottom: 2px solid #370df0;
-}
-
-/* Aktivní záložka (Waste) */
-.nav-pills .nav-link[id*="waste"].active {
-    background: rgba(13, 202, 240, 0.1) !important;
-    color: #036b03 !important;
-    border-bottom: 2px solid #036b03;
-}
-
-.nav-pills .nav-link:hover {
-    color: #e0e0e0;
-    background: rgba(255,255,255,0.05);
+/* Čas zprávy */
+.msg-time {
+    font-size: 0.65rem;
+    color: rgba(255,255,255,0.5);
+    text-align: right;
+    margin-top: 2px;
 }

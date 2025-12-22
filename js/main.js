@@ -1,3 +1,5 @@
+
+
 let dailyWisdom = []; // Sem se načtou data
 
 // --- 1. NAČTENÍ DAT Z JSONU ---
