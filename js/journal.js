@@ -2,25 +2,24 @@ let journalCurrentDate = new Date();
 let journalSelectedDateKey = null;
 let currentRating = 0; 
 
-// --- RENDER KALENDÁŘE PRO DENÍK ---
 function renderJournalCalendar() {
-    console.log("Vykresluji Deník..."); // Debug
+    // 1. NAČTENÍ DAT S UNIKÁTNÍM KLÍČEM
+    const key = window.getAppKey ? window.getAppKey("darkdash-journal") : "darkdash-journal";
+    const journalData = JSON.parse(localStorage.getItem(key)) || {};
+    const stored = localStorage.getItem(key);
+    
 
     const year = journalCurrentDate.getFullYear();
     const month = journalCurrentDate.getMonth();
-    
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
     const monthNames = ["Leden", "Únor", "Březen", "Duben", "Květen", "Červen", "Červenec", "Srpen", "Září", "Říjen", "Listopad", "Prosinec"];
-    
-    // Ochrana, kdyby element neexistoval
     const titleEl = document.getElementById("journalMonthYearDisplay");
     if(titleEl) titleEl.innerText = `${monthNames[month]} ${year}`;
 
     const grid = document.getElementById("journalGrid");
-    if(!grid) return; // Pokud grid není, končíme
-    
+    if(!grid) return;
     grid.innerHTML = "";
 
     const dayNames = ["Po", "Út", "St", "Čt", "Pá", "So", "Ne"];
@@ -38,8 +37,6 @@ function renderJournalCalendar() {
     for (let i = 0; i < adjustedFirstDay; i++) {
         grid.appendChild(document.createElement("div"));
     }
-
-    const journalData = JSON.parse(localStorage.getItem("darkdash-journal")) || {};
 
     for (let day = 1; day <= daysInMonth; day++) {
         const div = document.createElement("div");
@@ -59,7 +56,6 @@ function renderJournalCalendar() {
             }
             div.onclick = () => openJournalEditor(dateKey);
         }
-
         grid.appendChild(div);
     }
 }
@@ -69,10 +65,14 @@ function changeJournalMonth(dir) {
     renderJournalCalendar();
 }
 
-// --- EDITOR ZÁPISU ---
 function openJournalEditor(dateKey) {
     journalSelectedDateKey = dateKey;
-    const journalData = JSON.parse(localStorage.getItem("darkdash-journal")) || {};
+    
+    // ZNOVU NAČÍST, ABYCHOM MĚLI AKTUÁLNÍ DATA
+    const key = window.getAppKey("darkdash-journal");
+    const stored = localStorage.getItem(key);
+    const journalData = stored ? JSON.parse(stored) : {};
+    
     const entry = journalData[dateKey] || { rating: 0, positive: "", negative: "" };
 
     const [y, m, d] = dateKey.split("-");
@@ -83,8 +83,6 @@ function openJournalEditor(dateKey) {
 
     setRating(entry.rating);
 
-    // Zavřít kalendář a otevřít editor
-    // Používáme Bootstrap API pro přepínání modalů
     const calendarModalEl = document.getElementById('journalCalendarModal');
     const calendarModal = bootstrap.Modal.getInstance(calendarModalEl);
     if(calendarModal) calendarModal.hide();
@@ -121,7 +119,9 @@ function saveJournalEntry() {
     const positive = document.getElementById("journalPositive").value;
     const negative = document.getElementById("journalNegative").value;
 
-    const journalData = JSON.parse(localStorage.getItem("darkdash-journal")) || {};
+    const key = window.getAppKey("darkdash-journal");
+    const journalData = JSON.parse(localStorage.getItem(key)) || {};
+    const stored = localStorage.getItem(key);
 
     journalData[journalSelectedDateKey] = {
         rating: currentRating,
@@ -129,32 +129,27 @@ function saveJournalEntry() {
         negative: negative
     };
 
-    localStorage.setItem("darkdash-journal", JSON.stringify(journalData));
+    localStorage.setItem(key, JSON.stringify(journalData));
+    if(window.saveToCloud) window.saveToCloud("journal", journalData); // CLOUD SAVE
 
-    // Zavřít editor a vrátit se do kalendáře
     const editorModalEl = document.getElementById('journalEditorModal');
     const editorModal = bootstrap.Modal.getInstance(editorModalEl);
     if(editorModal) editorModal.hide();
 
-    // Znovu otevřít kalendář
     const calendarModal = new bootstrap.Modal(document.getElementById('journalCalendarModal'));
     calendarModal.show();
     
-    // Počkat chvilku a překreslit (protože modal se otevírá animací)
     setTimeout(renderJournalCalendar, 200);
 }
 
-// --- SPUŠTĚNÍ ---
 document.addEventListener("DOMContentLoaded", () => {
-    // Zkusíme vykreslit hned
     renderJournalCalendar();
-
-    // Důležité: Přidáme listener, který vykreslí kalendář až když se modal skutečně otevře
     const modalEl = document.getElementById('journalCalendarModal');
     if (modalEl) {
-        modalEl.addEventListener('shown.bs.modal', () => {
-            console.log("Modal otevřen, kreslím...");
-            renderJournalCalendar();
-        });
+        modalEl.addEventListener('shown.bs.modal', renderJournalCalendar);
     }
 });
+
+// REAKCE NA PŘIHLÁŠENÍ
+document.addEventListener("DOMContentLoaded", renderJournalCalendar);
+document.addEventListener("darkdash-reload", renderJournalCalendar);

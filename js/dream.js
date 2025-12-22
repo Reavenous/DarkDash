@@ -1,18 +1,24 @@
 let dreams = [];
 let editingDreamIndex = -1;
 
-// Načtení snů
 function loadDreams() {
-    const stored = localStorage.getItem("darkdash-dreams");
+    const key = window.getAppKey("darkdash-dreams");
+    const stored = localStorage.getItem(key);
     if (stored) dreams = JSON.parse(stored);
+    else dreams = [];
     renderDreams();
 }
 
 function saveDreamsToStorage() {
-    localStorage.setItem("darkdash-dreams", JSON.stringify(dreams));
+    const key = window.getAppKey("darkdash-dreams");
+    localStorage.setItem(key, JSON.stringify(dreams));
+    
+    // CLOUD SAVE
+    if (window.saveToCloud) window.saveToCloud('dreams', dreams);
+
+    renderDreams();
 }
 
-// Otevření editoru
 function openDreamEditor(index = -1) {
     editingDreamIndex = index;
     const dateInput = document.getElementById("dreamDate");
@@ -22,7 +28,7 @@ function openDreamEditor(index = -1) {
 
     if (index === -1) {
         title.innerText = "Nový sen";
-        dateInput.valueAsDate = new Date(); // Dnešní datum
+        dateInput.valueAsDate = new Date();
         descInput.value = "";
         tagsInput.value = "";
     } else {
@@ -37,7 +43,6 @@ function openDreamEditor(index = -1) {
     modal.show();
 }
 
-// Uložení snu
 function saveDream() {
     const date = document.getElementById("dreamDate").value;
     const description = document.getElementById("dreamDescription").value.trim();
@@ -45,48 +50,39 @@ function saveDream() {
 
     if (!description) return;
 
-    // Zpracování štítků (rozdělení čárkou a očištění)
     const tags = tagsString ? tagsString.split(',').map(tag => tag.trim()) : [];
-
     const dreamObj = { date, description, tags };
 
     if (editingDreamIndex === -1) {
-        dreams.unshift(dreamObj); // Přidat na začátek (nejnovější nahoře)
+        dreams.unshift(dreamObj);
     } else {
         dreams[editingDreamIndex] = dreamObj;
     }
 
     saveDreamsToStorage();
-    renderDreams();
 
     const modalEl = document.getElementById('dreamEditorModal');
     const modalInstance = bootstrap.Modal.getInstance(modalEl);
     modalInstance.hide();
 }
 
-// Smazání snu
 function deleteDream(index) {
     if(confirm("Zapomenout tento sen?")) {
         dreams.splice(index, 1);
         saveDreamsToStorage();
-        renderDreams();
     }
 }
 
-// Vykreslení seznamu
 function renderDreams() {
     const list = document.getElementById("dreamList");
+    if(!list) return;
     list.innerHTML = "";
 
     dreams.forEach((dream, index) => {
         const li = document.createElement("li");
         li.className = "list-group-item bg-transparent border-bottom border-secondary py-3";
-        
-        // Formátování data
         const dateObj = new Date(dream.date);
         const dateStr = dateObj.toLocaleDateString('cs-CZ');
-
-        // Generování HTML pro štítky
         const tagsHtml = dream.tags.map(tag => `<span class="dream-tag">#${tag}</span>`).join('');
 
         li.innerHTML = `
@@ -104,5 +100,5 @@ function renderDreams() {
     });
 }
 
-// Start
-loadDreams();
+document.addEventListener("DOMContentLoaded", loadDreams);
+document.addEventListener("darkdash-reload", loadDreams);

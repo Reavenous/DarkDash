@@ -1,31 +1,39 @@
 let workouts = [];
 let diet = [];
-let challenges = [
+let challenges = [];
+
+// Defaultní výzvy, pokud uživatel žádné nemá
+const defaultChallenges = [
     { id: 1, text: "30 dní dřepování", done: false },
     { id: 2, text: "Uběhni 50 km tento měsíc", done: false },
     { id: 3, text: "1000 kliků za týden", done: false },
     { id: 4, text: "Žádný cukr 7 dní", done: false }
 ];
-let fitnessChart = null;
 
-// --- INIT ---
 function loadFitness() {
-    // Načtení Tréninků
-    const stored = localStorage.getItem("darkdash-fitness-v2");
-    if (stored) workouts = JSON.parse(stored);
-    
-    // Načtení Jídla
-    const storedDiet = localStorage.getItem("darkdash-diet");
-    if (storedDiet) diet = JSON.parse(storedDiet);
+    // 1. TRÉNINKY
+    const wKey = window.getAppKey("darkdash-fitness-v2");
+    const storedWorkouts = localStorage.getItem(wKey);
+    workouts = storedWorkouts ? JSON.parse(storedWorkouts) : [];
 
-    // Načtení Výzev (pokud nejsou, použijeme default)
-    const storedChallenges = localStorage.getItem("darkdash-challenges");
-    if (storedChallenges) challenges = JSON.parse(storedChallenges);
+    // 2. JÍDLO
+    const dKey = window.getAppKey("darkdash-diet");
+    const storedDiet = localStorage.getItem(dKey);
+    diet = storedDiet ? JSON.parse(storedDiet) : [];
 
-    // Defaultně dnešní datum
-    const today = new Date().toISOString().split('T')[0];
+    // 3. VÝZVY
+    const cKey = window.getAppKey("darkdash-challenges");
+    const storedChallenges = localStorage.getItem(cKey);
+    if (storedChallenges) {
+        challenges = JSON.parse(storedChallenges);
+    } else {
+        // Pokud je nový uživatel, dáme mu defaultní, ale musíme je zkopírovat, aby neměnil globální
+        challenges = JSON.parse(JSON.stringify(defaultChallenges));
+    }
+
+    // Defaultně dnešní datum v inputu
     const fitDateEl = document.getElementById("fitDate");
-    if(fitDateEl) fitDateEl.value = today;
+    if(fitDateEl) fitDateEl.value = new Date().toISOString().split('T')[0];
     
     toggleFitInputs();
     renderFitnessLogs();
@@ -36,21 +44,34 @@ function loadFitness() {
 }
 
 function saveFitness() {
-    localStorage.setItem("darkdash-fitness-v2", JSON.stringify(workouts));
+    const key = window.getAppKey("darkdash-fitness-v2");
+    localStorage.setItem(key, JSON.stringify(workouts));
+    
+    if (window.saveToCloud) window.saveToCloud('fitness', workouts);
+    
     updateStats();
 }
 
 function saveDiet() {
-    localStorage.setItem("darkdash-diet", JSON.stringify(diet));
+    const key = window.getAppKey("darkdash-diet");
+    localStorage.setItem(key, JSON.stringify(diet));
+
+    if (window.saveToCloud) window.saveToCloud('diet', diet);
+
     renderDiet();
 }
 
 function saveChallenges() {
-    localStorage.setItem("darkdash-challenges", JSON.stringify(challenges));
+    const key = window.getAppKey("darkdash-challenges");
+    localStorage.setItem(key, JSON.stringify(challenges));
+
+    if (window.saveToCloud) window.saveToCloud('challenges', challenges);
+
     renderChallenges();
 }
 
-// --- PŘEPÍNÁNÍ UI ---
+// --- ZBYTEK UI FUNKCÍ (BEZE ZMĚN, JEN VOLAJÍ UŽ UPRAVENÉ SAVE FUNKCE) ---
+
 function toggleFitInputs() {
     const cat = document.getElementById("fitCategory").value;
     document.querySelectorAll('.fit-inputs').forEach(el => el.style.display = 'none');
@@ -61,17 +82,13 @@ function toggleFitInputs() {
     else if (cat === 'sport') document.getElementById('inputSport').style.display = 'block';
 }
 
-// --- PŘIDÁNÍ TRÉNINKU ---
 function addFitnessLog() {
     const date = document.getElementById("fitDate").value;
     const category = document.getElementById("fitCategory").value;
     const exercise = document.getElementById("fitExercise").value.trim();
     const note = document.getElementById("fitNote").value.trim();
 
-    if (!date || !exercise) {
-        alert("Vyplň datum a název aktivity.");
-        return;
-    }
+    if (!date || !exercise) { alert("Vyplň datum a název aktivity."); return; }
 
     let details = {};
     let valueForChart = 0;
@@ -113,12 +130,10 @@ function addFitnessLog() {
     renderFitnessLogs();
     populateExerciseSelect();
 
-    // Vyčistit hodnoty (ale ne datum a kategorii)
     document.querySelectorAll('.fit-inputs input').forEach(i => i.value = '');
     document.getElementById("fitNote").value = '';
 }
 
-// --- VYKRESLENÍ DENÍKU (S IKONAMI) ---
 function renderFitnessLogs() {
     const container = document.getElementById("fitnessLogContainer");
     if(!container) return;
@@ -149,8 +164,7 @@ function renderFitnessLogs() {
         
         dayLogs.forEach(log => {
             let detailText = "";
-            // VÝMĚNA EMOJI ZA OBRÁZKY Z ICONS
-            let iconHtml = ICONS.fit.energy; // Default
+            let iconHtml = ICONS.fit.energy; 
 
             if (log.category === 'strength') {
                 iconHtml = ICONS.fit.strength;
@@ -193,7 +207,6 @@ function deleteFitnessLog(id) {
     }
 }
 
-// --- JÍDLO (DIET) ---
 function addDietEntry() {
     const food = document.getElementById("dietFood").value.trim();
     const kcal = parseInt(document.getElementById("dietKcal").value);
@@ -202,7 +215,7 @@ function addDietEntry() {
 
     diet.unshift({
         id: Date.now(),
-        date: new Date().toISOString().split('T')[0], // Dnešek
+        date: new Date().toISOString().split('T')[0],
         food: food,
         kcal: kcal
     });
@@ -218,8 +231,6 @@ function renderDiet() {
     if(!list) return;
 
     list.innerHTML = "";
-    
-    // Filtrujeme jen dnešek
     const today = new Date().toISOString().split('T')[0];
     const todayItems = diet.filter(d => d.date === today);
     const totalKcal = todayItems.reduce((sum, item) => sum + item.kcal, 0);
@@ -234,7 +245,6 @@ function renderDiet() {
     });
 }
 
-// --- VÝZVY (CHALLENGES) ---
 function renderChallenges() {
     const container = document.getElementById("challengesContainer");
     if(!container) return;
@@ -244,8 +254,6 @@ function renderChallenges() {
         const card = document.createElement("div");
         card.className = `p-3 border rounded text-center ${ch.done ? 'border-success bg-success bg-opacity-10' : 'border-secondary bg-black bg-opacity-25'}`;
         card.style.width = "200px";
-        
-        // VÝMĚNA EMOJI ZA OBRÁZKY
         const iconHtml = ch.done ? ICONS.challenges.done : ICONS.challenges.active;
         
         card.innerHTML = `
@@ -267,13 +275,10 @@ function toggleChallenge(id) {
     }
 }
 
-// --- NÁSTROJE (TOOLS) ---
 function calculate1RM() {
     const w = parseFloat(document.getElementById("rmWeight").value);
     const r = parseInt(document.getElementById("rmReps").value);
-    
     if (!w || !r) return;
-
     const oneRepMax = Math.round(w * (1 + r / 30));
     const resultEl = document.getElementById("rmResult");
     document.getElementById("rmValue").innerText = `${oneRepMax} kg`;
@@ -281,16 +286,12 @@ function calculate1RM() {
 }
 
 function exportFitnessData() {
-    const data = {
-        workouts: workouts,
-        diet: diet,
-        challenges: challenges
-    };
+    const data = { workouts, diet, challenges };
     const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(data));
     const downloadAnchorNode = document.createElement('a');
     downloadAnchorNode.setAttribute("href", dataStr);
     downloadAnchorNode.setAttribute("download", "darkdash_fitness_backup.json");
-    document.body.appendChild(downloadAnchorNode); // required for firefox
+    document.body.appendChild(downloadAnchorNode);
     downloadAnchorNode.click();
     downloadAnchorNode.remove();
 }
@@ -298,7 +299,6 @@ function exportFitnessData() {
 function importFitnessData(input) {
     const file = input.files[0];
     if(!file) return;
-
     const reader = new FileReader();
     reader.onload = function(e) {
         try {
@@ -311,32 +311,34 @@ function importFitnessData(input) {
             saveDiet();
             saveChallenges();
             alert("Data úspěšně nahrána!");
-            location.reload(); // Obnovit pro jistotu
         } catch(err) {
             alert("Chyba při čtení souboru.");
-            console.error(err);
         }
     };
     reader.readAsText(file);
 }
 
-// --- STATS & GRAFY ---
 function updateStats() {
     const uniqueDays = new Set(workouts.map(w => w.date)).size;
-    document.getElementById("statTotalWorkouts").innerText = uniqueDays;
+    const statsTotal = document.getElementById("statTotalWorkouts");
+    if(statsTotal) statsTotal.innerText = uniqueDays;
 
     const totalKm = workouts.filter(w => w.category === 'cardio').reduce((sum, w) => sum + (w.details.dist || 0), 0);
-    document.getElementById("statTotalKm").innerText = totalKm.toFixed(1);
+    const statsKm = document.getElementById("statTotalKm");
+    if(statsKm) statsKm.innerText = totalKm.toFixed(1);
 
     const totalVol = workouts.filter(w => w.category === 'strength').reduce((sum, w) => sum + (w.details.weight * w.details.reps), 0);
-    document.getElementById("statTotalVolume").innerText = (totalVol / 1000).toFixed(1) + 't';
+    const statsVol = document.getElementById("statTotalVolume");
+    if(statsVol) statsVol.innerText = (totalVol / 1000).toFixed(1) + 't';
 
     const totalReps = workouts.filter(w => w.category === 'calisthenics').reduce((sum, w) => sum + (w.details.count || 0), 0);
-    document.getElementById("statTotalReps").innerText = totalReps;
+    const statsReps = document.getElementById("statTotalReps");
+    if(statsReps) statsReps.innerText = totalReps;
 }
 
 function populateExerciseSelect() {
     const select = document.getElementById("chartExerciseSelect");
+    if(!select) return;
     const exercises = [...new Set(workouts.map(w => w.exercise))].sort();
     const currentVal = select.value;
     
@@ -347,10 +349,10 @@ function populateExerciseSelect() {
         option.innerText = ex;
         select.appendChild(option);
     });
-
     if(currentVal && exercises.includes(currentVal)) select.value = currentVal;
 }
 
+let fitnessChart = null;
 function updateChart() {
     const exName = document.getElementById("chartExerciseSelect").value;
     if (!exName) return;
@@ -385,5 +387,5 @@ function updateChart() {
     });
 }
 
-// Start
 document.addEventListener("DOMContentLoaded", loadFitness);
+document.addEventListener("darkdash-reload", loadFitness);

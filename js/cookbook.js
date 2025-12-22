@@ -1,20 +1,22 @@
 let recipes = [];
 let editingRecipeIndex = -1;
 
-// --- NAČÍTÁNÍ A UKLÁDÁNÍ ---
 function loadRecipes() {
-    const stored = localStorage.getItem("darkdash-recipes");
-    if (stored) recipes = JSON.parse(stored);
+    const key = window.getAppKey ? window.getAppKey("darkdash-recipes") : "darkdash-recipes";
+    const stored = localStorage.getItem(key);
+    recipes = stored ? JSON.parse(stored) : [];
     renderRecipeLibrary();
 }
 
 function saveRecipesToStorage() {
-    localStorage.setItem("darkdash-recipes", JSON.stringify(recipes));
+    const key = window.getAppKey("darkdash-recipes");
+    localStorage.setItem(key, JSON.stringify(recipes));
+    if(window.saveToCloud) window.saveToCloud("recipes", recipes); // CLOUD SAVE
 }
 
-// --- LOGIKA KNIHOVNY (SIDEBAR) ---
 function renderRecipeLibrary() {
     const list = document.getElementById("recipeList");
+    if(!list) return;
     list.innerHTML = "";
 
     recipes.forEach((recipe, index) => {
@@ -23,12 +25,8 @@ function renderRecipeLibrary() {
         li.innerHTML = `
             <span class="text-light fw-bold">${recipe.name}</span>
             <div class="btn-group">
-                <button class="btn btn-sm btn-outline-warning" onclick="openRecipeEditor(${index})">
-                    ${ICONS.actions.edit}
-                </button>
-                <button class="btn btn-sm btn-outline-danger" onclick="deleteRecipe(${index})">
-                    ${ICONS.actions.delete}
-                </button>
+                <button class="btn btn-sm btn-outline-warning" onclick="openRecipeEditor(${index})">${ICONS.actions.edit}</button>
+                <button class="btn btn-sm btn-outline-danger" onclick="deleteRecipe(${index})">${ICONS.actions.delete}</button>
             </div>
         `;
         list.appendChild(li);
@@ -39,13 +37,9 @@ function deleteRecipe(index) {
     if(confirm("Opravdu smazat tento recept?")) {
         recipes.splice(index, 1);
         saveRecipesToStorage();
-        renderRecipeLibrary();
     }
 }
 
-// --- EDITOR RECEPTU (MODAL) ---
-
-// Otevření editoru
 function openRecipeEditor(index = -1) {
     editingRecipeIndex = index;
     const modalTitle = document.getElementById("recipeEditorTitle");
@@ -53,26 +47,20 @@ function openRecipeEditor(index = -1) {
     const ingContainer = document.getElementById("ingredientsContainer");
     const stepContainer = document.getElementById("stepsContainer");
 
-    // Vyčistíme starý obsah
     ingContainer.innerHTML = "";
     stepContainer.innerHTML = "";
 
     if (index === -1) {
         modalTitle.innerText = "Nový recept";
         nameInput.value = "";
-        // Přidáme jeden prázdný řádek pro start
         addIngredientRow();
         addStepRow();
     } else {
         const r = recipes[index];
         modalTitle.innerText = "Upravit recept";
         nameInput.value = r.name;
-        
-        // Načteme ingredience
         r.ingredients.forEach(ing => addIngredientRow(ing.amount, ing.unit, ing.item));
         if (r.ingredients.length === 0) addIngredientRow();
-
-        // Načteme kroky
         r.steps.forEach(step => addStepRow(step));
         if (r.steps.length === 0) addStepRow();
     }
@@ -81,7 +69,6 @@ function openRecipeEditor(index = -1) {
     modal.show();
 }
 
-// Přidání řádku ingredience
 function addIngredientRow(amount = "", unit = "ks", item = "") {
     const container = document.getElementById("ingredientsContainer");
     const div = document.createElement("div");
@@ -103,13 +90,10 @@ function addIngredientRow(amount = "", unit = "ks", item = "") {
     container.appendChild(div);
 }
 
-// Přidání řádku kroku
 function addStepRow(text = "") {
     const container = document.getElementById("stepsContainer");
     const div = document.createElement("div");
     div.className = "d-flex gap-2 align-items-start";
-    
-    // Číslování se vyřeší samo pořadím
     div.innerHTML = `
         <span class="text-secondary mt-1">•</span>
         <textarea class="form-control bg-dark text-light border-secondary step-text" rows="2" placeholder="Popis kroku...">${text}</textarea>
@@ -118,12 +102,10 @@ function addStepRow(text = "") {
     container.appendChild(div);
 }
 
-// Uložení receptu z editoru
 function saveRecipe() {
     const name = document.getElementById("recipeName").value.trim();
     if (!name) { alert("Recept musí mít název!"); return; }
 
-    // Sběr ingrediencí
     const ingredients = [];
     document.querySelectorAll("#ingredientsContainer .input-group").forEach(row => {
         const amount = row.querySelector(".ing-amount").value.trim();
@@ -132,7 +114,6 @@ function saveRecipe() {
         if (item) ingredients.push({ amount, unit, item });
     });
 
-    // Sběr kroků
     const steps = [];
     document.querySelectorAll("#stepsContainer .step-text").forEach(area => {
         if (area.value.trim()) steps.push(area.value.trim());
@@ -147,29 +128,21 @@ function saveRecipe() {
     }
 
     saveRecipesToStorage();
-    renderRecipeLibrary();
 
     const modalEl = document.getElementById('recipeEditorModal');
     const modalInstance = bootstrap.Modal.getInstance(modalEl);
     modalInstance.hide();
 }
 
-// Export do PDF
 function exportRecipePDF() {
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF();
-
     const name = document.getElementById("recipeName").value || "Recept";
-    
-    // Nadpis
     doc.setFontSize(22);
     doc.text(name, 10, 20);
-
-    // Ingredience
     doc.setFontSize(16);
     doc.text("Ingredience:", 10, 40);
     doc.setFontSize(12);
-    
     let y = 50;
     document.querySelectorAll("#ingredientsContainer .input-group").forEach(row => {
         const amount = row.querySelector(".ing-amount").value;
@@ -180,25 +153,21 @@ function exportRecipePDF() {
             y += 7;
         }
     });
-
-    // Postup
     y += 10;
     doc.setFontSize(16);
     doc.text("Postup:", 10, y);
     y += 10;
     doc.setFontSize(12);
-
     document.querySelectorAll("#stepsContainer .step-text").forEach((area, index) => {
         if (area.value.trim()) {
             const stepText = `${index + 1}. ${area.value}`;
             const splitText = doc.splitTextToSize(stepText, 180);
             doc.text(splitText, 15, y);
-            y += (splitText.length * 7) + 3; // Posun podle počtu řádků
+            y += (splitText.length * 7) + 3;
         }
     });
-
     doc.save(`${name}.pdf`);
 }
 
-// Start
-loadRecipes();
+document.addEventListener("DOMContentLoaded", loadRecipes);
+document.addEventListener("darkdash-reload", loadRecipes);

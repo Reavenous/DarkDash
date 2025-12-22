@@ -3,18 +3,18 @@ let updateInterval = null;
 
 // Načtení odpočtů
 function loadCountdowns() {
-    const stored = localStorage.getItem("darkdash-countdowns");
-    if (stored) {
-        countdowns = JSON.parse(stored);
-    }
+    const key = window.getAppKey ? window.getAppKey("darkdash-countdowns") : "darkdash-countdowns";
+    const stored = localStorage.getItem(key);
+    countdowns = stored ? JSON.parse(stored) : [];
     renderCountdowns();
     startUpdateLoop();
 }
 
 function saveCountdowns() {
-    localStorage.setItem("darkdash-countdowns", JSON.stringify(countdowns));
+    const key = window.getAppKey("darkdash-countdowns");
+    localStorage.setItem(key, JSON.stringify(countdowns));
+    if(window.saveToCloud) window.saveToCloud("countdowns", countdowns);
 }
-
 // Přidání nového odpočtu
 function addCountdown() {
     const nameInput = document.getElementById("cdName");

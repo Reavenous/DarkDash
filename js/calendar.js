@@ -15,9 +15,12 @@ function renderCalendar() {
     const year = currentDate.getFullYear();
     const month = currentDate.getMonth();
 
-    document.getElementById("monthYearDisplay").innerText = `${monthNames[month]} ${year}`;
+    const titleEl = document.getElementById("monthYearDisplay");
+    if(titleEl) titleEl.innerText = `${monthNames[month]} ${year}`;
 
     const calendarGrid = document.getElementById("calendarGrid");
+    if(!calendarGrid) return; // Ochrana kdyby modal nebyl v DOM
+    
     calendarGrid.innerHTML = "";
 
     // Vykreslení hlavičky dnů (Po-Ne)
@@ -43,7 +46,11 @@ function renderCalendar() {
 
     // Vykreslení dní
     const today = new Date();
-    const events = JSON.parse(localStorage.getItem("darkdash-events")) || {};
+    
+    // 1. NAČTENÍ DAT S UNIKÁTNÍM KLÍČEM
+    const key = window.getAppKey("darkdash-events");
+    const stored = localStorage.getItem(key);
+    const events = stored ? JSON.parse(stored) : {};
 
     for (let day = 1; day <= daysInMonth; day++) {
         const dayDiv = document.createElement("div");
@@ -76,7 +83,8 @@ function renderCalendar() {
 function changeMonth(direction) {
     currentDate.setMonth(currentDate.getMonth() + direction);
     renderCalendar();
-    document.getElementById("eventSection").style.display = "none"; // Skrýt detaily při změně
+    const eventSection = document.getElementById("eventSection");
+    if(eventSection) eventSection.style.display = "none"; // Skrýt detaily při změně
 }
 
 // Kliknutí na konkrétní den
@@ -97,7 +105,11 @@ function renderEvents(dateKey) {
     const eventList = document.getElementById("eventList");
     eventList.innerHTML = "";
     
-    const events = JSON.parse(localStorage.getItem("darkdash-events")) || {};
+    // Načtení dat
+    const key = window.getAppKey("darkdash-events");
+    const stored = localStorage.getItem(key);
+    const events = stored ? JSON.parse(stored) : {};
+    
     const daysEvents = events[dateKey] || [];
 
     daysEvents.forEach((eventText, index) => {
@@ -121,7 +133,9 @@ function addEvent() {
 
     if (!text || !selectedDateKey) return; // Pokud není text nebo vybrané datum, nic nedělej
 
-    const events = JSON.parse(localStorage.getItem("darkdash-events")) || {};
+    const key = window.getAppKey("darkdash-events");
+    const stored = localStorage.getItem(key);
+    const events = stored ? JSON.parse(stored) : {};
     
     if (!events[selectedDateKey]) {
         events[selectedDateKey] = [];
@@ -140,7 +154,10 @@ function addEvent() {
     // Volitelné: Seřadit události podle času (pokud začínají časem)
     events[selectedDateKey].sort(); 
 
-    localStorage.setItem("darkdash-events", JSON.stringify(events));
+    localStorage.setItem(key, JSON.stringify(events));
+    
+    // 2. CLOUD SAVE
+    if (window.saveToCloud) window.saveToCloud('events', events); // Pozn: modul se jmenuje 'events', soubor 'calendar.js'
 
     // Vyčištění políček
     textInput.value = "";
@@ -152,7 +169,9 @@ function addEvent() {
 
 // Smazání události
 function deleteEvent(dateKey, index) {
-    const events = JSON.parse(localStorage.getItem("darkdash-events")) || {};
+    const key = window.getAppKey("darkdash-events");
+    const stored = localStorage.getItem(key);
+    const events = stored ? JSON.parse(stored) : {};
     
     if (events[dateKey]) {
         events[dateKey].splice(index, 1);
@@ -162,8 +181,22 @@ function deleteEvent(dateKey, index) {
             delete events[dateKey];
         }
 
-        localStorage.setItem("darkdash-events", JSON.stringify(events));
+        localStorage.setItem(key, JSON.stringify(events));
+        
+        // CLOUD SAVE
+        if (window.saveToCloud) window.saveToCloud('events', events);
+        
         renderEvents(dateKey);
         renderCalendar();
     }
 }
+
+// 3. REAKCE NA PŘIHLÁŠENÍ
+document.addEventListener("darkdash-reload", () => {
+    // Reset výběru při změně uživatele
+    selectedDateKey = null;
+    const eventSection = document.getElementById("eventSection");
+    if(eventSection) eventSection.style.display = "none";
+    
+    renderCalendar();
+});

@@ -1,17 +1,23 @@
 let links = [];
 
-// Načtení odkazů
 function loadLinks() {
-    const stored = localStorage.getItem("darkdash-links");
+    const key = window.getAppKey("darkdash-links");
+    const stored = localStorage.getItem(key);
     if (stored) links = JSON.parse(stored);
+    else links = []; // Reset
     renderLinks();
 }
 
 function saveLinks() {
-    localStorage.setItem("darkdash-links", JSON.stringify(links));
+    const key = window.getAppKey("darkdash-links");
+    localStorage.setItem(key, JSON.stringify(links));
+    
+    // CLOUD SAVE
+    if (window.saveToCloud) window.saveToCloud('links', links);
+    
+    renderLinks();
 }
 
-// Přidání odkazu
 function addLink() {
     const nameInput = document.getElementById("linkName");
     const urlInput = document.getElementById("linkUrl");
@@ -19,37 +25,26 @@ function addLink() {
     const name = nameInput.value.trim();
     let url = urlInput.value.trim();
 
-    if (!name || !url) {
-        alert("Vyplň název i URL.");
-        return;
-    }
-
-    // Automaticky přidat https:// pokud chybí
-    if (!url.startsWith('http://') && !url.startsWith('https://')) {
-        url = 'https://' + url;
-    }
+    if (!name || !url) { alert("Vyplň název i URL."); return; }
+    if (!url.startsWith('http://') && !url.startsWith('https://')) { url = 'https://' + url; }
 
     links.push({ name, url });
     
     nameInput.value = "";
     urlInput.value = "";
-    
     saveLinks();
-    renderLinks();
 }
 
-// Smazání odkazu
 function deleteLink(index) {
     if(confirm("Odstranit tento odkaz?")) {
         links.splice(index, 1);
         saveLinks();
-        renderLinks();
     }
 }
 
-// Vykreslení seznamu
 function renderLinks() {
     const container = document.getElementById("linksContainer");
+    if(!container) return;
     container.innerHTML = "";
 
     if (links.length === 0) {
@@ -62,7 +57,6 @@ function renderLinks() {
         card.className = "link-card p-3 border border-secondary rounded bg-black bg-opacity-25 text-center position-relative";
         card.style.width = "150px";
         
-        // Získání favikony (ikony webu) pomocí Google služby
         const faviconUrl = `https://www.google.com/s2/favicons?domain=${link.url}&sz=64`;
 
         card.innerHTML = `
@@ -76,5 +70,5 @@ function renderLinks() {
     });
 }
 
-// Start
-loadLinks();
+document.addEventListener("DOMContentLoaded", loadLinks);
+document.addEventListener("darkdash-reload", loadLinks);

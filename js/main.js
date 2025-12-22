@@ -1,63 +1,59 @@
+// js/main.js
 
+// --- UŽIVATELSKÁ IDENTITA ---
+window.currentUserUID = null; // Zde bude ID přihlášeného
 
-let dailyWisdom = []; // Sem se načtou data
+// TOTO JE TO KOUZLO:
+// Pokud jsi přihlášený, data se uloží jako "user_XYZ_darkdash-todos".
+// Pokud ne, uloží se jako "darkdash-todos".
+window.getAppKey = function(baseName) {
+    if (window.currentUserUID) {
+        return `user_${window.currentUserUID}_${baseName}`;
+    }
+    return baseName; 
+};
 
-// --- 1. NAČTENÍ DAT Z JSONU ---
+// --- PŮVODNÍ KÓD (Moudra a Hodiny) ---
+let dailyWisdom = [];
+
 function loadWisdom() {
     fetch('data/wisdom.json')
         .then(response => {
-            if (!response.ok) {
-                throw new Error("HTTP error " + response.status);
-            }
+            if (!response.ok) throw new Error("HTTP error " + response.status);
             return response.json();
         })
         .then(data => {
             dailyWisdom = data;
-            generateQuote(); // Vygenerujeme první moudro hned po načtení
+            generateQuote(); 
         })
         .catch(err => {
-            console.error("Chyba při načítání moudra:", err);
-            // Fallback, kdyby se soubor nenačetl
-            dailyWisdom = ["I v temnotě lze nalézt světlo. (Chyba načítání dat)"];
+            console.error("Chyba moudra:", err);
+            dailyWisdom = ["I v temnotě lze nalézt světlo."];
             generateQuote();
         });
 }
 
-// --- 2. GENERÁTOR MOUDER ---
 function generateQuote() {
     if (dailyWisdom.length === 0) return;
-
     const randomIndex = Math.floor(Math.random() * dailyWisdom.length);
     const element = document.getElementById("quoteText");
-    
-    if(element) {
-        element.innerText = `"${dailyWisdom[randomIndex]}"`;
-    }
+    if(element) element.innerText = `"${dailyWisdom[randomIndex]}"`;
 }
 
-// --- 3. HODINY A DATUM ---
 function updateClockAndDate() {
     const now = new Date();
-    
-    // Čas
-    const timeString = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
     const clockEl = document.getElementById("clock");
-    if(clockEl) clockEl.innerText = timeString;
+    if(clockEl) clockEl.innerText = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
-    // Datum (Den. Měsíc.)
-    const day = now.getDate();
-    const month = now.getMonth() + 1;
     const dateEl = document.getElementById("dateDisplay");
-    if(dateEl) dateEl.innerText = `${day}. ${month}.`;
+    if(dateEl) dateEl.innerText = `${now.getDate()}. ${now.getMonth() + 1}.`;
 
-    // Rok - dynamicky z PC
     const yearEl = document.getElementById("yearDisplay");
     if(yearEl) yearEl.innerText = `Rok ${now.getFullYear()}`;
 }
 
-// --- 4. SPUŠTĚNÍ ---
 document.addEventListener("DOMContentLoaded", () => {
     updateClockAndDate();
-    loadWisdom(); // Načteme externí data
+    loadWisdom();
     setInterval(updateClockAndDate, 1000);
 });
