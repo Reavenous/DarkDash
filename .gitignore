@@ -1,0 +1,17 @@
+# Závislosti (pokud bys v budoucnu použil npm)
+node_modules/
+
+# Systémové soubory
+.DS_Store
+Thumbs.db
+
+# Logy
+*.log
+npm-debug.log*
+
+# IDE nastavení (VS Code)
+.vscode/
+
+# Firebase cache
+.firebase/
+firebase-debug.log

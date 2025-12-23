@@ -125,7 +125,10 @@ function addFitnessLog() {
         chartValue: valueForChart,
         note: note
     });
+    
 
+    window.addXP(50, "Trénink dokončen");
+    
     saveFitness();
     renderFitnessLogs();
     populateExerciseSelect();

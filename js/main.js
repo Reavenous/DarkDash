@@ -52,6 +52,44 @@ function updateClockAndDate() {
     if(yearEl) yearEl.innerText = `Rok ${now.getFullYear()}`;
 }
 
+let isBossKeyActive = false;
+
+document.addEventListener('keydown', (e) => {
+    // Klávesa 'B' nebo 'Esc' (pokud není otevřený modal)
+    if (e.key.toLowerCase() === 'b' && !document.querySelector('.modal.show')) {
+        toggleBossKey();
+    }
+});
+
+function toggleBossKey() {
+    const screen = document.getElementById('bossKeyScreen');
+    const percent = document.getElementById('bossKeyPercent');
+    
+    if (!isBossKeyActive) {
+        // Zapnout
+        screen.classList.remove('d-none');
+        screen.classList.add('d-flex');
+        document.title = "Update..."; // Změnit titulek záložky
+        isBossKeyActive = true;
+        
+        // Falešné načítání procent
+        let p = 0;
+        const interval = setInterval(() => {
+            if(!isBossKeyActive) clearInterval(interval);
+            p++;
+            if (percent) percent.innerText = p;
+            if (p >= 99) clearInterval(interval);
+        }, 2000); // Pomalu
+        
+    } else {
+        // Vypnout
+        screen.classList.add('d-none');
+        screen.classList.remove('d-flex');
+        document.title = "DarkDash";
+        isBossKeyActive = false;
+    }
+}
+
 document.addEventListener("DOMContentLoaded", () => {
     updateClockAndDate();
     loadWisdom();

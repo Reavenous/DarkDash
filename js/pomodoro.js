@@ -60,6 +60,7 @@ function toggleTimer() {
                 document.title = "DarkDash"; // Vyčistit titulek po dokončení
                 playAlarm();
                 alert("Čas vypršel!");
+                if(currentMode === 'work') window.addXP(40, "Pomodoro session");
             }
         }, 1000);
     }

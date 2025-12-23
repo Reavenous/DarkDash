@@ -6,7 +6,8 @@ import {
     signOut, 
     onAuthStateChanged,
     createUserWithEmailAndPassword,
-    signInWithEmailAndPassword
+    signInWithEmailAndPassword,
+    updateProfile
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 import { 
     getFirestore, 
@@ -84,54 +85,74 @@ window.logout = async () => {
 // --- 2. SLEDOVÁNÍ STAVU (Login/Logout) ---
 
 onAuthStateChanged(auth, async (user) => {
-    // Zavřít modal pokud je otevřený
-    const modalEl = document.getElementById('authModal');
-    if(modalEl && window.bootstrap) {
-        const modal = bootstrap.Modal.getInstance(modalEl);
-        if(modal) modal.hide();
-    }
-
+    // Desktop elementy
     const loginBtn = document.getElementById('loginBtn');
     const userDisplay = document.getElementById('userDisplay');
+    
+    // Mobilní elementy
+    const mobileLoginContainer = document.getElementById('mobileLoginContainer');
+    const mobileUserDisplay = document.getElementById('mobileUserDisplay');
+
+    // Chat elementy
+    const chatInput = document.getElementById('chatInput');
+    const sendBtn = document.getElementById('sendBtn');
 
     if (user) {
         // == PŘIHLÁŠEN ==
         window.currentUserUID = user.uid;
-        console.log("Přihlášen:", user.email);
-
-        // Změna tlačítka na "Odhlásit"
-        if(loginBtn) loginBtn.innerHTML = `<button onclick="logout()" class="btn btn-outline-danger w-100 btn-sm">ODHLÁSIT SE</button>`;
         
-        // Zobrazení jména
-        let displayName = user.displayName || user.email.split('@')[0];
-        let photo = user.photoURL || 'assets/icons/dreams.png'; // Fallback ikona
-        if(userDisplay) userDisplay.innerHTML = `
-            <img src="${photo}" class="rounded-circle border border-warning me-2" width="30">
-            <span class="text-warning small">${displayName}</span>
-        `;
+        // Uložíme si globálně info pro gamifikaci (Jméno a Fotka)
+        window.currentUserName = user.displayName;
+        window.currentUserPhoto = user.photoURL;
 
-        // Uložit uživatele do DB (aby byl vidět v chatu)
+        // 1. Desktop UI
+        if(loginBtn) loginBtn.innerHTML = `<button onclick="logout()" class="btn btn-outline-danger btn-sm w-100">Odpojit</button>`;
+        
+        // 2. Mobil UI
+        if(mobileLoginContainer) mobileLoginContainer.innerHTML = `<button onclick="logout()" class="btn btn-outline-danger w-100 fw-bold">Odpojit</button>`;
+
+        // 3. Vykreslit RPG Profil (pokud je skript načtený)
+        if(window.renderProfileHUD) window.renderProfileHUD();
+
+        // 4. Chat povolení
+        if(chatInput) {
+            chatInput.disabled = false;
+            sendBtn.disabled = false;
+            chatInput.placeholder = "Napiš zprávu...";
+        }
+
+        // 5. Uložit uživatele do DB (pro chat seznam)
         await setDoc(doc(db, "users", user.uid), {
-            name: displayName,
-            photo: photo,
+            name: user.displayName,
+            photo: user.photoURL,
             lastActive: serverTimestamp()
         }, { merge: true });
 
-        // STÁHNOUT DATA Z CLOUDU
+        // 6. Stáhnout data z Cloudu
         await loadCloudData(user.uid);
 
     } else {
         // == ODHLÁŠEN ==
         window.currentUserUID = null;
-        if(loginBtn) loginBtn.innerHTML = `
-            <button onclick="openModal('authModal')" class="btn btn-outline-warning w-100 fw-bold">
+        
+        // 1. Desktop UI
+        if(loginBtn) loginBtn.innerHTML = `<button onclick="openModal('authModal')" class="btn btn-warning btn-sm fw-bold"><i class="fas fa-sign-in-alt me-2"></i>Login</button>`;
+        if(userDisplay) userDisplay.innerHTML = "";
+
+        // 2. Mobil UI
+        if(mobileLoginContainer) mobileLoginContainer.innerHTML = `
+            <button onclick="openModal('authModal')" class="btn btn-warning w-100 fw-bold">
                 <i class="fas fa-sign-in-alt me-2"></i> PŘIHLÁSIT SE
             </button>`;
-        if(userDisplay) userDisplay.innerHTML = "";
-    }
+        if(mobileUserDisplay) mobileUserDisplay.innerHTML = "";
 
-    // Signál pro ostatní skripty (Todo, Fitness...), aby se překreslily
-    document.dispatchEvent(new Event("darkdash-reload"));
+        // 3. Chat zákaz
+        if(chatInput) {
+            chatInput.disabled = true;
+            sendBtn.disabled = true;
+            chatInput.placeholder = "Pro vstup do sítě se přihlas...";
+        }
+    }
 });
 
 // --- 3. SYNCHRONIZACE DAT (CLOUD) ---
@@ -153,12 +174,12 @@ window.saveToCloud = async (moduleName, data) => {
 
 // Funkce: Stáhnout data z Cloudu (volá se automaticky po loginu)
 async function loadCloudData(uid) {
-    // Seznam všech modulů, které chceme synchronizovat
-    const modules = ['todos', 'fitness-v2', 'journal', 'notes', 'links', 'recipes', 'dreams', 'countdowns', 'events'];
+    // Seznam modulů vč. gamifikace
+    const modules = ['todos', 'fitness-v2', 'journal', 'notes', 'links', 'recipes', 'dreams', 'countdowns', 'events', 'gamification'];
     
     for (const mod of modules) {
         try {
-            // POZOR: fitness ukládáme jako 'fitness', ale v localStorage je 'fitness-v2'. Ošetříme to:
+            // Fix pro fitness (v DB jako fitness, v local jako fitness-v2)
             let dbName = mod;
             if (mod === 'fitness-v2') dbName = 'fitness'; 
 
@@ -166,6 +187,11 @@ async function loadCloudData(uid) {
             if (docSnap.exists()) {
                 const cloudData = docSnap.data().data;
                 
+                // Specialita pro Gamifikaci - rovnou načíst do paměti
+                if (mod === 'gamification' && window.loadStats) {
+                    window.loadStats(cloudData);
+                }
+
                 // Uložíme do localStorage pod USER klíčem
                 localStorage.setItem(`user_${uid}_darkdash-${mod}`, JSON.stringify(cloudData));
             }
@@ -177,7 +203,51 @@ async function loadCloudData(uid) {
     document.dispatchEvent(new Event("darkdash-reload"));
 }
 
-// --- 4. CHAT (Zůstává stejný) ---
+// --- 4. NASTAVENÍ PROFILU (Avatar & Nick) ---
+
+window.saveUserProfile = async () => {
+    const nick = document.getElementById('profileNick').value;
+    const avatar = document.getElementById('profileAvatar').value;
+    
+    if (!auth.currentUser) return;
+
+    try {
+        // 1. Update ve Firebase Auth (oficiální profil)
+        await updateProfile(auth.currentUser, {
+            displayName: nick || auth.currentUser.displayName,
+            photoURL: avatar || auth.currentUser.photoURL
+        });
+
+        // 2. Update v DB (pro chat a ostatní)
+        await setDoc(doc(db, "users", auth.currentUser.uid), {
+            name: nick || auth.currentUser.displayName,
+            photo: avatar || auth.currentUser.photoURL,
+            lastActive: serverTimestamp()
+        }, { merge: true });
+
+        // 3. Update lokálně
+        window.currentUserName = nick || auth.currentUser.displayName;
+        window.currentUserPhoto = avatar || auth.currentUser.photoURL;
+        
+        // 4. Překreslit HUD (profil vedle loginu)
+        if(window.renderProfileHUD) window.renderProfileHUD();
+        
+        // Zavřít modal
+        const modalEl = document.getElementById('profileModal');
+        if(modalEl && window.bootstrap) {
+            const modal = bootstrap.Modal.getInstance(modalEl);
+            if(modal) modal.hide();
+        }
+        
+        alert("Profil úspěšně aktualizován!");
+
+    } catch (e) {
+        console.error(e);
+        alert("Chyba při ukládání: " + e.message);
+    }
+};
+
+// --- 5. CHAT (Zůstává stejný) ---
 const chatInput = document.getElementById('chatInput');
 window.sendMessage = async () => {
     const text = chatInput.value.trim();
@@ -194,4 +264,3 @@ window.sendMessage = async () => {
     } catch (e) { console.error(e); }
 };
 if(chatInput) chatInput.addEventListener("keypress", (e) => { if (e.key === "Enter") sendMessage(); });
-// (Zbytek chatu se načítá přes onSnapshot výše v kódu, který už tam máš, nebo si ho sem můžeš zkopírovat z minula)

@@ -33,6 +33,8 @@ const ASSETS = [
   './js/weather.js',
   './js/world.js',
   './js/notification.js',
+  './js/firebase-init.js',
+  './js/gamification.js',
 
 
   // --- IKONY (assets/icons/) ---

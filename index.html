@@ -65,6 +65,7 @@
 
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#9d4edd">
+    <link rel="icon" type="image/png" href="assets/icons/icon-192.png">
     <link rel="apple-touch-icon" href="assets/icons/icon-192.png">
 </head>
 <body class="bg-dark text-light overflow-hidden"> 
@@ -704,7 +705,7 @@
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <p class="text-muted small mb-4">Vyber si styl. Hudba se načte ze složky <code>assets/audio/</code>.</p>
+                    <p class="text-muted small mb-4">Vyber si styl...</p>
                     <div class="row g-3" id="themeContainer"></div>
                 </div>
             </div>
@@ -754,70 +755,85 @@
             <h5 class="offcanvas-title brand-font text-warning">Menu</h5>
             <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
         </div>
-        <div class="offcanvas-body d-flex flex-column gap-3">
+        <div class="offcanvas-body d-flex flex-column gap-2">
             
-            <div class="p-3 border border-secondary rounded bg-black bg-opacity-25 text-center">
+            <div class="p-3 border border-secondary rounded bg-black bg-opacity-25 text-center mb-3">
                 <h2 id="mobileClock" class="brand-font text-white m-0">--:--</h2>
                 <div id="mobileDate" class="text-muted small">...</div>
                 <script>
-                    // Rychlý hack, aby se čas ukazoval i tady (zkopíruje hodnotu z hlavního času)
+                    // Synchronizace času pro mobilní menu
                     setInterval(() => {
-                        document.getElementById('mobileClock').innerText = document.getElementById('clock').innerText;
-                        document.getElementById('mobileDate').innerText = document.getElementById('dateDisplay').innerText;
+                        const clock = document.getElementById('clock');
+                        const date = document.getElementById('dateDisplay');
+                        if(clock) document.getElementById('mobileClock').innerText = clock.innerText;
+                        if(date) document.getElementById('mobileDate').innerText = date.innerText;
                     }, 1000);
                 </script>
             </div>
 
-            <h6 class="text-secondary text-uppercase ls-2 small mt-2">Aplikace</h6>
+            <h6 class="text-secondary text-uppercase ls-2 small">Sociální síť</h6>
+            <button class="btn btn-gothic-lg w-100 text-start d-flex align-items-center text-danger mb-3" data-bs-toggle="modal" data-bs-target="#chatModal">
+                <img src="assets/icons/darkchat.png" class="me-2 icon-btn" style="filter: invert(1);"> DarkChat
+            </button>
+
+            <h6 class="text-secondary text-uppercase ls-2 small">Aplikace</h6>
             
             <button class="btn btn-gothic-lg w-100 text-start d-flex align-items-center" data-bs-toggle="modal" data-bs-target="#fitnessModal">
-             <img src="assets/icons/fitness.png" class="me-2 icon-btn"> Fitness
-        </button>
+                <img src="assets/icons/fitness.png" class="me-2 icon-btn"> Fitness
+            </button>
 
-        <button class="btn btn-gothic-lg w-100 text-start d-flex align-items-center" data-bs-toggle="modal" data-bs-target="#todoModal">
-            <img src="assets/icons/todo.png" class="me-2 icon-btn"> Úkoly
-        </button>
+            <button class="btn btn-gothic-lg w-100 text-start d-flex align-items-center" data-bs-toggle="modal" data-bs-target="#todoModal">
+                <img src="assets/icons/todo.png" class="me-2 icon-btn"> Úkoly
+            </button>
 
-        <button class="btn btn-gothic-lg w-100 text-start d-flex align-items-center" data-bs-toggle="modal" data-bs-target="#journalCalendarModal">
-            <img src="assets/icons/diary.png" class="me-2 icon-btn"> Deník
-        </button>
-        
-        <button class="btn btn-gothic-lg w-100 text-start d-flex align-items-center" type="button" data-bs-toggle="offcanvas" data-bs-target="#cookbookSidebar">
-            <img src="assets/icons/cookbook.png" class="me-2 icon-btn"> Kuchařka
-        </button>
-        
-        <button class="btn btn-gothic-lg w-100 text-start d-flex align-items-center" type="button" data-bs-toggle="offcanvas" data-bs-target="#notesSidebar">
-            <img src="assets/icons/notes.png" class="me-2 icon-btn"> Poznámky
-        </button>
-        
-        <button class="btn btn-gothic-lg w-100 text-start d-flex align-items-center" data-bs-toggle="modal" data-bs-target="#calendarModal">
-            <img src="assets/icons/calendar.png" class="me-2 icon-btn"> Kalendář
-        </button>
+            <button class="btn btn-gothic-lg w-100 text-start d-flex align-items-center" data-bs-toggle="modal" data-bs-target="#journalCalendarModal">
+                <img src="assets/icons/diary.png" class="me-2 icon-btn"> Deník
+            </button>
+            
+            <button class="btn btn-gothic-lg w-100 text-start d-flex align-items-center" type="button" data-bs-toggle="offcanvas" data-bs-target="#cookbookSidebar">
+                <img src="assets/icons/cookbook.png" class="me-2 icon-btn"> Kuchařka
+            </button>
+            
+            <button class="btn btn-gothic-lg w-100 text-start d-flex align-items-center" type="button" data-bs-toggle="offcanvas" data-bs-target="#notesSidebar">
+                <img src="assets/icons/notes.png" class="me-2 icon-btn"> Poznámky
+            </button>
+            
+            <button class="btn btn-gothic-lg w-100 text-start d-flex align-items-center" data-bs-toggle="modal" data-bs-target="#calendarModal">
+                <img src="assets/icons/calendar.png" class="me-2 icon-btn"> Kalendář
+            </button>
 
-        <button class="btn btn-gothic-lg w-100 text-start d-flex align-items-center" data-bs-toggle="modal" data-bs-target="#pomodoroModal">
-            <img src="assets/icons/timer.png" class="me-2 icon-btn"> Časovač
-        </button>
+            <button class="btn btn-gothic-lg w-100 text-start d-flex align-items-center" data-bs-toggle="modal" data-bs-target="#pomodoroModal">
+                <img src="assets/icons/timer.png" class="me-2 icon-btn"> Časovač
+            </button>
 
-        <button class="btn btn-gothic-lg w-100 text-start d-flex align-items-center" data-bs-toggle="modal" data-bs-target="#countdownModal">
-            <img src="assets/icons/countdown.png" class="me-2 icon-btn"> Odpočet
-        </button>
+            <button class="btn btn-gothic-lg w-100 text-start d-flex align-items-center" data-bs-toggle="modal" data-bs-target="#countdownModal">
+                <img src="assets/icons/countdown.png" class="me-2 icon-btn"> Odpočet
+            </button>
 
-        <button class="btn btn-gothic-lg w-100 text-start d-flex align-items-center" type="button" data-bs-toggle="offcanvas" data-bs-target="#dreamSidebar">
-            <img src="assets/icons/dreams.png" class="me-2 icon-btn"> Sny
-        </button>
+            <button class="btn btn-gothic-lg w-100 text-start d-flex align-items-center" type="button" data-bs-toggle="offcanvas" data-bs-target="#dreamSidebar">
+                <img src="assets/icons/dreams.png" class="me-2 icon-btn"> Sny
+            </button>
 
-        <button class="btn btn-gothic-lg w-100 text-start d-flex align-items-center" data-bs-toggle="modal" data-bs-target="#linksModal">
-            <img src="assets/icons/links.png" class="me-2 icon-btn"> Odkazy
-        </button>
+            <button class="btn btn-gothic-lg w-100 text-start d-flex align-items-center" data-bs-toggle="modal" data-bs-target="#linksModal">
+                <img src="assets/icons/links.png" class="me-2 icon-btn"> Odkazy
+            </button>
 
-        <button class="btn btn-gothic-lg w-100 text-start d-flex align-items-center" data-bs-toggle="modal" data-bs-target="#qrModal">
-             <img src="assets/icons/generator.png" class="me-2 icon-btn"> QR 
-        </button>
+            <button class="btn btn-gothic-lg w-100 text-start d-flex align-items-center" data-bs-toggle="modal" data-bs-target="#qrModal">
+                <img src="assets/icons/generator.png" class="me-2 icon-btn"> QR 
+            </button>
             
             <div class="mt-auto pt-3 border-top border-secondary">
-                 <button class="btn btn-outline-light w-100 d-flex align-items-center justify-content-center gap-2" data-bs-toggle="modal" data-bs-target="#themesModal">
+                <button class="btn btn-outline-light w-100 d-flex align-items-center justify-content-center gap-2 mb-3" data-bs-toggle="modal" data-bs-target="#themesModal">
                     <img src="assets/icons/themes.png" class="icon-btn"> Styl
                 </button>
+
+                <div id="mobileUserDisplay" class="d-flex align-items-center justify-content-center mb-2 px-2"></div>
+                
+                <div id="mobileLoginContainer">
+                    <button onclick="openModal('authModal')" class="btn btn-outline-warning w-100 fw-bold">
+                        <i class="fas fa-sign-in-alt me-2"></i> PŘIHLÁSIT SE
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -888,38 +904,75 @@
     </div>
 
     <div class="modal fade" id="authModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content bg-dark text-light border-secondary shadow-lg">
-            <div class="modal-header border-secondary">
-                <h5 class="modal-title brand-font text-warning">Brána do systému</h5>
-            </div>
-            <div class="modal-body">
-                <div id="authError" class="alert alert-danger d-none"></div>
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content bg-dark text-light border-secondary shadow-lg">
+                <div class="modal-header border-secondary">
+                    <h5 class="modal-title brand-font text-warning">Brána do systému</h5>
+                </div>
+                <div class="modal-body">
+                    <div id="authError" class="alert alert-danger d-none"></div>
 
-                <div class="mb-3">
-                    <label class="form-label text-secondary">Email</label>
-                    <input type="email" id="authEmail" class="form-control bg-dark text-light border-secondary">
-                </div>
-                <div class="mb-3">
-                    <label class="form-label text-secondary">Heslo</label>
-                    <input type="password" id="authPass" class="form-control bg-dark text-light border-secondary">
-                </div>
-                
-                <div class="d-grid gap-2">
-                    <button class="btn btn-warning fw-bold" onclick="handleEmailLogin()">Přihlásit se</button>
-                    <button class="btn btn-outline-light" onclick="handleEmailRegister()">Zaregistrovat nový účet</button>
-                </div>
-                
-                <hr class="border-secondary">
-                <div class="text-center">
-                    <button class="btn btn-sm btn-outline-danger" onclick="loginGoogle()">
-                        <i class="fab fa-google me-2"></i> Nebo přes Google
-                    </button>
+                    <div class="mb-3">
+                        <label class="form-label text-secondary">Email</label>
+                        <input type="email" id="authEmail" class="form-control bg-dark text-light border-secondary">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label text-secondary">Heslo</label>
+                        <input type="password" id="authPass" class="form-control bg-dark text-light border-secondary">
+                    </div>
+                    
+                    <div class="d-grid gap-2">
+                        <button class="btn btn-warning fw-bold" onclick="handleEmailLogin()">Přihlásit se</button>
+                        <button class="btn btn-outline-light" onclick="handleEmailRegister()">Zaregistrovat nový účet</button>
+                    </div>
+                    
+                    <hr class="border-secondary">
+                    <div class="text-center">
+                        <button class="btn btn-sm btn-outline-danger" onclick="loginGoogle()">
+                            <i class="fab fa-google me-2"></i> Nebo přes Google
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
+
+    <div id="bossKeyScreen" class="d-none position-fixed top-0 start-0 w-100 h-100 bg-primary flex-column align-items-center justify-content-center text-white text-center" style="z-index: 99999; cursor: none;">
+        <h1 class="display-1 mb-4">:(</h1>
+        <h4 class="mb-4">Your PC ran into a problem and needs to restart.</h4>
+        <div class="spinner-border text-light mb-3" style="width: 3rem; height: 3rem;"></div>
+        <p>Complete: <span id="bossKeyPercent">0</span>%</p>
+        <small class="opacity-50">Stop code: CRITICAL_PROCESS_DIED</small>
+    </div>
+    <div class="modal fade" id="profileModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content bg-dark text-light border-secondary shadow-lg">
+                <div class="modal-header border-secondary">
+                    <h5 class="modal-title brand-font text-warning">Identita Hrdiny</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="text-center mb-4">
+                        <img id="previewAvatar" src="assets/icons/dreams.png" class="rounded-circle border border-warning shadow" width="80" height="80" style="object-fit:cover;">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label text-secondary small">Tvé jméno (Nick)</label>
+                        <input type="text" id="profileNick" class="form-control bg-black text-light border-secondary">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label text-secondary small">URL Avatara (Odkaz na obrázek)</label>
+                        <input type="text" id="profileAvatar" class="form-control bg-black text-light border-secondary" placeholder="https://..." oninput="document.getElementById('previewAvatar').src = this.value || 'assets/icons/dreams.png'">
+                        <small class="text-muted" style="font-size: 0.7em;">Zkopíruj sem adresu obrázku z internetu (pravý klik -> Kopírovat adresu obrázku).</small>
+                    </div>
+                </div>
+                <div class="modal-footer border-secondary">
+                    <button class="btn btn-warning w-100 fw-bold" onclick="saveUserProfile()">ULOŽIT ZMĚNY</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="js/icons.js"></script> 
@@ -942,6 +995,7 @@
     <script src="js/generator.js"></script>
     <script src="js/notification.js"></script>
     <script type="module" src="js/firebase-init.js"></script>
+    <script src="js/gamification.js"></script>
     <!--- script src="https://js-dos.com/cdn/js-dos-api.js"></script--->
 
     <script>

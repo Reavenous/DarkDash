@@ -51,6 +51,10 @@ function toggleTodo(id) {
         todo.completed = !todo.completed;
         saveTodos();
     }
+    if (todo.completed) {
+        // Zvuk cinknutí?
+        window.addXP(20, "Splněný úkol"); // <--- PŘIDAT
+    }
 }
 
 function deleteTodo(id) {

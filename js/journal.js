@@ -140,6 +140,7 @@ function saveJournalEntry() {
     calendarModal.show();
     
     setTimeout(renderJournalCalendar, 200);
+    window.addXP(30, "Zápis do deníku");
 }
 
 document.addEventListener("DOMContentLoaded", () => {
