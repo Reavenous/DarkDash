@@ -71,52 +71,53 @@ window.loadStats = function(data) {
     renderProfileHUD();
 };
 
-// --- 4. VYKRESLENÍ PROFILU (HUD) ---
 // Tohle vytvoří ten pěkný boxík vedle tlačítka Login
+// --- 4. VYKRESLENÍ PROFILU (HUD) ---
 window.renderProfileHUD = function() {
     const container = document.getElementById('userDisplay'); // Desktop
     const mobileContainer = document.getElementById('mobileUserDisplay'); // Mobil
     
     if (!container) return;
 
-    // Pokud není přihlášen, vyčistit
     if (!window.currentUserUID) {
         container.innerHTML = "";
         if(mobileContainer) mobileContainer.innerHTML = "";
         return;
     }
 
-    // Výpočet % do dalšího levelu (pro progress bar)
     const currentLvlXP = Math.pow((window.userStats.level - 1) * 10, 2);
     const nextLvlXP = Math.pow((window.userStats.level) * 10, 2);
     const progress = ((window.userStats.xp - currentLvlXP) / (nextLvlXP - currentLvlXP)) * 100;
-    const safeProgress = Math.max(0, Math.min(100, progress)); // Omezit na 0-100%
+    const safeProgress = Math.max(0, Math.min(100, progress));
 
     const photo = window.currentUserPhoto || 'assets/icons/dreams.png';
     const name = window.currentUserName || 'Hráč';
 
-    // HTML Šablona Profilu
+    // UPRAVENO: Širší layout, větší mezery
     const html = `
-        <div class="d-flex align-items-center gap-2 p-2 rounded border border-secondary bg-black bg-opacity-50" 
-             style="cursor: pointer; transition: all 0.2s;" 
+        <div class="d-flex align-items-center gap-3 p-2 rounded border border-secondary bg-black bg-opacity-75 shadow-sm" 
+             style="cursor: pointer; transition: all 0.2s; min-width: 220px;" 
              onclick="openModal('profileModal')" 
              onmouseover="this.style.borderColor='#9d4edd'" 
              onmouseout="this.style.borderColor='#444'">
             
             <div class="position-relative">
-                <img src="${photo}" class="rounded-circle border border-warning" width="45" height="45" style="object-fit:cover;">
-                <span class="position-absolute -bottom-2 -end-2 badge rounded-pill bg-danger border border-dark" style="font-size: 0.7rem;">${window.userStats.level}</span>
+                <img src="${photo}" class="rounded-circle border border-warning" width="50" height="50" style="object-fit:cover;">
+                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger border border-dark shadow" 
+                      style="font-size: 0.75rem; z-index: 2;">
+                    ${window.userStats.level}
+                </span>
             </div>
             
-            <div class="overflow-hidden flex-grow-1" style="max-width: 160px;">
-                <div class="text-warning fw-bold small text-truncate">${name}</div>
-                <div class="text-muted small fst-italic text-truncate" style="font-size: 0.7rem;">${window.userStats.rank}</div>
-                <div class="progress bg-dark border border-secondary mt-1" style="height: 4px;">
+            <div class="overflow-hidden flex-grow-1">
+                <div class="text-warning fw-bold text-truncate" style="font-size: 1rem;">${name}</div>
+                <div class="text-muted small fst-italic text-truncate" style="font-size: 0.75rem;">${window.userStats.rank}</div>
+                <div class="progress bg-dark border border-secondary mt-1" style="height: 6px;">
                     <div class="progress-bar bg-warning" style="width: ${safeProgress}%"></div>
                 </div>
             </div>
             
-            <div class="text-secondary small"><i class="fas fa-cog"></i></div>
+            <div class="text-secondary opacity-50"><i class="fas fa-cog"></i></div>
         </div>
     `;
 

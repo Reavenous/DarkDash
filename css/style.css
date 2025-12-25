@@ -497,3 +497,51 @@ input:focus, textarea:focus, select:focus {
     text-align: right;
     margin-top: 2px;
 }
+/* --- TAROT STYLY (OPRAVA VELIKOSTI) --- */
+
+/* 1. Definice scény (velikost celé karty) */
+.tarot-scene {
+    width: 240px !important;  /* Pevná šířka */
+    height: 380px !important; /* Pevná výška (aby se vešel obr + text) */
+    margin: 0 auto;           /* Vycentrování */
+}
+
+/* 2. Styly pro obrázek uvnitř */
+.tarot-icon-img {
+    width: 100%;              /* Roztáhnout na šířku karty */
+    height: 200px !important; /* Pevná výška obrázku */
+    object-fit: cover;        /* Oříznout, aby se nedeformoval */
+    object-position: top;     /* Zaměřit se na horní část (hlavy postav) */
+    border-radius: 4px;
+    border: 1px solid #333;
+    margin-bottom: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.8);
+}
+
+/* 3. Úprava přední strany karty (Líc) */
+.tarot-face.tarot-front {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start !important; /* Obsah odshora dolů */
+    align-items: center;
+    padding: 15px;
+    background: #050505;      /* Temnější pozadí */
+    border: 1px solid #444;
+}
+
+/* 4. Úprava textů na kartě */
+#tarotName {
+    color: #9d4edd;           /* Fialová pro nadpis */
+    font-size: 1.2rem;
+    margin-bottom: 5px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+#tarotDesc {
+    font-size: 0.85rem;
+    line-height: 1.3;
+    color: #aaa;
+    max-height: 80px;         /* Aby text nepřetekl */
+    overflow: hidden;
+}

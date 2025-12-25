@@ -165,6 +165,8 @@
             </div>
         </div>
 
+        
+
         <div class="card bg-black bg-opacity-75 border-secondary text-light mb-4 shadow w-75" style="max-width: 800px; backdrop-filter: blur(5px); min-height: 480px; overflow: visible;">
             <div class="card-header border-secondary d-flex justify-content-between align-items-center bg-transparent">
                 <h5 class="m-0 brand-font text-uppercase" style="letter-spacing: 2px; color: #9d4edd; text-shadow: 0 0 10px #9d4edd;">
@@ -199,6 +201,23 @@
             <div class="card-footer border-secondary bg-transparent d-flex justify-content-between align-items-center">
                 <button class="btn btn-sm btn-outline-secondary d-flex align-items-center gap-2" onclick="this.closest('.card').style.display='none'" oncontextmenu="event.preventDefault(); triggerDoom(event);" title="Pravý klik pro překvapení"><i class="fas fa-times"></i> Zavřít sekci</button>
                 <span class="text-muted small fst-italic">Gothic Edition</span>
+            </div>
+        </div>
+
+        <div class="card border-secondary text-light mb-4 shadow w-75" style="max-width: 800px; background: linear-gradient(90deg, #0f0c29 0%, #302b63 100%);">
+            <div class="card-body p-4 d-flex justify-content-between align-items-center">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="bg-black bg-opacity-50 p-2 rounded-circle border border-info">
+                        <img src="assets/icons/tarot.png" class="icon-hud" style="width: 40px; height: 40px;" onerror="this.src='assets/icons/dreams.png'">
+                    </div>
+                    <div>
+                        <h4 class="brand-font text-info m-0">Dark Tarot</h4>
+                        <small class="text-muted fst-italic">Zeptej se karet na svůj osud...</small>
+                    </div>
+                </div>
+                <button class="btn btn-outline-info rounded-pill px-4 fw-bold" data-bs-toggle="modal" data-bs-target="#tarotModal">
+                    <i class="fas fa-eye me-2"></i> Vyložit
+                </button>
             </div>
         </div>
     </div>
@@ -261,7 +280,7 @@
         <button class="btn btn-gothic-lg w-100 text-start d-flex align-items-center text-danger" data-bs-toggle="modal" data-bs-target="#chatModal">
             <img src="assets/icons/darkchat.png" class="me-2 icon-btn"/> DarkChat
         </button>
-        
+       
         <button class="btn btn-gothic-lg w-100 text-start d-flex align-items-center" data-bs-toggle="modal" data-bs-target="#fitnessModal">
              <img src="assets/icons/fitness.png" class="me-2 icon-btn"> Fitness
         </button>
@@ -944,6 +963,7 @@
         <p>Complete: <span id="bossKeyPercent">0</span>%</p>
         <small class="opacity-50">Stop code: CRITICAL_PROCESS_DIED</small>
     </div>
+    
     <div class="modal fade" id="profileModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content bg-dark text-light border-secondary shadow-lg">
@@ -968,7 +988,57 @@
                     </div>
                 </div>
                 <div class="modal-footer border-secondary">
+                    <button class="btn btn-outline-info" data-bs-toggle="modal" data-bs-target="#leaderboardModal" onclick="window.loadLeaderboard()">
+                        <i class="fas fa-trophy me-2"></i> Síň Slávy
+                    </button>
                     <button class="btn btn-warning w-100 fw-bold" onclick="saveUserProfile()">ULOŽIT ZMĚNY</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="leaderboardModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content bg-dark text-light border-secondary shadow-lg">
+                <div class="modal-header border-secondary">
+                    <h5 class="modal-title brand-font text-warning"><i class="fas fa-crown me-2"></i>Síň Slávy</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-0">
+                    <div id="leaderboardList" class="list-group list-group-flush">
+                        <div class="text-center py-4"><div class="spinner-border text-warning"></div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="tarotModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content bg-dark text-light border-secondary shadow-lg" style="background: radial-gradient(circle, #1a0b2e 0%, #000 100%);">
+                <div class="modal-header border-secondary border-0">
+                    <h5 class="modal-title brand-font text-info">Věštba Osudu</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body text-center py-5">
+                    
+                    <div class="tarot-scene mx-auto" style="width: 200px; height: 320px; perspective: 1000px; cursor: pointer;" onclick="drawTarotCard(this)">
+                        <div class="tarot-card" id="tarotCardInner" style="width: 100%; height: 100%; transition: transform 0.8s; transform-style: preserve-3d; position: relative;">
+                            
+                            <div class="tarot-face tarot-back border border-secondary rounded shadow-lg"
+                                style="position: absolute; width: 100%; height: 100%; backface-visibility: hidden; background-color: #050505; background-image: url('assets/icons/tarot_background.png'); background-size: cover; background-position: center; background-repeat: no-repeat;">
+                            </div>
+
+                            <div class="tarot-face tarot-front d-flex flex-column align-items-center justify-content-center border border-info rounded shadow-lg bg-black" 
+                                style="position: absolute; width: 100%; height: 100%; backface-visibility: hidden; transform: rotateY(180deg);">
+                                <div class="text-info brand-font fs-1 mb-2" id="tarotIcon">?</div>
+                                <h4 class="brand-font text-light mb-3 px-2" id="tarotName">...</h4>
+                                <p class="small text-muted px-3" id="tarotDesc">...</p>
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <p class="text-muted mt-4 small fst-italic">Klikni na kartu a odhal svou dnešní věštbu.</p>
                 </div>
             </div>
         </div>
@@ -996,6 +1066,7 @@
     <script src="js/notification.js"></script>
     <script type="module" src="js/firebase-init.js"></script>
     <script src="js/gamification.js"></script>
+    <script src="js/tarot.js"></script>
     <!--- script src="https://js-dos.com/cdn/js-dos-api.js"></script--->
 
     <script>

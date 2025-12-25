@@ -14,6 +14,7 @@ import {
     doc, 
     setDoc, 
     getDoc, 
+    getDocs, 
     serverTimestamp,
     collection,
     addDoc,
@@ -264,3 +265,51 @@ window.sendMessage = async () => {
     } catch (e) { console.error(e); }
 };
 if(chatInput) chatInput.addEventListener("keypress", (e) => { if (e.key === "Enter") sendMessage(); });
+
+window.loadLeaderboard = async () => {
+    const list = document.getElementById("leaderboardList");
+    if(!list) return;
+    
+    list.innerHTML = '<div class="text-center py-4"><div class="spinner-border text-warning"></div></div>';
+
+    try {
+        // Dotaz: Seřadit podle stats.xp sestupně, limit 10
+        const q = query(collection(db, "users"), orderBy("stats.xp", "desc"), limit(10));
+        const snapshot = await getDocs(q); // Pozor: Musíme nahoře importovat getDocs!
+        
+        list.innerHTML = "";
+        let rank = 1;
+
+        snapshot.forEach((docSnap) => {
+            const u = docSnap.data();
+            const stats = u.stats || { xp: 0, level: 1, rank: "Nováček" };
+            const isMe = (auth.currentUser && auth.currentUser.uid === docSnap.id);
+            
+            // Barva medaile
+            let medal = `<span class="badge bg-secondary rounded-pill me-3" style="width: 25px;">${rank}</span>`;
+            if(rank === 1) medal = `<span class="badge bg-warning text-dark rounded-pill me-3" style="width: 25px;">1</span>`;
+            if(rank === 2) medal = `<span class="badge bg-light text-dark rounded-pill me-3" style="width: 25px;">2</span>`;
+            if(rank === 3) medal = `<span class="badge bg-danger text-white rounded-pill me-3" style="width: 25px;">3</span>`;
+
+            const html = `
+                <div class="list-group-item bg-transparent border-bottom border-secondary d-flex align-items-center py-3 ${isMe ? 'bg-white bg-opacity-10' : ''}">
+                    ${medal}
+                    <img src="${u.photo || 'assets/icons/dreams.png'}" class="rounded-circle border border-secondary me-3" width="40" height="40" style="object-fit:cover;">
+                    <div class="flex-grow-1 overflow-hidden">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h6 class="mb-0 text-light text-truncate">${u.name}</h6>
+                            <span class="text-warning small fw-bold">${stats.xp} XP</span>
+                        </div>
+                        <small class="text-muted d-block text-truncate">Lvl ${stats.level} • ${stats.rank}</small>
+                    </div>
+                </div>
+            `;
+            list.insertAdjacentHTML('beforeend', html);
+            rank++;
+        });
+
+    } catch (e) {
+        console.error(e);
+        list.innerHTML = `<div class="text-center text-danger py-3">Chyba načítání: ${e.message} (Možná chybí index v DB)</div>`;
+    }
+};

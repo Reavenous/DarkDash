@@ -35,6 +35,7 @@ const ASSETS = [
   './js/notification.js',
   './js/firebase-init.js',
   './js/gamification.js',
+  './js/tarot.js',
 
 
   // --- IKONY (assets/icons/) ---
@@ -106,6 +107,32 @@ const ASSETS = [
   './assets/icons/virgo.png',
   './assets/icons/volume.png',
   './assets/icons/notification.png',
+  './assets/icons/tarot.png',
+  './assets/icons/tarot_death.png',
+  './assets/icons/tarot_fool.png',
+  './assets/icons/tarot_the_magician.png',
+  './assets/icons/tarot_the_lovers.png',
+  './assets/icons/tarot_the_devil.png',
+  './assets/icons/tarot_the_tower.png',
+  './assets/icons/tarot_the_high_priestess.png',
+  './assets/icons/tarot_the_empress.png',
+  './assets/icons/tarot_the_emperor.png',
+  './assets/icons/tarot_the_hierophant.png',
+  './assets/icons/tarot_the_chariot.png',
+  './assets/icons/tarot_strength.png',
+  './assets/icons/tarot_the_hermit.png',
+  './assets/icons/tarot_wheel_of_fortune.png',
+  './assets/icons/tarot_justice.png',
+  './assets/icons/tarot_the_hanged_man.png',
+  './assets/icons/tarot_temperance.png',
+  './assets/icons/tarot_the_star.png',
+  './assets/icons/tarot_the_moon.png',
+  './assets/icons/tarot_the_sun.png',
+  './assets/icons/tarot_judgement.png',
+  './assets/icons/tarot_the_world.png',
+  './assets/icons/tarot_background.png',
+
+
   
 
   // --- HUDBA (assets/audio/) ---
