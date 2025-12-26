@@ -13,7 +13,8 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
-    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/games.css">
     
@@ -60,8 +61,7 @@
         #left-panel-layer, #right-panel-layer {
         z-index: 500 !important;
     }
-</style>
-    </style>
+       </style>
 
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#9d4edd">
@@ -1043,6 +1043,9 @@
             </div>
         </div>
     </div>
+  <div id="cursor-dot"></div>
+
+    <canvas id="fire-trail-canvas"></canvas>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="js/icons.js"></script> 
@@ -1067,6 +1070,7 @@
     <script type="module" src="js/firebase-init.js"></script>
     <script src="js/gamification.js"></script>
     <script src="js/tarot.js"></script>
+    <script src="js/cursor.js"></script>
     <!--- script src="https://js-dos.com/cdn/js-dos-api.js"></script--->
 
     <script>

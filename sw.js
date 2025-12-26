@@ -36,6 +36,7 @@ const ASSETS = [
   './js/firebase-init.js',
   './js/gamification.js',
   './js/tarot.js',
+  './js/cursor.js',
 
 
   // --- IKONY (assets/icons/) ---
