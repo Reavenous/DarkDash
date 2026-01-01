@@ -220,7 +220,26 @@
                 </button>
             </div>
         </div>
+
+        <div class="card border-secondary text-light mb-4 shadow w-75" style="max-width: 800px; background: linear-gradient(90deg, #2c3e50 0%, #000000 100%);">
+            <div class="card-body p-4 d-flex justify-content-between align-items-center">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="bg-black bg-opacity-50 p-2 rounded-circle border border-warning">
+                        <img src="assets/icons/chest_closed.png" class="icon-hud" style="width: 40px; height: 40px;" onerror="this.src='assets/icons/dreams.png'">
+                    </div>
+                    <div>
+                        <h4 class="brand-font text-warning m-0">Tajná Truhla</h4>
+                        <small class="text-muted fst-italic">Otevři a získej denní odměnu...</small>
+                    </div>
+                </div>
+                <button class="btn btn-outline-warning rounded-pill px-4 fw-bold" data-bs-toggle="modal" data-bs-target="#lootModal">
+                    <i class="fas fa-key me-2"></i> Otevřít
+                </button>
+            </div>
+        </div>
     </div>
+
+    
 
    <div id="left-panel-layer" class="position-fixed top-0 start-0 h-100 p-4 d-flex flex-column border-end border-secondary bg-black bg-opacity-75" style="backdrop-filter: blur(10px);">
     
@@ -967,35 +986,91 @@
     <div class="modal fade" id="profileModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content bg-dark text-light border-secondary shadow-lg">
-                <div class="modal-header border-secondary">
-                    <h5 class="modal-title brand-font text-warning">Identita Hrdiny</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="text-center mb-4">
-                        <img id="previewAvatar" src="assets/icons/dreams.png" class="rounded-circle border border-warning shadow" width="80" height="80" style="object-fit:cover;">
+                
+                <div id="profileView">
+                    <div class="modal-header border-secondary border-0 pb-0">
+                        <h5 class="modal-title brand-font text-warning">Karta Hrdiny</h5>
+                        <button type="button" class="btn btn-sm btn-outline-secondary" onclick="toggleProfileMode('edit')">
+                            <i class="fas fa-cog"></i> Upravit
+                        </button>
+                        <button type="button" class="btn-close btn-close-white ms-2" data-bs-dismiss="modal"></button>
                     </div>
                     
-                    <div class="mb-3">
-                        <label class="form-label text-secondary small">Tvé jméno (Nick)</label>
-                        <input type="text" id="profileNick" class="form-control bg-black text-light border-secondary">
+                    <div class="modal-body text-center pt-0">
+                        <div class="position-relative d-inline-block mt-3 mb-3">
+                            <img id="viewAvatar" src="assets/icons/dreams.png" class="rounded-circle border border-warning shadow" width="100" height="100" style="object-fit:cover;">
+                            <span id="viewLevel" class="position-absolute top-100 start-50 translate-middle badge rounded-pill bg-danger border border-dark shadow fs-6">
+                                Lvl ??
+                            </span>
+                        </div>
+
+                        <h3 id="viewNick" class="brand-font text-white mb-0">Neznámý</h3>
+                        <p id="viewRank" class="text-muted fst-italic small mb-3">...</p>
+
+                        <div class="px-4 mb-4">
+                            <div class="d-flex justify-content-between small text-muted mb-1">
+                                <span>XP</span>
+                                <span id="viewXP">0 / 0</span>
+                            </div>
+                            <div class="progress bg-black border border-secondary" style="height: 8px;">
+                                <div id="viewProgressBar" class="progress-bar bg-warning" style="width: 0%"></div>
+                            </div>
+                        </div>
+
+                        <hr class="border-secondary opacity-50">
+
+                        <div class="mb-4">
+                            <h6 class="text-secondary text-uppercase ls-2 small mb-2">Aktivita (30 dní)</h6>
+                            <div id="habitGrid" class="habit-grid px-2"></div>
+                            <small class="text-muted" style="font-size: 0.7em;">Sleduje: Fitness, Deník, Úkoly</small>
+                        </div>
+
+                        <hr class="border-secondary opacity-50">
+
+                        <div class="mb-3">
+                            <h6 class="text-secondary text-uppercase ls-2 small mb-2">Odznaky</h6>
+                            <div class="d-flex justify-content-center gap-2" id="achievementsContainer">
+                                <div class="badge-slot" title="Zatím uzamčeno"><i class="fas fa-lock"></i></div>
+                                <div class="badge-slot" title="Zatím uzamčeno"><i class="fas fa-lock"></i></div>
+                                <div class="badge-slot" title="Zatím uzamčeno"><i class="fas fa-lock"></i></div>
+                                <div class="badge-slot" title="Zatím uzamčeno"><i class="fas fa-lock"></i></div>
+                            </div>
+                        </div>
+
                     </div>
-                    
-                    <div class="mb-3">
-                        <label class="form-label text-secondary small">URL Avatara (Odkaz na obrázek)</label>
-                        <input type="text" id="profileAvatar" class="form-control bg-black text-light border-secondary" placeholder="https://..." oninput="document.getElementById('previewAvatar').src = this.value || 'assets/icons/dreams.png'">
-                        <small class="text-muted" style="font-size: 0.7em;">Zkopíruj sem adresu obrázku z internetu (pravý klik -> Kopírovat adresu obrázku).</small>
+                    <div class="modal-footer border-secondary justify-content-center">
+                        <button class="btn btn-outline-info w-100" data-bs-toggle="modal" data-bs-target="#leaderboardModal" onclick="window.loadLeaderboard()">
+                            <i class="fas fa-trophy me-2"></i> Otevřít Síň Slávy
+                        </button>
                     </div>
                 </div>
-                <div class="modal-footer border-secondary">
-                    <button class="btn btn-outline-info" data-bs-toggle="modal" data-bs-target="#leaderboardModal" onclick="window.loadLeaderboard()">
-                        <i class="fas fa-trophy me-2"></i> Síň Slávy
-                    </button>
-                    <button class="btn btn-warning w-100 fw-bold" onclick="saveUserProfile()">ULOŽIT ZMĚNY</button>
+
+                <div id="profileEdit" style="display: none;">
+                    <div class="modal-header border-secondary">
+                        <h5 class="modal-title">Úprava Profilu</h5>
+                        <button type="button" class="btn-close btn-close-white" onclick="toggleProfileMode('view')"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label class="form-label text-secondary small">Tvé jméno (Nick)</label>
+                            <input type="text" id="profileNick" class="form-control bg-black text-light border-secondary">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label text-secondary small">URL Avatara</label>
+                            <input type="text" id="profileAvatar" class="form-control bg-black text-light border-secondary" placeholder="https://..." oninput="document.getElementById('viewAvatar').src = this.value || 'assets/icons/dreams.png'">
+                        </div>
+                    </div>
+                    <div class="modal-footer border-secondary">
+                        <button class="btn btn-secondary" onclick="toggleProfileMode('view')">Zpět</button>
+                        <button class="btn btn-warning fw-bold" onclick="saveUserProfile(); toggleProfileMode('view');">ULOŽIT</button>
+                    </div>
                 </div>
+
             </div>
         </div>
     </div>
+
+
     <div class="modal fade" id="leaderboardModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content bg-dark text-light border-secondary shadow-lg">
@@ -1039,6 +1114,42 @@
                     </div>
 
                     <p class="text-muted mt-4 small fst-italic">Klikni na kartu a odhal svou dnešní věštbu.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="modal fade" id="lootModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content bg-dark text-light border-secondary shadow-lg" style="background: radial-gradient(circle, #2b1d0e 0%, #000 100%);">
+                <div class="modal-header border-secondary border-0">
+                    <h5 class="modal-title brand-font text-warning">Obsah Truhly</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body text-center py-5">
+                    
+                    <div class="tarot-scene mx-auto" style="width: 240px; height: 320px; perspective: 1000px; cursor: pointer;" onclick="openLootChest(this)">
+                        <div class="tarot-card" id="lootCardInner" style="width: 100%; height: 100%; transition: transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275); transform-style: preserve-3d; position: relative;">
+                            
+                            <div class="tarot-face tarot-back border border-warning rounded shadow-lg d-flex align-items-center justify-content-center"
+                                style="position: absolute; width: 100%; height: 100%; backface-visibility: hidden; background-color: #111; border-width: 3px !important;">
+                                <img src="assets/icons/chest_closed.png" style="width: 80%; opacity: 0.8;">
+                                <div class="position-absolute bottom-0 mb-4 text-warning small brand-font">KLIKNI PRO OTEVŘENÍ</div>
+                            </div>
+
+                            <div class="tarot-face tarot-front d-flex flex-column align-items-center justify-content-center border border-warning rounded shadow-lg bg-black" 
+                                style="position: absolute; width: 100%; height: 100%; backface-visibility: hidden; transform: rotateY(180deg); box-shadow: 0 0 30px #ffc107;">
+                                
+                                <div id="lootIcon" class="mb-3" style="font-size: 4rem;">📦</div>
+                                <h4 class="brand-font text-warning mb-2 px-2" id="lootName">...</h4>
+                                <p class="small text-muted px-3" id="lootDesc">...</p>
+                                <span class="badge bg-dark border border-secondary mt-2" id="lootRarity">COMMON</span>
+                            </div>
+
+                        </div>
+                    </div>
+
                 </div>
             </div>
         </div>

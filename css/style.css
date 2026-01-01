@@ -633,3 +633,60 @@ a, button, input, textarea, select, .clickable, .btn, .card {
     pointer-events: none; /* Aby se dalo klikat SKRZ oheň */
     z-index: 999998; /* Těsně pod tečkou */
 }
+
+/* --- HABIT TRACKER (GitHub Grid) --- */
+.habit-grid {
+    display: grid;
+    grid-template-columns: repeat(15, 1fr); /* 15 dní na řádek, nebo upravíme */
+    gap: 4px;
+    justify-content: center;
+    margin-bottom: 10px;
+}
+
+.habit-cell {
+    width: 100%;
+    aspect-ratio: 1 / 1; /* Aby to byl čtverec */
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 2px;
+    transition: all 0.3s;
+    position: relative;
+}
+
+.habit-cell:hover {
+    transform: scale(1.2);
+    z-index: 2;
+    border: 1px solid #fff;
+}
+
+/* Aktivní den (něco jsi dělal) */
+.habit-cell.active {
+    background-color: var(--primary-glow);
+    box-shadow: 0 0 5px var(--primary-glow);
+}
+
+/* Stupně aktivity (volitelné) */
+.habit-cell.lvl-1 { opacity: 0.5; }
+.habit-cell.lvl-2 { opacity: 0.8; }
+.habit-cell.lvl-3 { opacity: 1.0; box-shadow: 0 0 10px var(--primary-glow); }
+
+/* --- ODZNAKY (Achievements Placeholder) --- */
+.badge-slot {
+    width: 50px;
+    height: 50px;
+    background: rgba(0,0,0,0.3);
+    border: 1px solid var(--border-color);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    color: #444; /* Neaktivní */
+    transition: all 0.3s;
+}
+
+.badge-slot.unlocked {
+    color: var(--primary-glow);
+    border-color: var(--primary-glow);
+    box-shadow: 0 0 10px var(--primary-glow) inset;
+    text-shadow: 0 0 5px var(--primary-glow);
+}

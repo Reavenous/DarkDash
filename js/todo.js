@@ -52,7 +52,7 @@ function toggleTodo(id) {
         saveTodos();
     }
     if (todo.completed) {
-        // Zvuk cinknutí?
+        window.playSound('success');
         window.addXP(20, "Splněný úkol"); // <--- PŘIDAT
     }
 }

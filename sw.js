@@ -37,6 +37,7 @@ const ASSETS = [
   './js/gamification.js',
   './js/tarot.js',
   './js/cursor.js',
+  './js/sound.js',
 
 
   // --- IKONY (assets/icons/) ---
@@ -132,6 +133,17 @@ const ASSETS = [
   './assets/icons/tarot_judgement.png',
   './assets/icons/tarot_the_world.png',
   './assets/icons/tarot_background.png',
+  './assets/achievements/badge_level5.png',
+  './assets/achievements/badge_muscle.png',
+  './assets/achievements/badge_writer.png',
+  './assets/achievements/badge_task.png',
+  './assets/achievements/badge_owl.png',
+  './assets/loot/coin.png',
+  './assets/loot/crystal.png',
+  './assets/loot/potion_blue.png',
+  './assets/loot/scroll.png',
+  './assets/loot/sword.png',
+  './assets/icon/chest_closed.png',
 
 
   
@@ -172,7 +184,13 @@ const ASSETS = [
   './assets/audio/The Shire.mp3',
   './assets/audio/The Singing Woods [26vbyf_AFsc].mp3',
   './assets/audio/The Trail.mp3',
-  './assets/audio/You and Me and the Devil Makes Three.mp3'
+  './assets/audio/You and Me and the Devil Makes Three.mp3',
+
+  // --- ZVUKY (assets/audio/sfx/) ---
+  './assets/audio/sfx/click.mp3',
+  './assets/audio/sfx/success.mp3',
+  './assets/audio/sfx/levelup.mp3',
+  './assets/audio/sfx/chest_open.mp3'
 ];
 
 // Instalace Service Workeru (Ukládání do paměti)

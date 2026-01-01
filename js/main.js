@@ -95,3 +95,40 @@ document.addEventListener("DOMContentLoaded", () => {
     loadWisdom();
     setInterval(updateClockAndDate, 1000);
 });
+// --- KONAMI CODE (EASTER EGG) ---
+const konamiCode = ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight', 'a', 'a'];
+let konamiIndex = 0;
+
+document.addEventListener('keydown', (e) => {
+    // Kontrola klávesy
+    if (e.key === konamiCode[konamiIndex]) {
+        konamiIndex++;
+        
+        if (konamiIndex === konamiCode.length) {
+            activateGodMode();
+            konamiIndex = 0;
+        }
+    } else {
+        konamiIndex = 0; // Reset sekvence při chybě
+    }
+});
+
+function activateGodMode() {
+    // 1. Zvuk
+    if(window.playSound) window.playSound('magic');
+    
+    // 2. Vizuální efekt (Inverze barev - vypadá to jako chyba v Matrixu)
+    document.body.style.transition = "filter 2s";
+    document.body.style.filter = "invert(1) hue-rotate(180deg)";
+    
+    // 3. Odměna
+    if(window.addXP) window.addXP(1000, "GOD MODE ACTIVATED");
+    
+    // 4. Hláška
+    alert("🔓 GOD MODE AKTIVOVÁN: Získáváš 1000 XP a vidění Matrixu!");
+    
+    // 5. Reset po 5 sekundách
+    setTimeout(() => {
+        document.body.style.filter = "none";
+    }, 5000);
+}
