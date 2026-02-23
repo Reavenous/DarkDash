@@ -14,6 +14,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/games.css">
@@ -530,16 +531,33 @@
         </div>
     </div>
 
-    <div class="offcanvas offcanvas-end text-bg-dark border-start border-secondary" tabindex="-1" id="cookbookSidebar" style="width: 450px;">
+    <div class="offcanvas offcanvas-end text-bg-dark border-start border-secondary" tabindex="-1" id="cookbookSidebar" style="width: 800px;">
         <div class="offcanvas-header border-bottom border-secondary">
-            <h5 class="offcanvas-title text-warning"> Moje Kuchařka</h5>
+            <h5 class="offcanvas-title text-warning">Moje Kuchařka</h5>
             <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
         </div>
-        <div class="offcanvas-body d-flex flex-column">
-            <ul id="recipeList" class="list-group list-group-flush mb-3 flex-grow-1 overflow-auto"></ul>
-            <div class="mt-auto pt-3 border-top border-secondary">
-                <button class="btn btn-warning w-100" onclick="openRecipeEditor()">+ Nový recept</button>
+        <div class="offcanvas-body p-0 d-flex">
+            
+            <div class="bg-dark border-end border-secondary d-flex flex-column" style="width: 250px;">
+                <div class="p-3 border-bottom border-secondary">
+                    <button class="btn btn-sm btn-outline-light w-100 d-flex justify-content-center align-items-center" onclick="createNewRecipeFolder()">
+                        + Nová kategorie
+                    </button>
+                </div>
+                <div id="recipeFolderTreeList" class="list-group list-group-flush flex-grow-1 overflow-auto rounded-0 custom-scrollbar">
+                </div>
             </div>
+
+            <div class="flex-grow-1 p-3 d-flex flex-column bg-black">
+                <h4 id="currentRecipeFolderTitle" class="mb-3 text-warning">Obecné</h4>
+                
+                <div id="recipeList" class="row g-3 flex-grow-1 overflow-auto mb-3 align-content-start custom-scrollbar"></div>
+                
+                <div class="mt-auto pt-3 border-top border-secondary">
+                    <button class="btn btn-warning w-100" onclick="openRecipeEditor()">+ Nový recept do této kategorie</button>
+                </div>
+            </div>
+            
         </div>
     </div>
 
@@ -551,10 +569,19 @@
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <div class="mb-4">
-                        <label class="form-label text-secondary">Název pokrmu</label>
-                        <input type="text" id="recipeName" class="form-control bg-dark text-light border-secondary form-control-lg" placeholder="Např. Svíčková na smetaně">
+                    
+                    <div class="row mb-4">
+                        <div class="col-md-8">
+                            <label class="form-label text-secondary">Název pokrmu</label>
+                            <input type="text" id="recipeName" class="form-control bg-dark text-light border-secondary form-control-lg" placeholder="Např. Svíčková na smetaně">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label text-warning small">Zařadit do kategorie</label>
+                            <select id="recipeFolderSelect" class="form-select bg-dark text-light border-secondary form-control-lg">
+                            </select>
+                        </div>
                     </div>
+                    
                     <div class="row">
                         <div class="col-md-5 border-end border-secondary">
                             <h6 class="text-info mb-3 d-flex align-items-center"><img src="assets/icons/ingredients.png" width="20" class="me-2"> Ingredience</h6>
@@ -579,16 +606,33 @@
         </div>
     </div>
 
-    <div class="offcanvas offcanvas-end text-bg-dark border-start border-secondary" tabindex="-1" id="notesSidebar" style="width: 400px;">
+    <div class="offcanvas offcanvas-end text-bg-dark border-start border-secondary" tabindex="-1" id="notesSidebar" style="width: 800px;">
         <div class="offcanvas-header border-bottom border-secondary">
             <h5 class="offcanvas-title">Knihovna poznámek</h5>
             <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
         </div>
-        <div class="offcanvas-body d-flex flex-column">
-            <ul id="notesList" class="list-group list-group-flush mb-3 flex-grow-1 overflow-auto"></ul>
-            <div class="mt-auto pt-3 border-top border-secondary">
-                <button class="btn btn-success w-100" onclick="openEditor()">+ Nová poznámka</button>
+        <div class="offcanvas-body p-0 d-flex">
+            
+            <div class="bg-dark border-end border-secondary d-flex flex-column" style="width: 250px;">
+                <div class="p-3 border-bottom border-secondary">
+                    <button class="btn btn-sm btn-outline-light w-100 d-flex justify-content-center align-items-center" onclick="createNewFolder()">
+                        + Nová složka
+                    </button>
+                </div>
+                <div id="folderTreeList" class="list-group list-group-flush flex-grow-1 overflow-auto rounded-0 custom-scrollbar">
+                    </div>
             </div>
+
+            <div class="flex-grow-1 p-3 d-flex flex-column bg-black">
+                <h4 id="currentFolderTitle" class="mb-3 text-info">Obecné</h4>
+                
+                <div id="notesList" class="row g-3 flex-grow-1 overflow-auto mb-3 align-content-start custom-scrollbar"></div>
+                
+                <div class="mt-auto pt-3 border-top border-secondary">
+                    <button class="btn btn-success w-100" onclick="openEditor()">+ Nová poznámka do této složky</button>
+                </div>
+            </div>
+            
         </div>
     </div>
 
@@ -600,7 +644,19 @@
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <textarea id="editorTextarea" class="form-control bg-dark text-light border-secondary" rows="12" placeholder="Začni psát..."></textarea>
+                    
+                    <div class="mb-3">
+                        <label for="editorFolderSelect" class="form-label text-info small">Zařadit do složky</label>
+                        <select id="editorFolderSelect" class="form-select bg-dark text-light border-secondary">
+                            </select>
+                    </div>
+
+                    <div class="mb-1 d-flex justify-content-between align-items-end">
+                        <label for="editorTextarea" class="form-label text-info small mb-0">Obsah poznámky</label>
+                        <small class="text-muted" style="font-size: 0.75rem;">Podporuje Markdown</small>
+                    </div>
+                    <textarea id="editorTextarea" class="form-control bg-dark text-light border-secondary custom-scrollbar" rows="12" placeholder="Začni psát..."></textarea>
+                    
                 </div>
                 <div class="modal-footer border-secondary justify-content-between">
                     <button type="button" class="btn btn-outline-info d-flex align-items-center" onclick="exportCurrentNotePDF()"><img src="assets/icons/pdf.png" style="width:18px; margin-right:5px;"> Exportovat</button>

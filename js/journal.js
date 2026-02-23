@@ -3,12 +3,10 @@ let journalSelectedDateKey = null;
 let currentRating = 0; 
 
 function renderJournalCalendar() {
-    // 1. NAČTENÍ DAT S UNIKÁTNÍM KLÍČEM
     const key = window.getAppKey ? window.getAppKey("darkdash-journal") : "darkdash-journal";
-    const journalData = JSON.parse(localStorage.getItem(key)) || {};
     const stored = localStorage.getItem(key);
+    const journalData = stored ? JSON.parse(stored) : {};
     
-
     const year = journalCurrentDate.getFullYear();
     const month = journalCurrentDate.getMonth();
     const today = new Date();
@@ -25,7 +23,7 @@ function renderJournalCalendar() {
     const dayNames = ["Po", "Út", "St", "Čt", "Pá", "So", "Ne"];
     dayNames.forEach(day => {
         const div = document.createElement("div");
-        div.className = "calendar-header";
+        div.className = "calendar-header text-center fw-bold";
         div.innerText = day;
         grid.appendChild(div);
     });
@@ -40,7 +38,7 @@ function renderJournalCalendar() {
 
     for (let day = 1; day <= daysInMonth; day++) {
         const div = document.createElement("div");
-        div.className = "calendar-day journal-day";
+        div.className = "calendar-day journal-day text-center p-2 border border-dark";
         div.innerText = day;
 
         const thisDate = new Date(year, month, day);
@@ -48,11 +46,17 @@ function renderJournalCalendar() {
 
         if (thisDate > today) {
             div.classList.add("locked");
+            div.style.opacity = "0.3";
             div.title = "Budoucnost nelze hodnotit";
         } else {
+            div.style.cursor = "pointer";
             if (journalData[dateKey]) {
                 const rating = journalData[dateKey].rating;
                 div.classList.add(`rating-${rating}`);
+                // Přidáme vizuální odlišení podle hodnocení
+                const colors = ["transparent", "#f08080", "#d35400", "#daa520", "#90ee90", "#556b2f"];
+                div.style.backgroundColor = colors[rating];
+                div.style.color = rating > 0 ? "#000" : "#fff";
             }
             div.onclick = () => openJournalEditor(dateKey);
         }
@@ -68,8 +72,7 @@ function changeJournalMonth(dir) {
 function openJournalEditor(dateKey) {
     journalSelectedDateKey = dateKey;
     
-    // ZNOVU NAČÍST, ABYCHOM MĚLI AKTUÁLNÍ DATA
-    const key = window.getAppKey("darkdash-journal");
+    const key = window.getAppKey ? window.getAppKey("darkdash-journal") : "darkdash-journal";
     const stored = localStorage.getItem(key);
     const journalData = stored ? JSON.parse(stored) : {};
     
@@ -80,12 +83,22 @@ function openJournalEditor(dateKey) {
 
     document.getElementById("journalPositive").value = entry.positive || "";
     document.getElementById("journalNegative").value = entry.negative || "";
+    
+    // Reset náhledů
+    const posPreview = document.getElementById("journalPositivePreview");
+    const negPreview = document.getElementById("journalNegativePreview");
+    if(posPreview) posPreview.style.display = "none";
+    if(negPreview) negPreview.style.display = "none";
+    document.getElementById("journalPositive").style.display = "block";
+    document.getElementById("journalNegative").style.display = "block";
 
     setRating(entry.rating);
 
     const calendarModalEl = document.getElementById('journalCalendarModal');
-    const calendarModal = bootstrap.Modal.getInstance(calendarModalEl);
-    if(calendarModal) calendarModal.hide();
+    if (calendarModalEl) {
+        const calendarModal = bootstrap.Modal.getInstance(calendarModalEl);
+        if(calendarModal) calendarModal.hide();
+    }
 
     const editorModal = new bootstrap.Modal(document.getElementById('journalEditorModal'));
     editorModal.show();
@@ -119,9 +132,9 @@ function saveJournalEntry() {
     const positive = document.getElementById("journalPositive").value;
     const negative = document.getElementById("journalNegative").value;
 
-    const key = window.getAppKey("darkdash-journal");
-    const journalData = JSON.parse(localStorage.getItem(key)) || {};
+    const key = window.getAppKey ? window.getAppKey("darkdash-journal") : "darkdash-journal";
     const stored = localStorage.getItem(key);
+    const journalData = stored ? JSON.parse(stored) : {};
 
     journalData[journalSelectedDateKey] = {
         rating: currentRating,
@@ -130,7 +143,7 @@ function saveJournalEntry() {
     };
 
     localStorage.setItem(key, JSON.stringify(journalData));
-    if(window.saveToCloud) window.saveToCloud("journal", journalData); // CLOUD SAVE
+    if(window.saveToCloud) window.saveToCloud("journal", journalData); 
 
     const editorModalEl = document.getElementById('journalEditorModal');
     const editorModal = bootstrap.Modal.getInstance(editorModalEl);
@@ -140,7 +153,27 @@ function saveJournalEntry() {
     calendarModal.show();
     
     setTimeout(renderJournalCalendar, 200);
-    window.addXP(30, "Zápis do deníku");
+    if(window.addXP) window.addXP(30, "Zápis do deníku");
+}
+
+// NOVÉ: Funkce pro zobrazení Markdown náhledu v deníku
+function toggleJournalPreview(type) {
+    const textarea = document.getElementById(type === 'positive' ? 'journalPositive' : 'journalNegative');
+    const previewDiv = document.getElementById(type === 'positive' ? 'journalPositivePreview' : 'journalNegativePreview');
+    
+    if (!textarea || !previewDiv) return;
+
+    if (textarea.style.display !== 'none') {
+        // Přepnutí na náhled
+        const html = typeof marked !== 'undefined' ? marked.parse(textarea.value) : textarea.value;
+        previewDiv.innerHTML = html || "<em>Prázdný zápis...</em>";
+        textarea.style.display = 'none';
+        previewDiv.style.display = 'block';
+    } else {
+        // Přepnutí zpět na editaci
+        textarea.style.display = 'block';
+        previewDiv.style.display = 'none';
+    }
 }
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -151,6 +184,4 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 });
 
-// REAKCE NA PŘIHLÁŠENÍ
-document.addEventListener("DOMContentLoaded", renderJournalCalendar);
 document.addEventListener("darkdash-reload", renderJournalCalendar);

@@ -1,5 +1,5 @@
 const apiKey = "99ef89cbbae2ea890aef408a73500367"; 
-let forecastData = []; // Zde si uložíme data
+let forecastData = []; 
 
 function getWeather() {
     if (navigator.geolocation) {
@@ -12,10 +12,26 @@ function getWeather() {
             },
             () => {
                 const cityEl = document.getElementById("currentCity");
-                if(cityEl) cityEl.innerText = "Lokace nedostupná";
+                if(cityEl) cityEl.innerText = "Lokace neznámá";
             }
         );
     }
+}
+
+// NOVÁ FUNKCE: Překladač počasí do "DarkDash" stylu
+function getDarkWeatherDescription(mainType, origDesc) {
+    const type = mainType.toLowerCase();
+    
+    if (type.includes('clear')) return "Zrádný svit";
+    if (type.includes('cloud')) return "Zastřená nebesa";
+    if (type.includes('rain') || type.includes('drizzle')) return "Plačící nebesa";
+    if (type.includes('thunder')) return "Hněv bohů";
+    if (type.includes('snow')) return "Mrazivá pustina";
+    if (type === 'mist' || type === 'fog' || type === 'haze') return "Ideální pro plížení";
+    if (type === 'tornado' || type === 'squall') return "Blíží se zkáza!";
+    
+    // Pokud je to něco nečekaného, vrátí to původní český popis
+    return origDesc;
 }
 
 // 1. AKTUÁLNÍ POČASÍ
@@ -25,14 +41,18 @@ function fetchCurrentWeather(lat, lon) {
         .then(res => res.json())
         .then(data => {
             const temp = Math.round(data.main.temp);
-            const desc = data.weather[0].description;
+            const mainType = data.weather[0].main; // Např. "Clouds"
+            const origDesc = data.weather[0].description; // Např. "zataženo"
             
-            // Získání obrázku
-            const iconPath = getWeatherIconPath(data.weather[0].main);
-            const iconHtml = `<img src="${iconPath}" class="icon-hud" alt="${desc}">`;
+            // Aplikujeme náš temný filtr!
+            const darkDesc = getDarkWeatherDescription(mainType, origDesc);
+            
+            const iconPath = getWeatherIconPath(mainType);
+            const iconHtml = `<img src="${iconPath}" class="icon-hud" alt="${darkDesc}">`;
             
             document.getElementById("currentTemp").innerText = `${temp}°C`;
-            document.getElementById("currentDesc").innerText = desc;
+            // Tady vypisujeme náš nový název
+            document.getElementById("currentDesc").innerText = darkDesc;
             document.getElementById("currentCity").innerText = data.name;
             document.getElementById("weatherIconDisplay").innerHTML = iconHtml; 
         })
@@ -46,12 +66,11 @@ function fetchForecast(lat, lon) {
         .then(res => res.json())
         .then(data => {
             forecastData = data.list;
-            renderDailyForecast(); // Defaultně zobrazíme "Dnes"
+            renderDailyForecast(); 
         })
         .catch(err => console.error("Chyba předpovědi:", err));
 }
 
-// --- PŘEPÍNÁNÍ TABŮ ---
 function showWeatherTab(tab) {
     const btnDaily = document.getElementById("btnDaily");
     const btnWeekly = document.getElementById("btnWeekly");
@@ -67,20 +86,16 @@ function showWeatherTab(tab) {
     }
 }
 
-// Render: Dnes (příštích 5 záznamů po 3 hodinách)
 function renderDailyForecast() {
     const container = document.getElementById("forecastContainer");
     if(!container) return;
     container.innerHTML = "";
 
-    // Vezmeme prvních 5 záznamů z budoucnosti
     const nextHours = forecastData.slice(0, 5);
 
     nextHours.forEach(item => {
-        const time = item.dt_txt.split(" ")[1].substring(0, 5); // 15:00
+        const time = item.dt_txt.split(" ")[1].substring(0, 5); 
         const temp = Math.round(item.main.temp);
-        
-        // OPRAVA: Použijeme správnou funkci a vložíme img tag
         const iconPath = getWeatherIconPath(item.weather[0].main);
         
         container.innerHTML += `
@@ -95,21 +110,17 @@ function renderDailyForecast() {
     });
 }
 
-// Render: Týden (filtrujeme záznamy kolem 12:00 pro každý den)
 function renderWeeklyForecast() {
     const container = document.getElementById("forecastContainer");
     if(!container) return;
     container.innerHTML = "";
 
-    // Filtrujeme jen záznamy, které obsahují "12:00:00"
     const dailyItems = forecastData.filter(item => item.dt_txt.includes("12:00:00"));
 
     dailyItems.forEach(item => {
         const dateObj = new Date(item.dt_txt);
-        const dayName = dateObj.toLocaleDateString('cs-CZ', { weekday: 'short' }); // Po, Út
+        const dayName = dateObj.toLocaleDateString('cs-CZ', { weekday: 'short' }); 
         const temp = Math.round(item.main.temp);
-        
-        // OPRAVA: Použijeme správnou funkci a vložíme img tag
         const iconPath = getWeatherIconPath(item.weather[0].main);
 
         container.innerHTML += `
@@ -124,12 +135,9 @@ function renderWeeklyForecast() {
     });
 }
 
-// Pomocná: Cesta k ikoně podle počasí (z icons.js)
 function getWeatherIconPath(main) {
     const type = main.toLowerCase();
-    
-    // Předpokládáme, že ICONS objekt je načtený z icons.js
-    if (typeof ICONS === 'undefined') return 'assets/icons/cloudy.png'; // Fallback
+    if (typeof ICONS === 'undefined') return 'assets/icons/cloudy.png'; 
 
     if (type.includes('cloud')) return ICONS.weather.clouds;
     if (type.includes('rain') || type.includes('drizzle')) return ICONS.weather.rain;
@@ -140,5 +148,4 @@ function getWeatherIconPath(main) {
     return ICONS.weather.default;
 }
 
-// Start
 getWeather();
