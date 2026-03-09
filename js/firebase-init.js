@@ -248,23 +248,7 @@ window.saveUserProfile = async () => {
     }
 };
 
-// --- 5. CHAT (Zůstává stejný) ---
-const chatInput = document.getElementById('chatInput');
-window.sendMessage = async () => {
-    const text = chatInput.value.trim();
-    if (!text || !auth.currentUser) return;
-    try {
-        await addDoc(collection(db, "messages"), {
-            text: text,
-            user: auth.currentUser.displayName || auth.currentUser.email.split('@')[0],
-            photo: auth.currentUser.photoURL || 'assets/icons/dreams.png',
-            uid: auth.currentUser.uid,
-            timestamp: serverTimestamp()
-        });
-        chatInput.value = "";
-    } catch (e) { console.error(e); }
-};
-if(chatInput) chatInput.addEventListener("keypress", (e) => { if (e.key === "Enter") sendMessage(); });
+
 
 window.loadLeaderboard = async () => {
     const list = document.getElementById("leaderboardList");

@@ -38,6 +38,7 @@ const ASSETS = [
   './js/tarot.js',
   './js/cursor.js',
   './js/sound.js',
+  './js/chat.js',
 
 
   // --- IKONY (assets/icons/) ---

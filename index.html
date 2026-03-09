@@ -305,7 +305,7 @@
              <img src="assets/icons/fitness.png" class="me-2 icon-btn"> Fitness
         </button>
 
-        <button class="btn btn-gothic-lg w-100 text-start d-flex align-items-center" data-bs-toggle="modal" data-bs-target="#todoModal">
+        <button class="btn btn-gothic-lg w-100 text-start d-flex align-items-center" data-bs-toggle="offcanvas" data-bs-target="#todoSidebar">
             <img src="assets/icons/todo.png" class="me-2 icon-btn"> Úkoly
         </button>
 
@@ -441,35 +441,76 @@
         </div>
     </div>
 
-    <div class="modal fade" id="todoModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="offcanvas offcanvas-end text-bg-dark border-start border-secondary" tabindex="-1" id="todoSidebar" style="width: 800px;">
+        <div class="offcanvas-header border-bottom border-secondary d-flex justify-content-between align-items-center">
+            <h5 class="offcanvas-title text-success brand-font d-flex align-items-center">
+                <span class="fs-4 me-2"></span> Quest Log
+            </h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+        
+        <div class="bg-black p-3 border-bottom border-secondary">
+             <div class="d-flex justify-content-between text-secondary small mb-1">
+                 <span>Celkový postup misí</span>
+                 <span id="todoProgressText">0%</span>
+             </div>
+             <div class="progress bg-dark border border-secondary" style="height: 10px;">
+                 <div id="todoProgressBar" class="progress-bar bg-success" style="width: 0%"></div>
+             </div>
+        </div>
+
+        <div class="offcanvas-body p-0 d-flex flex-row w-100">
+            <div class="bg-dark border-end border-secondary d-flex flex-column" style="width: 250px;">
+                <div class="p-3 border-bottom border-secondary">
+                    <button class="btn btn-sm btn-outline-success w-100" onclick="createNewTodoFolder()">+ Nová Quest Linka</button>
+                </div>
+                <div id="todoFolderTreeList" class="list-group list-group-flush flex-grow-1 overflow-auto rounded-0 custom-scrollbar"></div>
+            </div>
+
+            <div class="flex-grow-1 p-3 d-flex flex-column bg-black">
+                <h4 id="currentTodoFolderTitle" class="mb-3 text-success">Inbox</h4>
+                <div id="todoList" class="row g-3 flex-grow-1 overflow-auto mb-3 align-content-start custom-scrollbar"></div>
+                <div class="mt-auto pt-3 border-top border-secondary">
+                    <button class="btn btn-success w-100" onclick="openTodoEditor()">+ Přijmout novou misi</button>
+                </div>
+            </div>
+        </div> </div> <div class="modal fade" id="todoEditorModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
+        <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content bg-dark text-light border-secondary shadow-lg">
                 <div class="modal-header border-secondary">
-                    <h5 class="modal-title text-success brand-font">Mise & Úkoly</h5>
+                    <h5 class="modal-title text-success" id="todoEditorTitle">Detail Mise</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <div class="mb-4">
-                        <div class="d-flex justify-content-between text-secondary small mb-1">
-                            <span>Postup dne</span>
-                            <span id="todoProgressText">0%</span>
-                        </div>
-                        <div class="progress bg-black border border-secondary" style="height: 10px;">
-                            <div id="todoProgressBar" class="progress-bar bg-success" style="width: 0%"></div>
-                        </div>
-                    </div>
-                    <div class="input-group mb-4">
-                        <select class="form-select bg-dark text-light border-secondary" id="todoPriority" style="max-width: 120px;">
-                            <option value="normal">Běžný</option>
-                            <option value="important">! Důležitý</option>
-                            <option value="critical">!! Kritický</option>
-                        </select>
-                        <input type="date" id="todoDeadline" class="form-control bg-dark text-light border-secondary" style="max-width: 140px;">
+                    <div class="mb-3">
+                        <label class="form-label text-secondary">Název mise</label>
                         <input type="text" id="todoInput" class="form-control bg-dark text-light border-secondary" placeholder="Co musíš vykonat?">
-                        <button class="btn btn-success" onclick="addTodo()">Přidat</button>
                     </div>
-                    <ul id="todoList" class="list-group list-group-flush"></ul>
-                    <div id="todoEmptyState" class="text-center text-muted py-5" style="display: none;">Všechny mise splněny. Odpočívej.</div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-6">
+                            <label class="form-label text-success small">Quest Linka</label>
+                            <select id="todoFolderSelect" class="form-select bg-dark text-light border-secondary"></select>
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label text-secondary small">Deadline</label>
+                            <input type="date" id="todoDeadline" class="form-control bg-dark text-light border-secondary">
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label text-secondary">Rarita (Odměna)</label>
+                        <select class="form-select bg-dark text-light border-secondary" id="todoRarity">
+                            <option value="common">⚪ Běžná (10 XP)</option>
+                            <option value="rare">🔵 Vzácná (25 XP)</option>
+                            <option value="epic">🟣 Epická (50 XP)</option>
+                            <option value="legendary">🟡 Legendární (100 XP)</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer border-secondary justify-content-end">
+                    <button type="button" class="btn btn-secondary me-2" data-bs-dismiss="modal">Zrušit</button>
+                    <button type="button" class="btn btn-success" onclick="saveTodo()">Uložit misi</button>
                 </div>
             </div>
         </div>
@@ -748,21 +789,63 @@
         </div>
     </div>
 
-    <div class="offcanvas offcanvas-end text-bg-dark border-start border-secondary" tabindex="-1" id="dreamSidebar" style="width: 450px;">
-        <div class="offcanvas-header border-bottom border-secondary">
-            <h5 class="offcanvas-title text-info">Kniha Snů</h5>
+ <div class="offcanvas offcanvas-end text-bg-dark border-start border-secondary" tabindex="-1" id="dreamSidebar" style="width: 800px;">
+        
+        <div class="offcanvas-header border-bottom border-secondary d-flex justify-content-between align-items-center p-3">
+            <div class="btn-group" role="group">
+                <button type="button" class="btn btn-info fw-bold" id="btnTabDreams" onclick="switchDreamTab('dreams')">🌙 Kniha Snů</button>
+                <button type="button" class="btn btn-outline-info fw-bold" id="btnTabWatchlist" onclick="switchDreamTab('watchlist')">🎬 Watchlist</button>
+            </div>
             <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
         </div>
-        <div class="offcanvas-body d-flex flex-column">
-            <p class="text-muted small">Zaznamenej své sny, než se rozplynou...</p>
-            <ul id="dreamList" class="list-group list-group-flush mb-3 flex-grow-1 overflow-auto"></ul>
-            <div class="mt-auto pt-3 border-top border-secondary">
-                <button class="btn btn-outline-info w-100" onclick="openDreamEditor()">+ Nový sen</button>
+
+        <div class="offcanvas-body p-0 d-flex flex-row w-100" id="sectionDreams">
+            <div class="bg-dark border-end border-secondary d-flex flex-column" style="width: 250px;">
+                <div class="p-3 border-bottom border-secondary">
+                    <button class="btn btn-sm btn-outline-info w-100 d-flex justify-content-center align-items-center" onclick="createNewDreamFolder()">
+                        + Nová složka
+                    </button>
+                </div>
+                <div class="p-2 border-bottom border-secondary">
+                    <p class="text-muted small mb-0 text-center">Zaznamenej své sny...</p>
+                </div>
+                <div id="dreamFolderTreeList" class="list-group list-group-flush flex-grow-1 overflow-auto rounded-0 custom-scrollbar"></div>
+            </div>
+
+            <div class="flex-grow-1 p-3 d-flex flex-column bg-black">
+                <h4 id="currentDreamFolderTitle" class="mb-3 text-info">Obecné</h4>
+                <div id="dreamList" class="row g-3 flex-grow-1 overflow-auto mb-3 align-content-start custom-scrollbar"></div>
+                <div class="mt-auto pt-3 border-top border-secondary">
+                    <button class="btn btn-info w-100" onclick="openDreamEditor()">+ Zaznamenat nový sen</button>
+                </div>
             </div>
         </div>
+
+        <div class="offcanvas-body p-0 d-none flex-row w-100" id="sectionWatchlist">
+            <div class="bg-dark border-end border-secondary d-flex flex-column" style="width: 250px;">
+                <div class="p-3 border-bottom border-secondary">
+                    <button class="btn btn-sm btn-outline-info w-100 d-flex justify-content-center align-items-center" onclick="createNewWatchlistFolder()">
+                        + Nová kategorie
+                    </button>
+                </div>
+                <div class="p-2 border-bottom border-secondary">
+                    <p class="text-muted small mb-0 text-center">Co si pustit příště...</p>
+                </div>
+                <div id="watchlistFolderTreeList" class="list-group list-group-flush flex-grow-1 overflow-auto rounded-0 custom-scrollbar"></div>
+            </div>
+
+            <div class="flex-grow-1 p-3 d-flex flex-column bg-black">
+                <h4 id="currentWatchlistFolderTitle" class="mb-3 text-info">Filmy</h4>
+                <div id="watchlistGrid" class="row g-3 flex-grow-1 overflow-auto mb-3 align-content-start custom-scrollbar"></div>
+                <div class="mt-auto pt-3 border-top border-secondary">
+                    <button class="btn btn-info w-100" onclick="openWatchlistEditor()">+ Přidat do Watchlistu</button>
+                </div>
+            </div>
+        </div>
+
     </div>
 
-    <div class="modal fade" id="dreamEditorModal" tabindex="-1" aria-hidden="true">
+    <div class="modal fade" id="dreamEditorModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
         <div class="modal-dialog modal-dialog-centered modal-lg">
             <div class="modal-content bg-dark text-light border-secondary shadow-lg">
                 <div class="modal-header border-secondary">
@@ -770,22 +853,70 @@
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <div class="mb-3">
-                        <label class="form-label text-secondary">Datum</label>
-                        <input type="date" id="dreamDate" class="form-control bg-dark text-light border-secondary">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label text-secondary">Datum</label>
+                            <input type="date" id="dreamDate" class="form-control bg-dark text-light border-secondary">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label text-info small">Zařadit do složky</label>
+                            <select id="dreamFolderSelect" class="form-select bg-dark text-light border-secondary"></select>
+                        </div>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label text-secondary">Popis snu</label>
-                        <textarea id="dreamDescription" class="form-control bg-dark text-light border-secondary" rows="6" placeholder="Co se ti zdálo?"></textarea>
+                        <div class="d-flex justify-content-between align-items-end mb-1">
+                            <label class="form-label text-secondary mb-0">Popis snu</label>
+                            <small class="text-muted" style="font-size: 0.75rem;">Podporuje Markdown</small>
+                        </div>
+                        <textarea id="dreamDescription" class="form-control bg-dark text-light border-secondary custom-scrollbar" rows="6" placeholder="Co se ti zdálo?"></textarea>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label text-secondary">Štítky</label>
+                        <label class="form-label text-secondary">Štítky (oddělené čárkou)</label>
                         <input type="text" id="dreamTags" class="form-control bg-dark text-light border-secondary" placeholder="např. noční můra, létání">
                     </div>
                 </div>
-                <div class="modal-footer border-secondary">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Zrušit</button>
+                <div class="modal-footer border-secondary justify-content-end">
+                    <button type="button" class="btn btn-secondary me-2" data-bs-dismiss="modal">Zrušit</button>
                     <button type="button" class="btn btn-info" onclick="saveDream()">Uložit sen</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="watchlistEditorModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content bg-dark text-light border-secondary shadow-lg">
+                <div class="modal-header border-secondary">
+                    <h5 class="modal-title text-info" id="watchlistEditorTitle">Přidat do Watchlistu</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row mb-3">
+                        <div class="col-md-8">
+                            <label class="form-label text-secondary">Název (Film, Seriál, Anime...)</label>
+                            <input type="text" id="watchlistTitle" class="form-control bg-dark text-light border-secondary" placeholder="Např. Interstellar">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label text-info small">Kategorie</label>
+                            <select id="watchlistFolderSelect" class="form-select bg-dark text-light border-secondary"></select>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label text-secondary">Stav</label>
+                        <select id="watchlistStatus" class="form-select bg-dark text-light border-secondary">
+                            <option value="Chci vidět">Chci vidět</option>
+                            <option value="Rozkoukáno">Rozkoukáno</option>
+                            <option value="Dokoukáno">Dokoukáno</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label text-secondary">Poznámka / Hodnocení</label>
+                        <textarea id="watchlistNotes" class="form-control bg-dark text-light border-secondary custom-scrollbar" rows="3" placeholder="Zatím to vypadá slibně..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer border-secondary justify-content-end">
+                    <button type="button" class="btn btn-secondary me-2" data-bs-dismiss="modal">Zrušit</button>
+                    <button type="button" class="btn btn-info" onclick="saveWatchlistItem()">Uložit do seznamu</button>
                 </div>
             </div>
         </div>
@@ -876,7 +1007,7 @@
                 <img src="assets/icons/fitness.png" class="me-2 icon-btn"> Fitness
             </button>
 
-            <button class="btn btn-gothic-lg w-100 text-start d-flex align-items-center" data-bs-toggle="modal" data-bs-target="#todoModal">
+            <button class="btn btn-gothic-lg w-100 text-start d-flex align-items-center" data-bs-dismiss="offcanvas" data-bs-toggle="offcanvas" data-bs-target="#todoSidebar">
                 <img src="assets/icons/todo.png" class="me-2 icon-btn"> Úkoly
             </button>
 
@@ -933,47 +1064,64 @@
     </div>
 
     <div class="modal fade" id="chatModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
-        <div class="modal-content bg-dark border border-secondary text-white">
-            
-            <div class="modal-header border-secondary bg-black">
-                <h5 class="modal-title brand-font text-danger">
-                    <img src="assets/icons/darkchat.png" class="me-2" style="width: 20px; filter: invert(1);"> 
-                    DarkChat
-                </h5>                
-            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
+        <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content bg-dark border border-secondary text-white shadow-lg">
+                
+                <div class="modal-header border-secondary bg-black">
+                    <h5 class="modal-title brand-font text-danger d-flex align-items-center">
+                        <img src="assets/icons/darkchat.png" class="me-2" style="width: 24px; filter: invert(1);"> 
+                        DarkChat
+                    </h5>                
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
 
-            <div class="modal-body p-0">
-                <div class="row g-0 h-100">
-                    
-                    <div class="col-md-4 border-end border-secondary bg-dark d-none d-md-flex flex-column">
-                        <div class="p-3 border-bottom border-secondary bg-black bg-opacity-25">
-                            <span class="text-muted small fw-bold">AKTIVNÍ AGENTI</span>
-                        </div>
-                        <div id="usersList" class="flex-grow-1 overflow-auto p-2" style="height: 500px;">
-                            </div>
-                    </div>
-
-                    <div class="col-md-8 d-flex flex-column bg-black bg-opacity-50">
-                        <div id="chatMessages" class="flex-grow-1 p-3 overflow-auto d-flex flex-column gap-3" style="height: 500px; background-image: url('https://www.transparenttextures.com/patterns/carbon-fibre.png');">
-                            </div>
-
-                        <div class="p-3 bg-dark border-top border-secondary">
-                            <div class="input-group">
-                                <input type="text" id="chatInput" class="form-control bg-black text-white border-secondary" placeholder="Vysílat zprávu..." disabled>
-                                <button class="btn btn-danger" id="sendBtn" onclick="sendMessage()" disabled>
-                                    <i class="fas fa-paper-plane"></i>
+                <div class="modal-body p-0">
+                    <div class="row g-0 h-100">
+                        
+                        <div class="col-md-4 border-end border-secondary bg-dark d-flex flex-column">
+                            
+                            <div class="p-3 border-bottom border-secondary bg-black bg-opacity-25">
+                                <input type="text" id="chatSearchUser" class="form-control bg-black text-white border-secondary mb-3" placeholder="Hledat agenta..." onkeyup="filterChatUsers()">
+                                
+                                <button class="btn btn-danger w-100 fw-bold d-flex align-items-center justify-content-center" id="btnGlobalChat" onclick="switchToGlobalChat()">
+                                    <i class="fas fa-globe me-2"></i> Globální Kanál
                                 </button>
                             </div>
-                        </div>
-                    </div>
 
+                            <div class="p-2 border-bottom border-secondary bg-black bg-opacity-50 d-flex justify-content-between align-items-center">
+                                <span class="text-muted small fw-bold">OSTATNÍ AGENTI</span>
+                                <span class="badge bg-secondary" id="onlineCount">0</span>
+                            </div>
+                            <div id="chatUsersList" class="list-group list-group-flush flex-grow-1 overflow-auto custom-scrollbar" style="height: 450px;">
+                                </div>
+                        </div>
+
+                        <div class="col-md-8 d-flex flex-column bg-black bg-opacity-50">
+                            
+                            <div class="p-3 border-bottom border-secondary bg-black d-flex align-items-center">
+                                <h4 class="m-0 text-danger brand-font" id="currentChatTitle">Globální Kanál</h4>
+                                <span class="badge bg-danger ms-2 d-none" id="privateChatBadge">Soukromé</span>
+                            </div>
+
+                            <div id="chatMessages" class="flex-grow-1 p-4 overflow-auto d-flex flex-column gap-3 custom-scrollbar" style="height: 400px; background-image: url('https://www.transparenttextures.com/patterns/carbon-fibre.png');">
+                                <div class="text-center text-muted mt-5"><em>Připojování k serveru...</em></div>
+                            </div>
+
+                            <div class="p-3 bg-dark border-top border-secondary">
+                                <div class="input-group">
+                                    <input type="text" id="chatInput" class="form-control bg-black text-white border-secondary" placeholder="Vysílat zprávu..." onkeypress="if(event.key === 'Enter') sendChatMessage()">
+                                    <button class="btn btn-danger" id="sendBtn" onclick="sendChatMessage()">
+                                        <i class="fas fa-paper-plane"></i> Odeslat
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
 
 
 
@@ -1238,6 +1386,7 @@
     <script src="js/gamification.js"></script>
     <script src="js/tarot.js"></script>
     <script src="js/cursor.js"></script>
+    <script src="js/chat.js"></script>
     <!--- script src="https://js-dos.com/cdn/js-dos-api.js"></script--->
 
     <script>
