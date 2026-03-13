@@ -152,6 +152,66 @@
         </div>
 
 
+        <!-- ══ PRAŽSKÉ SPOJE ══ -->
+        <div class="card bg-dark border-secondary text-light mb-4 shadow-lg w-75" style="max-width: 800px;" id="pid-card">
+            <div class="card-header border-secondary d-flex justify-content-between align-items-center">
+                <span class="text-uppercase ls-2 small">
+                    <i class="fas fa-subway me-2" style="color: #f5a623;"></i>Pražské spoje
+                </span>
+                <span class="badge bg-dark border border-secondary text-muted small" id="pid-api-badge">🔑 API klíč nevložen</span>
+            </div>
+            <div class="card-body p-3">
+
+                <!-- API klíč -->
+                <div id="pid-key-section" class="mb-3">
+                    <div class="input-group input-group-sm">
+                        <span class="input-group-text bg-dark border-secondary text-muted"><i class="fas fa-key"></i></span>
+                        <input type="password" id="pid-api-key" class="form-control bg-dark text-light border-secondary" placeholder="Vlož Golemio API klíč (api.golemio.cz)">
+                        <button class="btn btn-outline-warning btn-sm" onclick="pidSaveKey()">Uložit</button>
+                    </div>
+                    <small class="text-muted">Klíč se uloží lokálně a zůstane po restartu.</small>
+                </div>
+
+                <!-- Vyhledávací formulář -->
+                <div class="row g-2 mb-3">
+                    <div class="col-6 position-relative">
+                        <label class="form-label small text-muted mb-1"><i class="fas fa-map-marker-alt me-1" style="color:#f5a623;"></i>Odkud</label>
+                        <input type="text" id="pid-from-input" class="form-control bg-dark text-light border-secondary" placeholder="Např. Anděl" autocomplete="off" oninput="pidAutocomplete(this, 'pid-from-list', 'pid-from-id', 'pid-from-name')">
+                        <ul id="pid-from-list" class="list-group position-absolute w-100 shadow" style="z-index: 999; display:none; max-height: 180px; overflow-y:auto; top: 100%;"></ul>
+                    </div>
+                    <div class="col-6 position-relative">
+                        <label class="form-label small text-muted mb-1"><i class="fas fa-map-marker me-1" style="color:#9d4edd;"></i>Kam</label>
+                        <input type="text" id="pid-to-input" class="form-control bg-dark text-light border-secondary" placeholder="Např. Florenc" autocomplete="off" oninput="pidAutocomplete(this, 'pid-to-list', 'pid-to-id', 'pid-to-name')">
+                        <ul id="pid-to-list" class="list-group position-absolute w-100 shadow" style="z-index: 999; display:none; max-height: 180px; overflow-y:auto; top: 100%;"></ul>
+                    </div>
+                </div>
+
+                <div class="row g-2 mb-3">
+                    <div class="col-6">
+                        <label class="form-label small text-muted mb-1"><i class="fas fa-clock me-1"></i>Odjezd</label>
+                        <input type="datetime-local" id="pid-time" class="form-control bg-dark text-light border-secondary form-control-sm">
+                    </div>
+                    <div class="col-6 d-flex align-items-end">
+                        <button class="btn btn-warning w-100" onclick="pidSearch()" id="pid-search-btn">
+                            <i class="fas fa-search me-2"></i>Hledat spoj
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Swap tlačítko -->
+                <div class="text-center mb-2">
+                    <button class="btn btn-outline-secondary btn-sm px-3" onclick="pidSwap()" title="Prohodit zastávky">
+                        <i class="fas fa-exchange-alt me-1"></i> Prohodit
+                    </button>
+                </div>
+
+                <!-- Výsledky -->
+                <div id="pid-results" class="mt-2"></div>
+
+            </div>
+        </div>
+        <!-- ══ KONEC PRAŽSKÉ SPOJE ══ -->
+
         <div class="card bg-dark border-secondary text-light mb-5 shadow-lg w-75" style="max-width: 800px;">
             <div class="card-header border-secondary d-flex justify-content-between align-items-center">
                 <span class="text-uppercase ls-2 small">Zprávy z povrchu</span>
@@ -168,43 +228,115 @@
 
         
 
-        <div class="card bg-black bg-opacity-75 border-secondary text-light mb-4 shadow w-75" style="max-width: 800px; backdrop-filter: blur(5px); min-height: 480px; overflow: visible;">
+        <!-- DIGIHRY KARTA — DarkDash lifeOS (Enhanced v2.0) -->
+        <div class="card bg-black bg-opacity-75 border-secondary text-light mb-4 shadow w-75 position-relative" style="max-width: 800px; backdrop-filter: blur(5px); min-height: 480px; overflow: hidden;">
             <div class="card-header border-secondary d-flex justify-content-between align-items-center bg-transparent">
                 <h5 class="m-0 brand-font text-uppercase" style="letter-spacing: 2px; color: #9d4edd; text-shadow: 0 0 10px #9d4edd;">
                     <i class="fas fa-gamepad me-2"></i>Digihry
                 </h5>
                 <div class="btn-group btn-group-sm">
-                    <button class="btn btn-outline-secondary active" id="btnSnake" onclick="switchGame('snake')">Snake</button>
-                    <button class="btn btn-outline-secondary" id="btnTictac" onclick="switchGame('tictac')">Piškvorky</button>
+                    <button class="btn btn-outline-secondary active" id="btnSnake"  onclick="switchGame('snake')">Snake</button>
+                    <button class="btn btn-outline-secondary"        id="btnTictac" onclick="switchGame('tictac')">Piškvorky</button>
+                    <button class="btn btn-outline-secondary"        id="btnMemory" onclick="switchGame('memory')">Memory</button>
                 </div>
             </div>
-            <div class="card-body p-0 position-relative d-flex justify-content-center align-items-center bg-dark">
+
+            <div class="card-body p-0 position-relative d-flex justify-content-center align-items-center bg-dark" style="min-height: 420px;">
+
+                <!-- ══ SNAKE ══ -->
                 <div id="game-snake" class="game-container w-100 h-100 d-flex flex-column align-items-center justify-content-center p-3 position-relative">
-                    <canvas id="snakeCanvas" width="320" height="320"></canvas>
+                    <canvas id="snakeCanvas" width="320" height="320" style="border: 1px solid rgba(157,78,221,0.2); border-radius: 6px;"></canvas>
+
+                    <!-- Start / Game Over overlay -->
                     <div id="snakeOverlay" class="position-absolute top-0 start-0 w-100 h-100 d-flex flex-column align-items-center justify-content-center bg-black bg-opacity-75" style="z-index: 10;">
-                        <h2 class="brand-font text-white mb-3" style="text-shadow: 0 0 10px #9d4edd;">SNAKE</h2>
-                        <button class="btn btn-outline-warning btn-lg px-4" onclick="startSnakeGame()"><i class="fas fa-play me-2"></i>HRÁT</button>
-                        <small class="text-muted mt-2">Kliknutím získáš ovládání</small>
+                        <h2 class="brand-font text-white mb-1" style="text-shadow: 0 0 14px #9d4edd; letter-spacing: 4px;">SNAKE</h2>
+                        <small class="text-muted mb-3">Best: <span id="snakeHighScore" class="text-warning">0</span></small>
+                        <button class="btn btn-outline-warning btn-lg px-4" onclick="startSnakeGame()">
+                            <i class="fas fa-play me-2"></i>HRÁT
+                        </button>
+                        <small class="text-muted mt-2">Ovládání: šipky na klávesnici</small>
                     </div>
-                    <div class="mt-2 text-muted small">Ovládání: Šipky | Skóre: <span id="snakeScore" class="text-white fw-bold">0</span></div>
+
+                    <!-- Score bar -->
+                    <div class="mt-2 d-flex gap-3 text-muted small">
+                        <span>Skóre: <span id="snakeScore" class="text-white fw-bold">0</span></span>
+                        <span class="text-secondary">|</span>
+                        <span>Rekord: <span id="snakeHighScore2" class="text-warning fw-bold">0</span></span>
+                    </div>
                 </div>
-                <div id="game-tictac" class="game-container w-100 h-100 flex-column align-items-center justify-content-center p-3" style="display: none;">
+
+                <!-- ══ PIŠKVORKY ══ -->
+                <div id="game-tictac" class="game-container w-100 h-100 d-flex flex-column align-items-center justify-content-center p-3" style="display: none !important; gap: 16px;">
                     <div class="tictac-grid" id="tictacGrid"></div>
-                    <div class="mt-3 text-muted small" id="tictacStatus">Jsi na tahu (X)</div>
-                    <button class="btn btn-sm btn-outline-danger mt-2" onclick="initTicTac()">Restart</button>
+                    <div class="text-muted small" id="tictacStatus">Jsi na tahu</div>
+                    <button class="btn btn-sm btn-outline-secondary" onclick="initTicTac()">
+                        <i class="fas fa-redo me-1"></i>Restart
+                    </button>
                 </div>
-                <div id="doom-container" class="position-absolute top-0 start-0 w-100 h-100 bg-black flex-column align-items-center justify-content-center" style="display: none; z-index: 50;">
-                    <div id="doom-loading" class="text-warning brand-font fs-4 mb-3" style="display: none;"><span class="spinner-border spinner-border-sm me-2"></span> Načítám...</div>
-                    <div id="dosbox" style="width: 100%; height: 80%;"></div>
-                    <button class="btn btn-sm btn-danger position-absolute top-0 end-0 m-3" onclick="closeDoom()">X</button>
+
+                <!-- ══ MEMORY ══ -->
+                <div id="game-memory" class="game-container w-100 h-100 d-flex flex-column align-items-center justify-content-center p-3" style="display: none !important; gap: 14px;">
+                    <!-- Hlavička se stats -->
+                    <div class="d-flex gap-4 small text-muted">
+                        <span>Tahy: <span id="memoryMoves" class="text-white fw-bold">0</span></span>
+                        <span>Čas: <span id="memoryTimer" class="text-info fw-bold">0s</span></span>
+                    </div>
+                    <!-- Grid karet -->
+                    <div class="memory-grid" id="memoryGrid"></div>
+                    <!-- Status / výsledek -->
+                    <div class="small text-muted" id="memoryStatus">&nbsp;</div>
+                    <button class="btn btn-sm btn-outline-secondary" onclick="initMemory()">
+                        <i class="fas fa-redo me-1"></i>Nová hra
+                    </button>
                 </div>
+
             </div>
-            <div class="card-footer border-secondary bg-transparent d-flex justify-content-between align-items-center">
-                <button class="btn btn-sm btn-outline-secondary d-flex align-items-center gap-2" onclick="this.closest('.card').style.display='none'" oncontextmenu="event.preventDefault(); triggerDoom(event);" title="Pravý klik pro překvapení"><i class="fas fa-times"></i> Zavřít sekci</button>
+
+            <!-- ══ DOOM EASTER EGG ══ -->
+            <!-- Překrývá header + body. Footer je mimo (bottom = výška footeru) -->
+            <div id="doom-container" style="display:none; position:absolute; top:0; left:0; right:0; bottom:52px; z-index:50; background:#000;">
+
+                <!-- Loading overlay -->
+                <div id="doom-loading" style="position:absolute; inset:0; z-index:55; background:#000;
+                    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:12px; pointer-events:none;">
+                    <div class="spinner-border text-warning" style="width:3rem; height:3rem;"></div>
+                    <span class="brand-font text-warning fs-5">Načítám DOOM...</span>
+                    <small class="text-muted">Stahuje se engine, chvíli to trvá...</small>
+                </div>
+
+                <!-- js-dos v8 target div -->
+                <div id="jsdos-target" style="width:100%; height:100%;"></div>
+            </div>
+
+            <!-- Tlačítko zavřít DOOM — vždy viditelné, ve footeru vlevo vedle "Zavřít sekci" -->
+            <div id="doom-close-btn" style="display:none; position:relative; z-index:70;">
+                <button onclick="closeDoom()"
+                        style="background:#dc3545; border:none; color:#fff; font-size:13px; font-weight:600;
+                            padding:5px 12px; border-radius:6px; cursor:pointer; letter-spacing:0.5px;">
+                    × Zavřít DOOM
+                </button>
+            </div>
+
+            <div class="card-footer border-secondary bg-transparent d-flex justify-content-between align-items-center" style="position:relative; z-index:60;">
+                <div class="d-flex align-items-center gap-2">
+                    <button
+                        class="btn btn-sm btn-outline-secondary d-flex align-items-center gap-2"
+                        onclick="this.closest('.card').style.display='none'"
+                        oncontextmenu="event.preventDefault(); triggerDoom(event);"
+                        title="Pravý klik pro překvapení">
+                        <i class="fas fa-times"></i> Zavřít sekci
+                    </button>
+                    <!-- Tlačítko zavřít DOOM — zobrazí se jen když je DOOM aktivní -->
+                    <button id="doom-close-btn"
+                            onclick="closeDoom()"
+                            style="display:none; background:#dc3545; border:none; color:#fff; font-size:12px;
+                                font-weight:600; padding:4px 12px; border-radius:6px; cursor:pointer;">
+                        × Zavřít DOOM
+                    </button>
+                </div>
                 <span class="text-muted small fst-italic">Gothic Edition</span>
             </div>
         </div>
-
         <div class="card border-secondary text-light mb-4 shadow w-75" style="max-width: 800px; background: linear-gradient(90deg, #0f0c29 0%, #302b63 100%);">
             <div class="card-body p-4 d-flex justify-content-between align-items-center">
                 <div class="d-flex align-items-center gap-3">
@@ -1623,6 +1755,211 @@
             }
         }
     </script>
+
+    <!-- ══ PRAŽSKÉ SPOJE JS ══ -->
+    <script>
+    (function() {
+        // ── Stav ──
+        let pidKey = localStorage.getItem('pid_api_key') || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NDQyNCwiaWF0IjoxNzY2NDAxNTMzLCJleHAiOjExNzY2NDAxNTMzLCJpc3MiOiJnb2xlbWlvIiwianRpIjoiYzUzMTI2NzktYzFlZC00YzM2LTlkZTQtOTdlYmEyM2Y4ZGQ1In0.EOeL8we8TrhrengjTCHYoWsWsVNPgLqbgoaTECZXchI';
+        const pidFromId   = { value: null };
+        const pidToId     = { value: null };
+        const pidFromName = { value: '' };
+        const pidToName   = { value: '' };
+
+        // ── Init ──
+        document.addEventListener('DOMContentLoaded', () => {
+            // Nastav čas na teď
+            const now = new Date();
+            now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+            const el = document.getElementById('pid-time');
+            if (el) el.value = now.toISOString().slice(0, 16);
+
+            if (pidKey) {
+                document.getElementById('pid-key-section').style.display = 'none';
+                document.getElementById('pid-api-badge').textContent = '✅ API klíč uložen';
+                document.getElementById('pid-api-badge').className = 'badge bg-dark border border-success text-success small';
+            }
+        });
+
+        // Zavři dropdown při kliknutí mimo
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('#pid-card')) {
+                document.getElementById('pid-from-list').style.display = 'none';
+                document.getElementById('pid-to-list').style.display = 'none';
+            }
+        });
+
+        // ── Uložení API klíče ──
+        window.pidSaveKey = function() {
+            const val = document.getElementById('pid-api-key').value.trim();
+            if (!val) return;
+            pidKey = val;
+            localStorage.setItem('pid_api_key', val);
+            document.getElementById('pid-key-section').style.display = 'none';
+            document.getElementById('pid-api-badge').textContent = '✅ API klíč uložen';
+            document.getElementById('pid-api-badge').className = 'badge bg-dark border border-success text-success small';
+        };
+
+        // ── Pomocná funkce: fetch přes vlastní Cloudflare Worker proxy ──
+        // ⚠️ Po nasazení workeru sem vlož jeho URL (např. https://golemio-proxy.tvujucet.workers.dev)
+        const WORKER_URL = 'https://golemio.padislav.workers.dev';
+
+        async function pidFetch(path, params = {}) {
+            params['apikey'] = pidKey;
+            const qs = new URLSearchParams(params).toString();
+            const url = `${WORKER_URL}${path}?${qs}`;
+            const res = await fetch(url);
+            if (!res.ok) {
+                const txt = await res.text();
+                throw new Error(`HTTP ${res.status}: ${txt.slice(0, 120)}`);
+            }
+            return res.json();
+        }
+
+        // ── Autocomplete zastávek ──
+        let acTimers = {};
+        window.pidAutocomplete = async function(inputEl, listId, idRef, nameRef) {
+            const query = inputEl.value.trim();
+            const list = document.getElementById(listId);
+            if (query.length < 2) { list.style.display = 'none'; return; }
+            if (!pidKey) { pidShowError('Nejdřív vlož API klíč Golemio.'); return; }
+
+            clearTimeout(acTimers[listId]);
+            acTimers[listId] = setTimeout(async () => {
+                try {
+                    const data = await pidFetch('/v2/gtfs/stops', { limit: 8, names: query });
+                    const stops = data.features || [];
+
+                    list.innerHTML = '';
+                    if (stops.length === 0) {
+                        list.innerHTML = '<li class="list-group-item bg-dark text-muted border-secondary small">Žádné zastávky nenalezeny</li>';
+                        list.style.display = 'block';
+                        return;
+                    }
+
+                    stops.forEach(s => {
+                        const name = s.properties.stop_name;
+                        const id   = s.properties.stop_id;
+                        const li = document.createElement('li');
+                        li.className = 'list-group-item list-group-item-action bg-dark text-light border-secondary small py-2';
+                        li.style.cursor = 'pointer';
+                        li.innerHTML = `<i class="fas fa-map-marker-alt me-2 text-warning"></i>${name}`;
+                        li.onclick = () => {
+                            inputEl.value = name;
+                            if (idRef === 'pid-from-id') { pidFromId.value = id; pidFromName.value = name; }
+                            else { pidToId.value = id; pidToName.value = name; }
+                            list.style.display = 'none';
+                        };
+                        list.appendChild(li);
+                    });
+                    list.style.display = 'block';
+                } catch(e) {
+                    console.error('PID autocomplete error:', e);
+                    list.innerHTML = `<li class="list-group-item bg-dark text-danger border-secondary small">Chyba: ${e.message}</li>`;
+                    list.style.display = 'block';
+                }
+            }, 350);
+        };
+
+        // ── Prohodit zastávky ──
+        window.pidSwap = function() {
+            const fi = document.getElementById('pid-from-input');
+            const ti = document.getElementById('pid-to-input');
+            [fi.value, ti.value] = [ti.value, fi.value];
+            [pidFromId.value, pidToId.value] = [pidToId.value, pidFromId.value];
+            [pidFromName.value, pidToName.value] = [pidToName.value, pidFromName.value];
+        };
+
+        // ── Vyhledávání spojů ──
+        window.pidSearch = async function() {
+            if (!pidKey) { pidShowError('Nejdřív vlož API klíč Golemio.'); return; }
+            if (!pidFromId.value || !pidToId.value) {
+                pidShowError('Vyber zastávky z nabídky (začni psát a klikni na zastávku).');
+                return;
+            }
+
+            const results = document.getElementById('pid-results');
+            results.innerHTML = `<div class="text-center py-4 text-muted"><div class="spinner-border spinner-border-sm me-2" role="status"></div>Hledám spoje...</div>`;
+
+            const timeVal = document.getElementById('pid-time').value;
+            const departureTime = timeVal ? new Date(timeVal).toISOString() : new Date().toISOString();
+
+            try {
+                const data = await pidFetch('/v2/pid/departureboards', {
+                    stopId: pidFromId.value,
+                    minutesBefore: 0,
+                    minutesAfter: 90,
+                    airCondition: false,
+                    preferredTimezone: 'Europe/Prague',
+                    mode: 'departures',
+                    limit: 10
+                });
+                const deps = data.departures || [];
+
+                if (deps.length === 0) {
+                    results.innerHTML = `<div class="alert alert-dark border-secondary text-muted text-center small">Žádné odjezdy nenalezeny pro vybranou zastávku.</div>`;
+                    return;
+                }
+
+                // Filtruj směrem k cílové zastávce — zobrazíme všechny odjezdy z výchozí
+                let html = `
+                <div class="mb-2 small text-muted">
+                    Odjezdy z <strong class="text-warning">${pidFromName.value}</strong> 
+                    → směr <strong class="text-info">${pidToName.value}</strong>
+                    <span class="ms-2 text-secondary">(nejbližší spoje)</span>
+                </div>
+                <div class="table-responsive">
+                <table class="table table-dark table-sm table-borderless mb-0">
+                    <thead><tr class="text-muted small border-bottom border-secondary">
+                        <th>Linka</th><th>Směr</th><th>Odjezd</th><th>Zpoždění</th><th>Nástupiště</th>
+                    </tr></thead><tbody>`;
+
+                deps.slice(0, 8).forEach(d => {
+                    const route  = d.route?.short_name || '?';
+                    const headsign = d.trip?.headsign || '—';
+                    const dep    = d.departure_timestamp?.predicted || d.departure_timestamp?.scheduled;
+                    const depTime = dep ? new Date(dep).toLocaleTimeString('cs-CZ', {hour:'2-digit', minute:'2-digit'}) : '??:??';
+                    const delay  = d.delay?.seconds != null ? Math.round(d.delay.seconds / 60) : null;
+                    const platform = d.stop?.platform_code || '—';
+                    const type   = d.route?.type;
+                    const icon   = type === 1 ? '🚇' : type === 0 ? '🚋' : type === 3 ? '🚌' : type === 2 ? '🚂' : '🚍';
+
+                    const delayBadge = delay === null
+                        ? '<span class="text-muted">—</span>'
+                        : delay <= 1
+                            ? `<span class="badge bg-success bg-opacity-25 text-success">+${delay} min</span>`
+                            : `<span class="badge bg-danger bg-opacity-25 text-danger">+${delay} min</span>`;
+
+                    const routeColor = type === 1 ? '#ffcc00' : type === 0 ? '#4db8ff' : '#f5a623';
+
+                    html += `<tr class="border-bottom border-secondary border-opacity-25 align-middle">
+                        <td><span class="badge rounded-pill fw-bold px-2 py-1" style="background:${routeColor}22; color:${routeColor}; border:1px solid ${routeColor}44;">${icon} ${route}</span></td>
+                        <td class="text-light small text-truncate" style="max-width:160px;">${headsign}</td>
+                        <td class="fw-bold text-warning">${depTime}</td>
+                        <td>${delayBadge}</td>
+                        <td class="text-muted small">${platform}</td>
+                    </tr>`;
+                });
+
+                html += `</tbody></table></div>
+                <div class="text-end mt-1">
+                    <small class="text-muted">Data: <a href="https://api.golemio.cz" target="_blank" class="text-muted">Golemio / PID</a></small>
+                </div>`;
+
+                results.innerHTML = html;
+            } catch(e) {
+                console.error('PID search error:', e);
+                pidShowError(`Chyba při načítání: ${e.message}`);
+            }
+        };
+
+        function pidShowError(msg) {
+            document.getElementById('pid-results').innerHTML = `<div class="alert alert-dark border-danger text-danger small"><i class="fas fa-exclamation-triangle me-2"></i>${msg}</div>`;
+        }
+
+    })();
+    </script>
+    <!-- ══ KONEC PRAŽSKÉ SPOJE JS ══ -->
 
     <script>
         // Registrace Service Workeru pro PWA
