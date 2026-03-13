@@ -349,11 +349,19 @@
 
     </div>
 
+    <!-- FITNESS CENTRUM MODAL — DarkDash lifeOS (Enhanced v2.1) -->
     <div class="modal fade" id="fitnessModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-xl">
             <div class="modal-content bg-dark text-light border-secondary shadow-lg">
                 <div class="modal-header border-secondary">
-                    <h5 class="modal-title text-warning brand-font">Fitness Centrum</h5>
+                    <h5 class="modal-title text-warning brand-font d-flex align-items-center gap-2">
+                        Fitness Centrum
+                        <span class="d-flex align-items-center gap-1 ms-3">
+                            <img id="streakFire" src="assets/icons/energy.png" style="width:18px; transition: opacity .3s;" alt="">
+                            <span id="streakCount" class="text-warning brand-font" style="font-size:20px;">0</span>
+                            <span class="text-muted" style="font-size:11px;">dní v řadě</span>
+                        </span>
+                    </h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body p-0">
@@ -364,58 +372,244 @@
                         <li class="nav-item"><button class="nav-link text-light d-flex align-items-center gap-2" id="challenges-tab" data-bs-toggle="tab" data-bs-target="#fitness-challenges" type="button"><img src="assets/icons/challenge-done.png" style="width: 18px;"> Výzvy</button></li>
                         <li class="nav-item"><button class="nav-link text-light d-flex align-items-center gap-2" id="tools-tab" data-bs-toggle="tab" data-bs-target="#fitness-tools" type="button"><img src="assets/icons/tools.png" style="width: 18px;"> Nástroje</button></li>
                     </ul>
+
                     <div class="tab-content p-4" id="fitnessTabContent">
+
+                        <!-- TAB: ZAPIS -->
                         <div class="tab-pane fade show active" id="fitness-log">
                             <div class="row">
                                 <div class="col-md-4 border-end border-secondary">
                                     <h6 class="text-warning mb-3">Přidat aktivitu</h6>
-                                    <div class="mb-3"><label class="small text-muted">Datum</label><input type="date" id="fitDate" class="form-control bg-dark text-light border-secondary"></div>
-                                    <div class="mb-3"><label class="small text-muted">Typ cvičení</label><select id="fitCategory" class="form-select bg-dark text-light border-secondary mb-2" onchange="toggleFitInputs()"><option value="strength">Síla</option><option value="cardio">Kardio</option><option value="calisthenics">Kalistenika</option><option value="sport">Sport</option></select><input type="text" id="fitExercise" class="form-control bg-dark text-light border-secondary" placeholder="Název"></div>
-                                    <div id="inputStrength" class="fit-inputs"><div class="row g-2"><div class="col-6"><input type="number" id="valWeight" class="form-control bg-dark text-light border-secondary" placeholder="Váha (kg)"></div><div class="col-6"><input type="number" id="valReps" class="form-control bg-dark text-light border-secondary" placeholder="Opakování"></div></div></div>
-                                    <div id="inputCardio" class="fit-inputs" style="display:none;"><div class="row g-2"><div class="col-6"><input type="number" id="valDist" class="form-control bg-dark text-light border-secondary" placeholder="Km"></div><div class="col-6"><input type="text" id="valTime" class="form-control bg-dark text-light border-secondary" placeholder="Čas"></div></div></div>
-                                    <div id="inputCalisthenics" class="fit-inputs" style="display:none;"><input type="number" id="valCount" class="form-control bg-dark text-light border-secondary" placeholder="Počet"></div>
-                                    <div id="inputSport" class="fit-inputs" style="display:none;"><input type="number" id="valScore" class="form-control bg-dark text-light border-secondary" placeholder="Skóre"></div>
-                                    <div class="mt-3"><input type="text" id="fitNote" class="form-control bg-dark text-light border-secondary" placeholder="Poznámka"></div>
-                                    <button class="btn btn-warning w-100 mt-3" onclick="addFitnessLog()">Uložit záznam</button>
+                                    <div class="mb-3">
+                                        <label class="small text-muted">Datum</label>
+                                        <input type="date" id="fitDate" class="form-control bg-dark text-light border-secondary">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="small text-muted">Typ cvičení</label>
+                                        <select id="fitCategory" class="form-select bg-dark text-light border-secondary mb-2" onchange="toggleFitInputs()">
+                                            <option value="strength">Síla</option>
+                                            <option value="cardio">Kardio</option>
+                                            <option value="calisthenics">Kalistenika</option>
+                                            <option value="sport">Sport</option>
+                                        </select>
+                                        <input type="text" id="fitExercise" class="form-control bg-dark text-light border-secondary" placeholder="Název cviku...">
+                                    </div>
+
+                                    <div id="inputStrength" class="fit-inputs">
+                                        <div class="row g-2">
+                                            <div class="col-4"><input type="number" id="valWeight" class="form-control bg-dark text-light border-secondary" placeholder="Váha kg"></div>
+                                            <div class="col-4"><input type="number" id="valReps" class="form-control bg-dark text-light border-secondary" placeholder="Reps"></div>
+                                            <div class="col-4"><input type="number" id="valSets" class="form-control bg-dark text-light border-secondary" placeholder="Série" value="1"></div>
+                                        </div>
+                                    </div>
+
+                                    <div id="inputCardio" class="fit-inputs" style="display:none;">
+                                        <div class="row g-2">
+                                            <div class="col-6"><input type="number" id="valDist" class="form-control bg-dark text-light border-secondary" placeholder="Km"></div>
+                                            <div class="col-6"><input type="text" id="valTime" class="form-control bg-dark text-light border-secondary" placeholder="HH:MM:SS"></div>
+                                        </div>
+                                        <div class="small text-muted mt-1">Tempo se dopočítá automaticky.</div>
+                                    </div>
+
+                                    <div id="inputCalisthenics" class="fit-inputs" style="display:none;">
+                                        <input type="number" id="valCount" class="form-control bg-dark text-light border-secondary" placeholder="Počet opakování">
+                                    </div>
+
+                                    <div id="inputSport" class="fit-inputs" style="display:none;">
+                                        <input type="number" id="valScore" class="form-control bg-dark text-light border-secondary" placeholder="Skóre / výkon">
+                                    </div>
+
+                                    <div class="mt-3">
+                                        <input type="text" id="fitNote" class="form-control bg-dark text-light border-secondary" placeholder="Poznámka (volitelné)">
+                                    </div>
+                                    <button class="btn btn-warning w-100 mt-3 fw-bold" onclick="addFitnessLog()">Uložit záznam</button>
                                 </div>
+
                                 <div class="col-md-8 ps-md-4">
-                                    <h6 class="text-info mb-3">Tréninkový Deník</h6>
+                                    <div class="d-flex justify-content-between align-items-center mb-3">
+                                        <h6 class="text-info m-0">Tréninkový Deník</h6>
+                                    </div>
                                     <div id="fitnessLogContainer" class="overflow-auto custom-scrollbar" style="height: 450px;"></div>
                                 </div>
                             </div>
                         </div>
+
+                        <!-- TAB: PROGRES -->
                         <div class="tab-pane fade" id="fitness-stats">
-                            <div class="d-flex justify-content-between align-items-center mb-4"><h5 class="m-0 text-success">Analýza Výkonu</h5><select id="chartExerciseSelect" class="form-select bg-dark text-light border-secondary w-auto" onchange="updateChart()"><option value="">Vyber aktivitu...</option></select></div>
-                            <div class="bg-black bg-opacity-50 p-3 rounded border border-secondary" style="height: 300px;"><canvas id="fitnessChart"></canvas></div>
-                            <div class="row mt-4 text-center g-3">
-                                <div class="col-md-3"><div class="p-3 border border-secondary rounded bg-dark h-100"><small class="text-muted d-block">Celkem Dní</small><span class="text-warning brand-font fs-3" id="statTotalWorkouts">0</span></div></div>
-                                <div class="col-md-3"><div class="p-3 border border-secondary rounded bg-dark h-100"><small class="text-muted d-block">Celkem Km</small><span class="text-info brand-font fs-3" id="statTotalKm">0</span></div></div>
-                                <div class="col-md-3"><div class="p-3 border border-secondary rounded bg-dark h-100"><small class="text-muted d-block">Volume (Tuny)</small><span class="text-success brand-font fs-3" id="statTotalVolume">0</span></div></div>
-                                <div class="col-md-3"><div class="p-3 border border-secondary rounded bg-dark h-100"><small class="text-muted d-block">Bodyweight Reps</small><span class="text-danger brand-font fs-3" id="statTotalReps">0</span></div></div>
+                            <div class="mb-4">
+                                <h6 class="text-muted mb-2">Aktivita za posledních 16 týdnů</h6>
+                                <div id="activityHeatmap" class="p-3 bg-black bg-opacity-25 rounded border border-secondary"></div>
+                            </div>
+
+                            <div class="row mb-4 text-center g-3">
+                                <div class="col-6 col-md-3">
+                                    <div class="p-3 border border-secondary rounded bg-dark h-100">
+                                        <small class="text-muted d-block">Celkem Dní</small>
+                                        <span class="text-warning brand-font fs-3" id="statTotalWorkouts">0</span>
+                                    </div>
+                                </div>
+                                <div class="col-6 col-md-3">
+                                    <div class="p-3 border border-secondary rounded bg-dark h-100">
+                                        <small class="text-muted d-block">Tento Týden</small>
+                                        <span class="text-success brand-font fs-3" id="statThisWeek">0</span>
+                                    </div>
+                                </div>
+                                <div class="col-6 col-md-3">
+                                    <div class="p-3 border border-secondary rounded bg-dark h-100">
+                                        <small class="text-muted d-block">Celkem Km</small>
+                                        <span class="text-info brand-font fs-3" id="statTotalKm">0</span>
+                                    </div>
+                                </div>
+                                <div class="col-6 col-md-3">
+                                    <div class="p-3 border border-secondary rounded bg-dark h-100">
+                                        <small class="text-muted d-block">Volume (Tuny)</small>
+                                        <span class="text-danger brand-font fs-3" id="statTotalVolume">0</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h5 class="m-0 text-success">Analýza výkonu</h5>
+                                <select id="chartExerciseSelect" class="form-select bg-dark text-light border-secondary w-auto" onchange="updateChart()">
+                                    <option value="">Vyber aktivitu...</option>
+                                </select>
+                            </div>
+                            <div id="chartPR" class="text-center small text-muted mb-2"></div>
+                            <div class="bg-black bg-opacity-50 p-3 rounded border border-secondary" style="height: 260px;">
+                                <canvas id="fitnessChart"></canvas>
                             </div>
                         </div>
+
+                        <!-- TAB: JIDLO -->
                         <div class="tab-pane fade" id="fitness-diet">
                             <div class="row">
                                 <div class="col-md-4 border-end border-secondary">
                                     <h6 class="text-danger mb-3">Přidat Jídlo</h6>
-                                    <input type="text" id="dietFood" class="form-control bg-dark text-light border-secondary mb-2" placeholder="Název">
-                                    <input type="number" id="dietKcal" class="form-control bg-dark text-light border-secondary mb-3" placeholder="Kalorie">
-                                    <button class="btn btn-danger w-100" onclick="addDietEntry()">Sníst</button>
-                                    <div class="mt-4 p-3 bg-black bg-opacity-50 rounded border border-secondary text-center"><small class="text-muted">Dnes přijato</small><h2 class="text-light brand-font m-0" id="dailyKcalDisplay">0 kcal</h2></div>
+
+                                    <div class="position-relative mb-2">
+                                        <input type="text" id="dietFood" class="form-control bg-dark text-light border-secondary"
+                                            placeholder="Hledat jídlo..."
+                                            oninput="searchFood(this.value)">
+                                        <div id="foodSearchResults" class="bg-dark border border-secondary rounded-bottom"></div>
+                                    </div>
+                                    <div class="d-flex gap-2 mb-2">
+                                        <input type="number" id="dietKcal" class="form-control bg-dark text-light border-secondary" placeholder="Kalorie (kcal)">
+                                    </div>
+                                    <button class="btn btn-danger w-100 mb-3" onclick="addDietEntry()">Přidat</button>
+
+                                    <div class="text-center p-3 bg-black bg-opacity-50 rounded border border-secondary">
+                                        <div id="kcalRingBar" style="background: conic-gradient(#198754 0deg, #1a1a1a 0deg);">
+                                            <div class="kcal-ring-inner">
+                                                <span class="text-light fw-bold" id="dailyKcalDisplay" style="font-size:14px;">0 kcal</span>
+                                            </div>
+                                        </div>
+                                        <div class="text-muted small" id="kcalGoalDisplay">/ 2500 kcal cíl</div>
+                                        <button class="btn btn-outline-secondary btn-sm mt-2" onclick="setKcalGoal()">Nastavit cíl</button>
+                                    </div>
                                 </div>
-                                <div class="col-md-8 ps-md-4"><h6 class="text-danger mb-3">Dnešní Menu</h6><ul id="dietList" class="list-group list-group-flush"></ul></div>
+
+                                <div class="col-md-8 ps-md-4">
+                                    <h6 class="text-danger mb-3">Dnešní Menu</h6>
+                                    <ul id="dietList" class="list-unstyled overflow-auto custom-scrollbar" style="max-height: 420px;"></ul>
+                                </div>
                             </div>
                         </div>
+
+                        <!-- TAB: VYZVY -->
                         <div class="tab-pane fade" id="fitness-challenges">
-                            <h5 class="text-info mb-4 text-center">Aktivní Výzvy</h5>
-                            <div id="challengesContainer" class="d-flex flex-wrap gap-3 justify-content-center"></div>
+                            <h5 class="text-info mb-4 text-center">Výzvy & Cíle</h5>
+                            <div id="challengesContainer" class="d-flex flex-column gap-2 overflow-auto custom-scrollbar" style="max-height: 480px;"></div>
                         </div>
+
+                        <!-- TAB: NASTROJE -->
                         <div class="tab-pane fade" id="fitness-tools">
-                            <div class="row justify-content-center g-4">
-                                <div class="col-md-6"><div class="p-4 border border-secondary rounded bg-black bg-opacity-25 h-100"><h5 class="text-warning mb-3">Kalkulačka 1RM</h5><div class="input-group mb-3"><input type="number" id="rmWeight" class="form-control bg-dark text-light border-secondary" placeholder="Váha (kg)"><input type="number" id="rmReps" class="form-control bg-dark text-light border-secondary" placeholder="Opakování"><button class="btn btn-outline-warning" onclick="calculate1RM()">Vypočítat</button></div><div id="rmResult" class="text-center d-none"><small class="text-muted">Tvůj odhad 1 Rep Max:</small><h1 class="text-success brand-font display-4" id="rmValue">0 kg</h1></div></div></div>
-                                <div class="col-md-6"><div class="p-4 border border-secondary rounded bg-black bg-opacity-25 h-100 text-center"><h5 class="text-info mb-3">Záloha Dat</h5><button class="btn btn-outline-info w-100 mb-2" onclick="exportFitnessData()">⬇ Stáhnout data</button><button class="btn btn-outline-secondary w-100" onclick="document.getElementById('importFile').click()">⬆ Nahrát data</button><input type="file" id="importFile" style="display: none;" onchange="importFitnessData(this)"></div></div>
+                            <div class="row g-4">
+
+                                <!-- 1RM -->
+                                <div class="col-md-6">
+                                    <div class="p-4 border border-secondary rounded bg-black bg-opacity-25 h-100">
+                                        <h5 class="text-warning mb-3 d-flex align-items-center gap-2">
+                                            <img src="assets/icons/tools.png" style="width:18px;"> Kalkulačka 1RM
+                                        </h5>
+                                        <div class="row g-2 mb-3">
+                                            <div class="col-6"><input type="number" id="rmWeight" class="form-control bg-dark text-light border-secondary" placeholder="Váha (kg)"></div>
+                                            <div class="col-6"><input type="number" id="rmReps" class="form-control bg-dark text-light border-secondary" placeholder="Opakování"></div>
+                                        </div>
+                                        <button class="btn btn-outline-warning w-100 mb-3" onclick="calculate1RM()">Vypočítat</button>
+                                        <div id="rmResult" class="d-none">
+                                            <div class="text-center mb-3">
+                                                <small class="text-muted">Tvůj odhad 1 Rep Max:</small>
+                                                <h1 class="text-success brand-font display-4 m-0" id="rmValue">0 kg</h1>
+                                            </div>
+                                            <div id="rmPercentages"></div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- BMI -->
+                                <div class="col-md-6">
+                                    <div class="p-4 border border-secondary rounded bg-black bg-opacity-25 h-100">
+                                        <h5 class="text-info mb-3 d-flex align-items-center gap-2">
+                                            <img src="assets/icons/chart.png" style="width:18px;"> BMI Kalkulačka
+                                        </h5>
+                                        <div class="row g-2 mb-3">
+                                            <div class="col-6"><input type="number" id="bmiWeight" class="form-control bg-dark text-light border-secondary" placeholder="Váha (kg)"></div>
+                                            <div class="col-6"><input type="number" id="bmiHeight" class="form-control bg-dark text-light border-secondary" placeholder="Výška (cm)"></div>
+                                        </div>
+                                        <button class="btn btn-outline-info w-100 mb-3" onclick="calculateBMI()">Vypočítat BMI</button>
+                                        <div id="bmiResult" class="d-none"></div>
+                                    </div>
+                                </div>
+
+                                <!-- TDEE -->
+                                <div class="col-md-6">
+                                    <div class="p-4 border border-secondary rounded bg-black bg-opacity-25 h-100">
+                                        <h5 class="text-success mb-3 d-flex align-items-center gap-2">
+                                            <img src="assets/icons/energy.png" style="width:18px;"> TDEE Kalkulačka
+                                        </h5>
+                                        <div class="row g-2 mb-2">
+                                            <div class="col-4"><input type="number" id="tdeeWeight" class="form-control bg-dark text-light border-secondary" placeholder="Váha kg"></div>
+                                            <div class="col-4"><input type="number" id="tdeeHeight" class="form-control bg-dark text-light border-secondary" placeholder="Výška cm"></div>
+                                            <div class="col-4"><input type="number" id="tdeeAge" class="form-control bg-dark text-light border-secondary" placeholder="Věk"></div>
+                                        </div>
+                                        <div class="row g-2 mb-3">
+                                            <div class="col-6">
+                                                <select id="tdeeGender" class="form-select bg-dark text-light border-secondary">
+                                                    <option value="m">Muž</option>
+                                                    <option value="f">Žena</option>
+                                                </select>
+                                            </div>
+                                            <div class="col-6">
+                                                <select id="tdeeActivity" class="form-select bg-dark text-light border-secondary">
+                                                    <option value="1.2">Sedavý</option>
+                                                    <option value="1.375">Lehce aktivní</option>
+                                                    <option value="1.55" selected>Středně aktivní</option>
+                                                    <option value="1.725">Velmi aktivní</option>
+                                                    <option value="1.9">Extrémně aktivní</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <button class="btn btn-outline-success w-100 mb-3" onclick="calculateTDEE()">Vypočítat TDEE</button>
+                                        <div id="tdeeResult" class="d-none"></div>
+                                    </div>
+                                </div>
+
+                                <!-- Zaloha dat -->
+                                <div class="col-md-6">
+                                    <div class="p-4 border border-secondary rounded bg-black bg-opacity-25 h-100 text-center">
+                                        <h5 class="text-secondary mb-3 d-flex align-items-center justify-content-center gap-2">
+                                            <img src="assets/icons/tools.png" style="width:18px;"> Záloha Dat
+                                        </h5>
+                                        <p class="text-muted small mb-4">Exportuj nebo nahraj svá fitness data ve formátu JSON.</p>
+                                        <button class="btn btn-outline-info w-100 mb-2" onclick="exportFitnessData()">Stáhnout data</button>
+                                        <button class="btn btn-outline-secondary w-100" onclick="document.getElementById('importFile').click()">Nahrát data</button>
+                                        <input type="file" id="importFile" style="display: none;" accept=".json" onchange="importFitnessData(this)">
+                                    </div>
+                                </div>
+
                             </div>
                         </div>
+
                     </div>
                 </div>
             </div>
