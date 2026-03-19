@@ -18,6 +18,7 @@
 
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/games.css">
+    <link rel="stylesheet" href="css/terminal.css">
     
     <style>
         /* POZADÍ - STŘED */
@@ -1750,5 +1751,53 @@
             });
         }
     </script>
+
+<!-- Matrix canvas (Easter egg — /matrix příkaz) -->
+<canvas id="matrixCanvas"></canvas>
+
+<!-- Hint badge vpravo dole (skryje se při otevřeném terminálu) -->
+<div id="termHint" title="Otevřít terminál [T]">
+    [T] Terminal
+</div>
+
+<!-- ─── Terminál ────────────────────────────────────────────── -->
+<div id="darkTerminal" role="region" aria-label="DarkDash Root Terminal">
+
+    <!-- Hlavička -->
+    <div id="termHeader">
+        <div class="term-title">
+            <span class="term-dot red"></span>
+            <span class="term-dot amber"></span>
+            <span class="term-dot green"></span>
+            &nbsp;DARKDASH ROOT TERMINAL
+        </div>
+        <button class="term-close-btn" onclick="window.toggleTerminal()" title="Zavřít [Esc]">[X] CLOSE</button>
+    </div>
+
+    <!-- Tělo -->
+    <div id="termBody">
+
+        <!-- Output oblast -->
+        <div id="termOutput" aria-live="polite" aria-label="Výstup terminálu"></div>
+
+        <!-- Input řádek -->
+        <div id="termInputRow">
+            <span id="termPrompt">guest@darkdash:~# </span>
+            <input
+                type="text"
+                id="termInput"
+                autocomplete="off"
+                autocorrect="off"
+                autocapitalize="off"
+                spellcheck="false"
+                placeholder="zadej příkaz... (Tab = autocomplete)"
+                aria-label="Příkazový řádek"
+            >
+            <span id="termCursor"></span>
+        </div>
+
+    </div>
+</div>
+    <script src="js/terminal.js" defer></script>
 </body>
 </html>
