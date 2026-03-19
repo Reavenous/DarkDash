@@ -129,18 +129,27 @@ window.renderProfileHUD = function() {
 
 // Přepínání mezi náhledem a editací
 window.toggleProfileMode = function(mode) {
-    const view = document.getElementById('profileView');
-    const edit = document.getElementById('profileEdit');
-    
+    const view     = document.getElementById('profileView');
+    const edit     = document.getElementById('profileEdit');
+    const sections = document.getElementById('profileSections');
+
+    // Skrýt všechny panely
+    [view, edit, sections].forEach(el => { if (el) el.style.display = 'none'; });
+
     if (mode === 'edit') {
-        view.style.display = 'none';
-        edit.style.display = 'block';
+        if (edit) edit.style.display = 'block';
         // Předvyplnit inputy
-        document.getElementById('profileNick').value = window.currentUserName || "";
-        document.getElementById('profileAvatar').value = window.currentUserPhoto || "";
+        const nickEl   = document.getElementById('profileNick');
+        const avatarEl = document.getElementById('profileAvatar');
+        if (nickEl)   nickEl.value   = window.currentUserName  || '';
+        if (avatarEl) avatarEl.value = window.currentUserPhoto || '';
+    } else if (mode === 'sections') {
+        if (sections) sections.style.display = 'block';
+        // Vykreslit panel (definováno v sections.js)
+        if (typeof window.renderSectionsPanel === 'function') window.renderSectionsPanel();
     } else {
-        view.style.display = 'block';
-        edit.style.display = 'none';
+        // 'view' — výchozí
+        if (view) view.style.display = 'block';
     }
 };
 

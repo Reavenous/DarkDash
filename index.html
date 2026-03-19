@@ -87,7 +87,7 @@
 
     <div id="main-content-layer" class="d-flex flex-column align-items-center justify-content-start pt-4">
         
-        <div class="card bg-black bg-opacity-75 border-secondary text-light mb-4 shadow w-75" style="max-width: 800px; backdrop-filter: blur(5px);">
+        <div id="widget-music" class="card bg-black bg-opacity-75 border-secondary text-light mb-4 shadow w-75" style="max-width: 800px; backdrop-filter: blur(5px);">
             <div id="player-ui" class="card-body p-3 d-flex justify-content-between align-items-center">
                 <div class="d-flex align-items-center gap-3">
                     
@@ -122,7 +122,7 @@
             </div>
         </div>
 
-        <div class="card bg-dark border-secondary text-light mb-4 shadow-lg w-75" style="max-width: 800px;">
+        <div id="widget-quote" class="card bg-dark border-secondary text-light mb-4 shadow-lg w-75" style="max-width: 800px;">
             <div class="card-body text-center p-4">
                 <h6 class="text-secondary text-uppercase ls-2 small mb-3">Temná moudrost & Fakta</h6>
                 <p id="quoteText" class="fs-5 fst-italic brand-font" style="min-height: 3rem;">"Načítám vědění..."</p>
@@ -130,7 +130,7 @@
             </div>
         </div>
 
-        <div class="card bg-dark border-secondary text-light mb-4 shadow-lg w-75" style="max-width: 800px;">
+        <div id="widget-weather" class="card bg-dark border-secondary text-light mb-4 shadow-lg w-75" style="max-width: 800px;">
             <div class="card-header border-secondary d-flex justify-content-between align-items-center">
                 <span class="text-uppercase ls-2 small">Předpověď počasí</span>
                 <div class="btn-group btn-group-sm">
@@ -153,7 +153,7 @@
         </div>
 
 
-        <div class="card bg-dark border-secondary text-light mb-5 shadow-lg w-75" style="max-width: 800px;">
+        <div id="widget-news" class="card bg-dark border-secondary text-light mb-5 shadow-lg w-75" style="max-width: 800px;">
             <div class="card-header border-secondary d-flex justify-content-between align-items-center">
                 <span class="text-uppercase ls-2 small">Zprávy z povrchu</span>
                 <div class="btn-group btn-group-sm" id="newsSourceButtons">
@@ -169,7 +169,7 @@
 
         
 
-        <div class="card bg-black bg-opacity-75 border-secondary text-light mb-4 shadow w-75 position-relative d-flex flex-column" style="max-width: 800px; backdrop-filter: blur(5px); min-height: 480px;">
+        <div id="widget-games" class="card bg-black bg-opacity-75 border-secondary text-light mb-4 shadow w-75 position-relative d-flex flex-column" style="max-width: 800px; backdrop-filter: blur(5px); min-height: 480px;">
             
             <div class="card-header border-secondary d-flex justify-content-between align-items-center bg-transparent">
                 <h5 class="m-0 brand-font text-uppercase" style="letter-spacing: 2px; color: #9d4edd; text-shadow: 0 0 10px #9d4edd;">
@@ -256,7 +256,7 @@
                 <span class="text-muted small fst-italic">Gothic Edition</span>
             </div>
         </div>
-        <div class="card border-secondary text-light mb-4 shadow w-75" style="max-width: 800px; background: linear-gradient(90deg, #0f0c29 0%, #302b63 100%);">
+        <div id="widget-tarot" class="card border-secondary text-light mb-4 shadow w-75" style="max-width: 800px; background: linear-gradient(90deg, #0f0c29 0%, #302b63 100%);">
             <div class="card-body p-4 d-flex justify-content-between align-items-center">
                 <div class="d-flex align-items-center gap-3">
                     <div class="bg-black bg-opacity-50 p-2 rounded-circle border border-info">
@@ -273,7 +273,7 @@
             </div>
         </div>
 
-        <div class="card border-secondary text-light mb-4 shadow w-75" style="max-width: 800px; background: linear-gradient(90deg, #2c3e50 0%, #000000 100%);">
+        <div id="widget-loot" class="card border-secondary text-light mb-4 shadow w-75" style="max-width: 800px; background: linear-gradient(90deg, #2c3e50 0%, #000000 100%);">
             <div class="card-body p-4 d-flex justify-content-between align-items-center">
                 <div class="d-flex align-items-center gap-3">
                     <div class="bg-black bg-opacity-50 p-2 rounded-circle border border-warning">
@@ -303,12 +303,12 @@
                 <div id="yearDisplay" class="text-muted small"></div>
             </div>
 
-            <div class="mb-4">
+            <div id="left-nameday" class="mb-4">
                 <h6 class="text-secondary text-uppercase ls-2 small">Svátek má</h6>
                 <h3 id="nameDayText" class="text-warning brand-font">...</h3>
             </div>
 
-            <div class="mb-4">
+            <div id="left-zodiac" class="mb-4">
                 <h6 class="text-secondary text-uppercase ls-2 small">Znamení</h6>
                 <div class="d-flex align-items-center gap-2">
                     <span id="zodiacIcon" class="fs-1 text-info"></span>
@@ -316,7 +316,7 @@
                 </div>
             </div>
 
-            <div class="mb-4">
+            <div id="left-moon" class="mb-4">
                 <h6 class="text-secondary text-uppercase ls-2 small">Měsíc</h6>
                 <div class="d-flex align-items-center gap-3">
                     <div id="moonIconDisplay"></div>
@@ -348,53 +348,53 @@
 
     <div id="right-panel-layer" class="position-fixed top-0 end-0 h-100 p-3 d-flex flex-column justify-content-center gap-2 bg-black bg-opacity-25 overflow-y-auto custom-scrollbar">
 
-        <button class="btn btn-gothic-lg w-100 text-start d-flex align-items-center text-danger" data-bs-toggle="modal" data-bs-target="#chatModal">
+        <div id="btn-sec-chat"><button class="btn btn-gothic-lg w-100 text-start d-flex align-items-center text-danger" data-bs-toggle="modal" data-bs-target="#chatModal">
             <img src="assets/icons/darkchat.png" class="me-2 icon-btn"/> DarkChat
-        </button>
+        </button></div>
        
-        <button class="btn btn-gothic-lg w-100 text-start d-flex align-items-center" data-bs-toggle="modal" data-bs-target="#fitnessModal">
+        <div id="btn-sec-fitness"><button class="btn btn-gothic-lg w-100 text-start d-flex align-items-center" data-bs-toggle="modal" data-bs-target="#fitnessModal">
              <img src="assets/icons/fitness.png" class="me-2 icon-btn"> Fitness
-        </button>
+        </button></div>
 
-        <button class="btn btn-gothic-lg w-100 text-start d-flex align-items-center" data-bs-toggle="offcanvas" data-bs-target="#todoSidebar">
+        <div id="btn-sec-todo"><button class="btn btn-gothic-lg w-100 text-start d-flex align-items-center" data-bs-toggle="offcanvas" data-bs-target="#todoSidebar">
             <img src="assets/icons/todo.png" class="me-2 icon-btn"> Úkoly
-        </button>
+        </button></div>
 
-        <button class="btn btn-gothic-lg w-100 text-start d-flex align-items-center" data-bs-toggle="modal" data-bs-target="#journalCalendarModal">
+        <div id="btn-sec-journal"><button class="btn btn-gothic-lg w-100 text-start d-flex align-items-center" data-bs-toggle="modal" data-bs-target="#journalCalendarModal">
             <img src="assets/icons/diary.png" class="me-2 icon-btn"> Deník
-        </button>
+        </button></div>
         
-        <button class="btn btn-gothic-lg w-100 text-start d-flex align-items-center" type="button" data-bs-toggle="offcanvas" data-bs-target="#cookbookSidebar">
+        <div id="btn-sec-cookbook"><button class="btn btn-gothic-lg w-100 text-start d-flex align-items-center" type="button" data-bs-toggle="offcanvas" data-bs-target="#cookbookSidebar">
             <img src="assets/icons/cookbook.png" class="me-2 icon-btn"> Kuchařka
-        </button>
+        </button></div>
         
-        <button class="btn btn-gothic-lg w-100 text-start d-flex align-items-center" type="button" data-bs-toggle="offcanvas" data-bs-target="#notesSidebar">
+        <div id="btn-sec-notes"><button class="btn btn-gothic-lg w-100 text-start d-flex align-items-center" type="button" data-bs-toggle="offcanvas" data-bs-target="#notesSidebar">
             <img src="assets/icons/notes.png" class="me-2 icon-btn"> Poznámky
-        </button>
+        </button></div>
         
-        <button class="btn btn-gothic-lg w-100 text-start d-flex align-items-center" data-bs-toggle="modal" data-bs-target="#calendarModal">
+        <div id="btn-sec-calendar"><button class="btn btn-gothic-lg w-100 text-start d-flex align-items-center" data-bs-toggle="modal" data-bs-target="#calendarModal">
             <img src="assets/icons/calendar.png" class="me-2 icon-btn"> Kalendář
-        </button>
+        </button></div>
 
-        <button class="btn btn-gothic-lg w-100 text-start d-flex align-items-center" data-bs-toggle="modal" data-bs-target="#pomodoroModal">
+        <div id="btn-sec-pomodoro"><button class="btn btn-gothic-lg w-100 text-start d-flex align-items-center" data-bs-toggle="modal" data-bs-target="#pomodoroModal">
             <img src="assets/icons/timer.png" class="me-2 icon-btn"> Časovač
-        </button>
+        </button></div>
 
-        <button class="btn btn-gothic-lg w-100 text-start d-flex align-items-center" data-bs-toggle="modal" data-bs-target="#countdownModal">
+        <div id="btn-sec-countdown"><button class="btn btn-gothic-lg w-100 text-start d-flex align-items-center" data-bs-toggle="modal" data-bs-target="#countdownModal">
             <img src="assets/icons/countdown.png" class="me-2 icon-btn"> Odpočet
-        </button>
+        </button></div>
 
-        <button class="btn btn-gothic-lg w-100 text-start d-flex align-items-center" type="button" data-bs-toggle="offcanvas" data-bs-target="#dreamSidebar">
+        <div id="btn-sec-dreams"><button class="btn btn-gothic-lg w-100 text-start d-flex align-items-center" type="button" data-bs-toggle="offcanvas" data-bs-target="#dreamSidebar">
             <img src="assets/icons/dreams.png" class="me-2 icon-btn"> Sny
-        </button>
+        </button></div>
 
-        <button class="btn btn-gothic-lg w-100 text-start d-flex align-items-center" data-bs-toggle="modal" data-bs-target="#linksModal">
+        <div id="btn-sec-links"><button class="btn btn-gothic-lg w-100 text-start d-flex align-items-center" data-bs-toggle="modal" data-bs-target="#linksModal">
             <img src="assets/icons/links.png" class="me-2 icon-btn"> Odkazy
-        </button>
+        </button></div>
 
-        <button class="btn btn-gothic-lg w-100 text-start d-flex align-items-center" data-bs-toggle="modal" data-bs-target="#qrModal">
+        <div id="btn-sec-qr"><button class="btn btn-gothic-lg w-100 text-start d-flex align-items-center" data-bs-toggle="modal" data-bs-target="#qrModal">
              <img src="assets/icons/generator.png" class="me-2 icon-btn"> QR 
-        </button>
+        </button></div>
 
     </div>
 
@@ -1505,8 +1505,11 @@
                 <div id="profileView">
                     <div class="modal-header border-secondary border-0 pb-0">
                         <h5 class="modal-title brand-font text-warning">Karta Hrdiny</h5>
-                        <button type="button" class="btn btn-sm btn-outline-secondary" onclick="toggleProfileMode('edit')">
+                        <button type="button" class="btn btn-sm btn-outline-secondary me-1" onclick="toggleProfileMode('edit')">
                             <i class="fas fa-cog"></i> Upravit
+                        </button>
+                        <button type="button" class="btn btn-sm btn-outline-secondary" onclick="toggleProfileMode('sections')" title="Sekce dashboardu">
+                            <i class="fas fa-sliders-h"></i> Sekce
                         </button>
                         <button type="button" class="btn-close btn-close-white ms-2" data-bs-dismiss="modal"></button>
                     </div>
@@ -1578,6 +1581,33 @@
                     <div class="modal-footer border-secondary">
                         <button class="btn btn-secondary" onclick="toggleProfileMode('view')">Zpět</button>
                         <button class="btn btn-warning fw-bold" onclick="saveUserProfile(); toggleProfileMode('view');">ULOŽIT</button>
+                    </div>
+                </div>
+
+                <!-- ── Záložka: Sekce Dashboardu ──────────────────────── -->
+                <div id="profileSections">
+                    <div class="modal-header border-secondary">
+                        <h5 class="modal-title brand-font" style="color: var(--primary-glow);">
+                            <i class="fas fa-sliders-h me-2"></i>Viditelnost Sekcí
+                        </h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body overflow-auto custom-scrollbar" style="max-height: 65vh;">
+                        <p class="text-muted small mb-3">
+                            <i class="fas fa-info-circle me-1"></i>
+                            Vypnuté sekce jsou skryté — data se neztratí, kdykoli je lze znovu zapnout.
+                        </p>
+                        <div id="sections-panel">
+                            <div class="text-center py-3"><div class="spinner-border spinner-border-sm text-secondary"></div></div>
+                        </div>
+                    </div>
+                    <div class="modal-footer border-secondary justify-content-between">
+                        <button class="btn btn-sm btn-outline-secondary" onclick="toggleProfileMode('edit')">
+                            <i class="fas fa-arrow-left me-1"></i> Profil
+                        </button>
+                        <button class="btn btn-sm btn-outline-secondary" onclick="toggleProfileMode('view')">
+                            <i class="fas fa-times me-1"></i> Zavřít
+                        </button>
                     </div>
                 </div>
 
@@ -1698,6 +1728,7 @@
     <script src="js/tarot.js"></script>
     <script src="js/cursor.js"></script>
     <script src="js/chat.js"></script>
+    <script src="js/sections.js"></script>
     <!--- script src="https://js-dos.com/cdn/js-dos-api.js"></script--->
 
     <script>
@@ -1752,15 +1783,13 @@
         }
     </script>
 
-<!-- Matrix canvas (Easter egg — /matrix příkaz) -->
+
 <canvas id="matrixCanvas"></canvas>
 
 
 
-<!-- ─── Terminál ────────────────────────────────────────────── -->
 <div id="darkTerminal" role="region" aria-label="DarkDash Root Terminal">
 
-    <!-- Hlavička -->
     <div id="termHeader">
         <div class="term-title">
             <span class="term-dot red"></span>
@@ -1771,13 +1800,10 @@
         <button class="term-close-btn" onclick="window.toggleTerminal()" title="Zavřít [Esc]">[X] CLOSE</button>
     </div>
 
-    <!-- Tělo -->
     <div id="termBody">
 
-        <!-- Output oblast -->
         <div id="termOutput" aria-live="polite" aria-label="Výstup terminálu"></div>
 
-        <!-- Input řádek -->
         <div id="termInputRow">
             <span id="termPrompt">guest@darkdash:~# </span>
             <input
@@ -1795,6 +1821,8 @@
 
     </div>
 </div>
+
+
     <script src="js/terminal.js" defer></script>
 </body>
 </html>
