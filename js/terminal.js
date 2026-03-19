@@ -161,7 +161,6 @@
             // ── /todo ──────────────────────────────────────
             case '/todo': {
                 if (!allArgs) { print('✗ Použití: /todo [název úkolu]', 'err'); break; }
-                const todos = lsGet('darkdash-todos') || [];
                 const newTodo = {
                     text:      allArgs,
                     rarity:    'common',
@@ -170,9 +169,17 @@
                     completed: false,
                     id:        Date.now()
                 };
-                todos.unshift(newTodo);
-                lsSet('darkdash-todos', todos);
-                if (window.saveToCloud) window.saveToCloud('todos', todos);
+                // Použij in-memory pole z todo.js (globální proměnná) + zavolej saveTodos() pro UI refresh
+                if (typeof todos !== 'undefined' && typeof saveTodos === 'function') {
+                    todos.unshift(newTodo);
+                    saveTodos(); // saveTodos() zapíše do localStorage + zavolá renderTodoUI()
+                } else {
+                    // Fallback: přímý zápis pokud modul není načtený
+                    const arr = lsGet('darkdash-todos') || [];
+                    arr.unshift(newTodo);
+                    lsSet('darkdash-todos', arr);
+                    if (window.saveToCloud) window.saveToCloud('todos', arr);
+                }
                 print(`✓ Mise přidána do Quest Logu: "${allArgs}"`, 'ok');
                 print(`  ID: ${newTodo.id} · Složka: Inbox · Vzácnost: common`, 'dim');
                 break;
@@ -181,10 +188,20 @@
             // ── /note ──────────────────────────────────────
             case '/note': {
                 if (!allArgs) { print('✗ Použití: /note [text poznámky]', 'err'); break; }
-                const notes = lsGet('darkdash-notes') || [];
-                notes.push({ folder: 'Terminál', text: allArgs });
-                lsSet('darkdash-notes', notes);
-                if (window.saveToCloud) window.saveToCloud('notes', notes);
+                const newNote = { folder: 'Terminál', text: allArgs };
+                // Použij in-memory pole z notes.js + zavolej saveNotesToStorage() pro UI refresh
+                if (typeof notes !== 'undefined' && typeof saveNotesToStorage === 'function') {
+                    if (typeof folders !== 'undefined' && !folders.includes('Terminál')) {
+                        folders.push('Terminál');
+                    }
+                    notes.push(newNote);
+                    saveNotesToStorage();
+                } else {
+                    const arr = lsGet('darkdash-notes') || [];
+                    arr.push(newNote);
+                    lsSet('darkdash-notes', arr);
+                    if (window.saveToCloud) window.saveToCloud('notes', arr);
+                }
                 print(`✓ Záznam uložen do Deníku (složka: Terminál)`, 'ok');
                 print(`  "${allArgs.substring(0, 60)}${allArgs.length > 60 ? '…' : ''}"`, 'dim');
                 break;
@@ -192,7 +209,6 @@
 
             // ── /calendar ──────────────────────────────────
             case '/calendar': {
-                // /calendar 2025-12-24 Název události
                 const dateArg = args[0];
                 const eventText = args.slice(1).join(' ');
                 if (!dateArg || !eventText) {
@@ -204,13 +220,15 @@
                     print('✗ Neplatný formát data. Požadováno: YYYY-MM-DD', 'err');
                     break;
                 }
-                const evKey    = getKey('darkdash-events');
-                const stored   = localStorage.getItem(evKey);
-                const events   = stored ? JSON.parse(stored) : {};
+                const evKey  = getKey('darkdash-events');
+                const stored = localStorage.getItem(evKey);
+                const events = stored ? JSON.parse(stored) : {};
                 if (!events[dateArg]) events[dateArg] = [];
                 events[dateArg].push(eventText);
                 localStorage.setItem(evKey, JSON.stringify(events));
                 if (window.saveToCloud) window.saveToCloud('events', events);
+                // Obnov UI kalendáře pokud je načtený
+                if (typeof renderCalendar === 'function') renderCalendar();
                 print(`✓ Událost přidána: ${dateArg} — "${eventText}"`, 'ok');
                 break;
             }
