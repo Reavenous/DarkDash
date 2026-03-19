@@ -1307,65 +1307,131 @@
         </div>
     </div>
 
-    <div class="modal fade" id="chatModal" tabindex="-1" aria-hidden="true">
+            <!-- ====================================================
+            DarkChat Modal  – verze s podporou obrázků (Cloudinary)
+            Nahraď celý původní <div class="modal fade" id="chatModal"> tímto blokem.
+            ==================================================== -->
+        <div class="modal fade" id="chatModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
             <div class="modal-content bg-dark border border-secondary text-white shadow-lg">
-                
-                <div class="modal-header border-secondary bg-black">
-                    <h5 class="modal-title brand-font text-danger d-flex align-items-center">
-                        <img src="assets/icons/darkchat.png" class="me-2" style="width: 24px; filter: invert(1);"> 
-                        DarkChat
-                    </h5>                
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
 
-                <div class="modal-body p-0">
-                    <div class="row g-0 h-100">
-                        
-                        <div class="col-md-4 border-end border-secondary bg-dark d-flex flex-column">
-                            
-                            <div class="p-3 border-bottom border-secondary bg-black bg-opacity-25">
-                                <input type="text" id="chatSearchUser" class="form-control bg-black text-white border-secondary mb-3" placeholder="Hledat agenta..." onkeyup="filterChatUsers()">
-                                
-                                <button class="btn btn-danger w-100 fw-bold d-flex align-items-center justify-content-center" id="btnGlobalChat" onclick="switchToGlobalChat()">
-                                    <i class="fas fa-globe me-2"></i> Globální Kanál
-                                </button>
-                            </div>
+            <!-- HLAVIČKA -->
+            <div class="modal-header border-secondary bg-black">
+                <h5 class="modal-title brand-font text-danger d-flex align-items-center">
+                <img src="assets/icons/darkchat.png" class="me-2" style="width:24px;filter:invert(1);">
+                DarkChat
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
 
-                            <div class="p-2 border-bottom border-secondary bg-black bg-opacity-50 d-flex justify-content-between align-items-center">
-                                <span class="text-muted small fw-bold">OSTATNÍ AGENTI</span>
-                                <span class="badge bg-secondary" id="onlineCount">0</span>
-                            </div>
-                            <div id="chatUsersList" class="list-group list-group-flush flex-grow-1 overflow-auto custom-scrollbar" style="height: 450px;">
-                                </div>
-                        </div>
+            <!-- TĚLO -->
+            <div class="modal-body p-0">
+                <div class="row g-0 h-100">
 
-                        <div class="col-md-8 d-flex flex-column bg-black bg-opacity-50">
-                            
-                            <div class="p-3 border-bottom border-secondary bg-black d-flex align-items-center">
-                                <h4 class="m-0 text-danger brand-font" id="currentChatTitle">Globální Kanál</h4>
-                                <span class="badge bg-danger ms-2 d-none" id="privateChatBadge">Soukromé</span>
-                            </div>
+                <!-- ── LEVÝ PANEL: uživatelé ── -->
+                <div class="col-md-4 border-end border-secondary bg-dark d-flex flex-column">
 
-                            <div id="chatMessages" class="flex-grow-1 p-4 overflow-auto d-flex flex-column gap-3 custom-scrollbar" style="height: 400px; background-image: url('https://www.transparenttextures.com/patterns/carbon-fibre.png');">
-                                <div class="text-center text-muted mt-5"><em>Připojování k serveru...</em></div>
-                            </div>
+                    <div class="p-3 border-bottom border-secondary bg-black bg-opacity-25">
+                    <input type="text" id="chatSearchUser"
+                            class="form-control bg-black text-white border-secondary mb-3"
+                            placeholder="Hledat agenta..."
+                            onkeyup="filterChatUsers()">
+                    <button class="btn btn-danger w-100 fw-bold d-flex align-items-center justify-content-center"
+                            id="btnGlobalChat"
+                            onclick="switchToGlobalChat()">
+                        <i class="fas fa-globe me-2"></i> Globální Kanál
+                    </button>
+                    </div>
 
-                            <div class="p-3 bg-dark border-top border-secondary">
-                                <div class="input-group">
-                                    <input type="text" id="chatInput" class="form-control bg-black text-white border-secondary" placeholder="Vysílat zprávu..." onkeypress="if(event.key === 'Enter') sendChatMessage()">
-                                    <button class="btn btn-danger" id="sendBtn" onclick="sendChatMessage()">
-                                        <i class="fas fa-paper-plane"></i> Odeslat
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
+                    <div class="p-2 border-bottom border-secondary bg-black bg-opacity-50 d-flex justify-content-between align-items-center">
+                    <span class="text-muted small fw-bold">OSTATNÍ AGENTI</span>
+                    <span class="badge bg-secondary" id="onlineCount">0</span>
+                    </div>
 
+                    <div id="chatUsersList"
+                        class="list-group list-group-flush flex-grow-1 overflow-auto custom-scrollbar"
+                        style="height:450px;">
                     </div>
                 </div>
+
+                <!-- ── PRAVÝ PANEL: zprávy ── -->
+                <div class="col-md-8 d-flex flex-column bg-black bg-opacity-50">
+
+                    <!-- Záhlaví kanálu -->
+                    <div class="p-3 border-bottom border-secondary bg-black d-flex align-items-center">
+                    <h4 class="m-0 text-danger brand-font" id="currentChatTitle">Globální Kanál</h4>
+                    <span class="badge bg-danger ms-2 d-none" id="privateChatBadge">Soukromé</span>
+                    </div>
+
+                    <!-- Zprávy -->
+                    <div id="chatMessages"
+                        class="flex-grow-1 p-4 overflow-auto d-flex flex-column gap-3 custom-scrollbar"
+                        style="height:400px;background-image:url('https://www.transparenttextures.com/patterns/carbon-fibre.png');">
+                    <div class="text-center text-muted mt-5">
+                        <em>Připojování k serveru...</em>
+                    </div>
+                    </div>
+
+                    <!-- ── VSTUPNÍ OBLAST ── -->
+                    <div class="p-3 bg-dark border-top border-secondary">
+
+                    <!-- Preview vybraného obrázku (skrytý dokud uživatel nevybere soubor) -->
+                    <div id="imagePreview" class="d-none mb-2 d-flex align-items-center gap-2">
+                        <div class="position-relative d-inline-block">
+                        <img id="previewImg"
+                            src=""
+                            class="rounded border border-secondary"
+                            style="max-height:80px;max-width:120px;object-fit:cover;">
+                        <!-- Tlačítko smazání preview -->
+                        <button onclick="removeImagePreview()"
+                                class="btn btn-sm btn-dark border border-secondary position-absolute top-0 end-0"
+                                style="padding:1px 5px;font-size:0.7rem;transform:translate(50%,-50%);"
+                                title="Odebrat obrázek">
+                            <i class="fas fa-times"></i>
+                        </button>
+                        </div>
+                        <span class="text-muted small">Obrázek bude odeslán</span>
+                    </div>
+
+                    <!-- Vstupní řádek (text + připojit obrázek + odeslat) -->
+                    <div class="input-group">
+
+                        <!-- Skrytý file input -->
+                        <input type="file"
+                            id="imageInput"
+                            accept="image/*"
+                            class="d-none"
+                            onchange="handleImageSelect(event)">
+
+                        <!-- Tlačítko pro výběr obrázku -->
+                        <button class="btn btn-outline-secondary"
+                                title="Přiložit obrázek"
+                                onclick="document.getElementById('imageInput').click()">
+                        <i class="fas fa-image"></i>
+                        </button>
+
+                        <!-- Textové pole -->
+                        <input type="text"
+                            id="chatInput"
+                            class="form-control bg-black text-white border-secondary"
+                            placeholder="Napiš zprávu..."
+                            onkeypress="if(event.key==='Enter') sendChatMessage()">
+
+                        <!-- Odeslat -->
+                        <button class="btn btn-danger" id="sendBtn" onclick="sendChatMessage()">
+                        <i class="fas fa-paper-plane"></i> Odeslat
+                        </button>
+
+                    </div><!-- /input-group -->
+                    </div><!-- /vstupní oblast -->
+
+                </div><!-- /pravý panel -->
+                </div><!-- /row -->
+            </div><!-- /modal-body -->
+
             </div>
         </div>
-    </div>
+        </div>
 
 
 
