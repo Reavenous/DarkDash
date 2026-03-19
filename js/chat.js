@@ -7,8 +7,8 @@ const db = getFirestore();
 // =============================================
 // ⚠️  VYPLŇ SVÉ CLOUDINARY ÚDAJE ZDE
 // =============================================
-const CLOUDINARY_CLOUD_NAME   = "TVUJ_CLOUD_NAME";    // např. "dxyz123abc"
-const CLOUDINARY_UPLOAD_PRESET = "TVUJ_UPLOAD_PRESET"; // unsigned preset z Cloudinary dashboardu
+const CLOUDINARY_CLOUD_NAME   = "dbnti5mks";    // např. "dxyz123abc"
+const CLOUDINARY_UPLOAD_PRESET = "ivqkk99k"; // unsigned preset z Cloudinary dashboardu
 // =============================================
 
 let currentChatMode       = 'global';
