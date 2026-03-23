@@ -237,3 +237,511 @@ function switchDreamTab(tab) {
         btnDreams.classList.replace('btn-info', 'btn-outline-info');
     }
 }
+// ============================================================
+//  WATCHLIST — kompletní modul
+// ============================================================
+
+let watchlistItems   = [];   // Všechny položky
+let watchlistFolders = ['Filmy', 'Seriály', 'Anime', 'Dokumenty'];
+let currentWatchlistFolder = 'Filmy';
+let editingWatchlistIndex  = -1;
+
+// ── Klíče pro storage ────────────────────────────────────────
+function wlKey(base) {
+    return window.getAppKey ? window.getAppKey(base) : base;
+}
+
+// ── Načtení dat ──────────────────────────────────────────────
+function loadWatchlist() {
+    const items   = localStorage.getItem(wlKey('darkdash-watchlist'));
+    const folders = localStorage.getItem(wlKey('darkdash-watchlist-folders'));
+    watchlistItems   = items   ? JSON.parse(items)   : [];
+    watchlistFolders = folders ? JSON.parse(folders) : ['Filmy', 'Seriály', 'Anime', 'Dokumenty'];
+    if (!watchlistFolders.length) watchlistFolders = ['Filmy'];
+    currentWatchlistFolder = watchlistFolders[0];
+    renderWatchlistUI();
+}
+
+// ── Uložení dat ──────────────────────────────────────────────
+function saveWatchlist() {
+    localStorage.setItem(wlKey('darkdash-watchlist'),         JSON.stringify(watchlistItems));
+    localStorage.setItem(wlKey('darkdash-watchlist-folders'), JSON.stringify(watchlistFolders));
+    if (window.saveToCloud) window.saveToCloud('watchlist', watchlistItems);
+    renderWatchlistUI();
+}
+
+// ── Vykreslit celé UI (sidebar + grid) ──────────────────────
+function renderWatchlistUI() {
+    renderWatchlistFolders();
+    renderWatchlistGrid();
+}
+
+// ── Sidebar se složkami ──────────────────────────────────────
+function renderWatchlistFolders() {
+    const list = document.getElementById('watchlistFolderTreeList');
+    if (!list) return;
+    list.innerHTML = '';
+
+    watchlistFolders.forEach(folder => {
+        const count  = watchlistItems.filter(i => i.folder === folder).length;
+        const active = folder === currentWatchlistFolder;
+        const a      = document.createElement('a');
+        a.href        = '#';
+        a.className   = `list-group-item list-group-item-action bg-transparent border-0 d-flex justify-content-between align-items-center px-3 py-2 ${active ? 'text-info fw-bold' : 'text-light'}`;
+        a.style.borderLeft = active ? '3px solid #0dcaf0' : '3px solid transparent';
+        a.innerHTML = `
+            <span class="text-truncate small">${folder}</span>
+            <div class="d-flex align-items-center gap-1">
+                <span class="badge bg-secondary rounded-pill">${count}</span>
+                <button class="btn btn-link p-0 text-danger opacity-0 hover-show"
+                        style="font-size:0.7rem; line-height:1;"
+                        onclick="event.preventDefault(); event.stopPropagation(); deleteWatchlistFolder('${folder.replace(/'/g,"\\'")}')">✕</button>
+            </div>`;
+        a.addEventListener('mouseenter', () => a.querySelector('.hover-show').style.opacity = '1');
+        a.addEventListener('mouseleave', () => a.querySelector('.hover-show').style.opacity = '0');
+        a.addEventListener('click', e => {
+            e.preventDefault();
+            currentWatchlistFolder = folder;
+            document.getElementById('currentWatchlistFolderTitle').textContent = folder;
+            renderWatchlistUI();
+        });
+        list.appendChild(a);
+    });
+}
+
+// ── Grid s kartičkami ────────────────────────────────────────
+function renderWatchlistGrid() {
+    const grid = document.getElementById('watchlistGrid');
+    if (!grid) return;
+
+    const items = watchlistItems.filter(i => i.folder === currentWatchlistFolder);
+    grid.innerHTML = '';
+
+    if (!items.length) {
+        grid.innerHTML = `<div class="col-12 text-center text-muted py-5 fst-italic">
+            Žádné položky v této kategorii.<br>
+            <small>Klikni na "+ Přidat do Watchlistu"</small>
+        </div>`;
+        return;
+    }
+
+    const statusColors = {
+        'Chci vidět': 'secondary',
+        'Rozkoukáno': 'warning',
+        'Dokoukáno':  'success'
+    };
+    const statusIcons = {
+        'Chci vidět': '📋',
+        'Rozkoukáno': '▶️',
+        'Dokoukáno':  '✅'
+    };
+
+    items.forEach((item, localIdx) => {
+        // Najdi globální index pro editaci/mazání
+        const globalIdx = watchlistItems.indexOf(item);
+        const color     = statusColors[item.status] || 'secondary';
+        const icon      = statusIcons[item.status]  || '📋';
+
+        const col = document.createElement('div');
+        col.className = 'col-md-4 col-sm-6';
+        
+        // Zde je úprava: nadpis a štítek jsou pod sebou
+        col.innerHTML = `
+            <div class="card bg-dark border-secondary h-100 shadow-sm" style="border-left: 3px solid #0dcaf0 !important;">
+                <div class="card-body p-3 d-flex flex-column gap-2">
+                    <div class="mb-2">
+                        <h6 class="text-info mb-1 fw-bold text-break" style="line-height: 1.3;">${item.title}</h6>
+                        <span class="badge bg-${color}">${icon} ${item.status}</span>
+                    </div>
+                    ${item.notes ? `<p class="text-muted small m-0" style="font-size:0.8rem;">${item.notes}</p>` : ''}
+                </div>
+                <div class="card-footer bg-transparent border-top border-secondary d-flex gap-2 p-2">
+                    <button class="btn btn-sm btn-outline-info flex-grow-1" onclick="editWatchlistItem(${globalIdx})">
+                        ✎ Upravit
+                    </button>
+                    <button class="btn btn-sm btn-outline-danger" onclick="deleteWatchlistItem(${globalIdx})">
+                        ✕
+                    </button>
+                </div>
+            </div>`;
+        grid.appendChild(col);
+    });
+}
+
+// ── Nová složka ──────────────────────────────────────────────
+window.createNewWatchlistFolder = function() {
+    const name = prompt('Název nové kategorie:');
+    if (!name || !name.trim()) return;
+    const trimmed = name.trim();
+    if (watchlistFolders.includes(trimmed)) {
+        alert('Tato kategorie už existuje.');
+        return;
+    }
+    watchlistFolders.push(trimmed);
+    currentWatchlistFolder = trimmed;
+    document.getElementById('currentWatchlistFolderTitle').textContent = trimmed;
+    saveWatchlist();
+};
+
+// ── Smazat složku ────────────────────────────────────────────
+window.deleteWatchlistFolder = function(folder) {
+    if (watchlistFolders.length <= 1) { alert('Musí existovat alespoň jedna kategorie.'); return; }
+    if (!confirm(`Smazat kategorii "${folder}" i s ${watchlistItems.filter(i=>i.folder===folder).length} položkami?`)) return;
+    watchlistFolders      = watchlistFolders.filter(f => f !== folder);
+    watchlistItems        = watchlistItems.filter(i => i.folder !== folder);
+    currentWatchlistFolder = watchlistFolders[0];
+    document.getElementById('currentWatchlistFolderTitle').textContent = currentWatchlistFolder;
+    saveWatchlist();
+};
+
+// ── Otevřít editor (nová položka) ────────────────────────────
+window.openWatchlistEditor = function() {
+    editingWatchlistIndex = -1;
+    document.getElementById('watchlistEditorTitle').textContent = 'Přidat do Watchlistu';
+    document.getElementById('watchlistTitle').value  = '';
+    document.getElementById('watchlistStatus').value = 'Chci vidět';
+    document.getElementById('watchlistNotes').value  = '';
+    updateWatchlistFolderSelect();
+    const modal = new bootstrap.Modal(document.getElementById('watchlistEditorModal'));
+    modal.show();
+};
+
+// ── Otevřít editor (editace existující) ──────────────────────
+window.editWatchlistItem = function(index) {
+    editingWatchlistIndex = index;
+    const item = watchlistItems[index];
+    document.getElementById('watchlistEditorTitle').textContent = 'Upravit položku';
+    document.getElementById('watchlistTitle').value  = item.title  || '';
+    document.getElementById('watchlistStatus').value = item.status || 'Chci vidět';
+    document.getElementById('watchlistNotes').value  = item.notes  || '';
+    updateWatchlistFolderSelect(item.folder);
+    const modal = new bootstrap.Modal(document.getElementById('watchlistEditorModal'));
+    modal.show();
+};
+
+// ── Synchronizovat select složky v editoru ───────────────────
+function updateWatchlistFolderSelect(selectedFolder) {
+    const sel = document.getElementById('watchlistFolderSelect');
+    if (!sel) return;
+    sel.innerHTML = watchlistFolders.map(f =>
+        `<option value="${f}" ${f === (selectedFolder || currentWatchlistFolder) ? 'selected' : ''}>${f}</option>`
+    ).join('');
+}
+
+// ── Uložit položku z editoru ─────────────────────────────────
+window.saveWatchlistItem = function() {
+    const title  = document.getElementById('watchlistTitle').value.trim();
+    const status = document.getElementById('watchlistStatus').value;
+    const notes  = document.getElementById('watchlistNotes').value.trim();
+    const folder = document.getElementById('watchlistFolderSelect').value;
+
+    if (!title) { alert('Zadej název položky!'); return; }
+
+    const item = { title, folder, status, notes, id: Date.now() };
+
+    if (editingWatchlistIndex === -1) {
+        watchlistItems.unshift(item);
+    } else {
+        item.id = watchlistItems[editingWatchlistIndex].id; // zachovat původní id
+        watchlistItems[editingWatchlistIndex] = item;
+    }
+
+    currentWatchlistFolder = folder;
+    document.getElementById('currentWatchlistFolderTitle').textContent = folder;
+
+    saveWatchlist();
+
+    const modalEl = document.getElementById('watchlistEditorModal');
+    bootstrap.Modal.getInstance(modalEl)?.hide();
+};
+
+// ── Smazat položku ───────────────────────────────────────────
+window.deleteWatchlistItem = function(index) {
+    if (!confirm('Odebrat tuto položku z Watchlistu?')) return;
+    watchlistItems.splice(index, 1);
+    saveWatchlist();
+};
+
+// ── Inicializace při přepnutí na záložku ─────────────────────
+// Rozšíříme switchDreamTab aby loadoval watchlist při prvním otevření
+const _origSwitchDreamTab = typeof switchDreamTab === 'function' ? switchDreamTab : null;
+window.switchDreamTab = function(tab) {
+    if (_origSwitchDreamTab) _origSwitchDreamTab(tab);
+    if (tab === 'watchlist') {
+        // Pokud ještě nebyla data načtena, načti je
+        if (!watchlistItems.length && !localStorage.getItem(wlKey('darkdash-watchlist'))) {
+            loadWatchlist();
+        } else {
+            renderWatchlistUI();
+        }
+    }
+};
+
+// Načíst při startu
+document.addEventListener('DOMContentLoaded', loadWatchlist);
+document.addEventListener('darkdash-reload',  loadWatchlist);
+
+// ============================================================
+//  GAMELIST — kompletní modul
+// ============================================================
+
+let gamelistItems   = [];
+let gamelistFolders = ['RPG', 'Akční', 'Strategie', 'Indie', 'Ostatní'];
+let currentGamelistFolder = 'RPG';
+let editingGamelistIndex  = -1;
+
+// ── Storage helpers ──────────────────────────────────────────
+function glKey(base) {
+    return window.getAppKey ? window.getAppKey(base) : base;
+}
+
+// ── Načtení dat ──────────────────────────────────────────────
+function loadGamelist() {
+    const items   = localStorage.getItem(glKey('darkdash-gamelist'));
+    const folders = localStorage.getItem(glKey('darkdash-gamelist-folders'));
+    gamelistItems   = items   ? JSON.parse(items)   : [];
+    gamelistFolders = folders ? JSON.parse(folders) : ['RPG', 'Akční', 'Strategie', 'Indie', 'Ostatní'];
+    if (!gamelistFolders.length) gamelistFolders = ['Ostatní'];
+    currentGamelistFolder = gamelistFolders[0];
+    renderGamelistUI();
+}
+
+// ── Uložení dat ──────────────────────────────────────────────
+function saveGamelist() {
+    localStorage.setItem(glKey('darkdash-gamelist'),         JSON.stringify(gamelistItems));
+    localStorage.setItem(glKey('darkdash-gamelist-folders'), JSON.stringify(gamelistFolders));
+    if (window.saveToCloud) window.saveToCloud('gamelist', gamelistItems);
+    renderGamelistUI();
+}
+
+// ── Vykreslit celé UI ────────────────────────────────────────
+function renderGamelistUI() {
+    renderGamelistFolders();
+    renderGamelistGrid();
+}
+
+// ── Sidebar složky ───────────────────────────────────────────
+function renderGamelistFolders() {
+    const list = document.getElementById('gamelistFolderTreeList');
+    if (!list) return;
+    list.innerHTML = '';
+
+    gamelistFolders.forEach(folder => {
+        const count  = gamelistItems.filter(i => i.folder === folder).length;
+        const active = folder === currentGamelistFolder;
+        const a      = document.createElement('a');
+        a.href        = '#';
+        a.className   = `list-group-item list-group-item-action bg-transparent border-0 d-flex justify-content-between align-items-center px-3 py-2 ${active ? 'text-info fw-bold' : 'text-light'}`;
+        a.style.borderLeft = active ? '3px solid #0dcaf0' : '3px solid transparent';
+        a.innerHTML = `
+            <span class="text-truncate small">${folder}</span>
+            <div class="d-flex align-items-center gap-1">
+                <span class="badge bg-secondary rounded-pill">${count}</span>
+                <button class="btn btn-link p-0 text-danger opacity-0 hover-show"
+                        style="font-size:0.7rem;line-height:1;"
+                        onclick="event.preventDefault();event.stopPropagation();deleteGamelistFolder('${folder.replace(/'/g,"\\'")}')">✕</button>
+            </div>`;
+        a.addEventListener('mouseenter', () => a.querySelector('.hover-show').style.opacity = '1');
+        a.addEventListener('mouseleave', () => a.querySelector('.hover-show').style.opacity = '0');
+        a.addEventListener('click', e => {
+            e.preventDefault();
+            currentGamelistFolder = folder;
+            document.getElementById('currentGamelistFolderTitle').textContent = folder;
+            renderGamelistUI();
+        });
+        list.appendChild(a);
+    });
+}
+
+// ── Grid s kartičkami ────────────────────────────────────────
+function renderGamelistGrid() {
+    const grid = document.getElementById('gamelistGrid');
+    if (!grid) return;
+
+    const items = gamelistItems.filter(i => i.folder === currentGamelistFolder);
+    grid.innerHTML = '';
+
+    if (!items.length) {
+        grid.innerHTML = `<div class="col-12 text-center text-muted py-5 fst-italic">
+            Žádné hry v této kategorii.<br>
+            <small>Klikni na "+ Přidat hru"</small>
+        </div>`;
+        return;
+    }
+
+    const statusConfig = {
+        'Chci hrát':  { color: 'secondary', icon: '📋' },
+        'Rozehráno':  { color: 'warning',   icon: '🎮' },
+        'Dohráno':    { color: 'success',   icon: '🏆' },
+        'Odloženo':   { color: 'danger',    icon: '⏸️'  },
+    };
+
+    items.forEach(item => {
+        const globalIdx = gamelistItems.indexOf(item);
+        const cfg       = statusConfig[item.status] || { color: 'secondary', icon: '🎮' };
+        const ratingBadge = item.rating
+            ? `<span class="badge bg-warning text-dark ms-1">★ ${item.rating}/10</span>`
+            : '';
+
+        const col = document.createElement('div');
+        col.className = 'col-md-4 col-sm-6';
+        
+        // Zde je úprava: nadpis a štítek jsou pod sebou
+        col.innerHTML = `
+            <div class="card bg-dark border-secondary h-100 shadow-sm" style="border-left: 3px solid #0dcaf0 !important;">
+                <div class="card-body p-3 d-flex flex-column gap-2">
+                    <div class="mb-2">
+                        <h6 class="text-info mb-1 fw-bold text-break" style="line-height: 1.3;">${item.title}</h6>
+                        <span class="badge bg-${cfg.color}">${cfg.icon} ${item.status}</span>
+                    </div>
+                    <div class="d-flex align-items-center gap-2 flex-wrap">
+                        ${item.platform ? `<span class="badge bg-dark border border-secondary text-muted small">🖥️ ${item.platform}</span>` : ''}
+                        ${ratingBadge}
+                    </div>
+                    ${item.notes ? `<p class="text-muted small m-0" style="font-size:0.8rem;">${item.notes}</p>` : ''}
+                </div>
+                <div class="card-footer bg-transparent border-top border-secondary d-flex gap-2 p-2">
+                    <button class="btn btn-sm btn-outline-info flex-grow-1" onclick="editGamelistItem(${globalIdx})">
+                        ✎ Upravit
+                    </button>
+                    <button class="btn btn-sm btn-outline-danger" onclick="deleteGamelistItem(${globalIdx})">
+                        ✕
+                    </button>
+                </div>
+            </div>`;
+        grid.appendChild(col);
+    });
+}
+
+// ── Nová složka ──────────────────────────────────────────────
+window.createNewGamelistFolder = function() {
+    const name = prompt('Název nové kategorie:');
+    if (!name || !name.trim()) return;
+    const trimmed = name.trim();
+    if (gamelistFolders.includes(trimmed)) { alert('Tato kategorie už existuje.'); return; }
+    gamelistFolders.push(trimmed);
+    currentGamelistFolder = trimmed;
+    document.getElementById('currentGamelistFolderTitle').textContent = trimmed;
+    saveGamelist();
+};
+
+// ── Smazat složku ────────────────────────────────────────────
+window.deleteGamelistFolder = function(folder) {
+    if (gamelistFolders.length <= 1) { alert('Musí existovat alespoň jedna kategorie.'); return; }
+    const count = gamelistItems.filter(i => i.folder === folder).length;
+    if (!confirm(`Smazat kategorii "${folder}" i s ${count} hrami?`)) return;
+    gamelistFolders      = gamelistFolders.filter(f => f !== folder);
+    gamelistItems        = gamelistItems.filter(i => i.folder !== folder);
+    currentGamelistFolder = gamelistFolders[0];
+    document.getElementById('currentGamelistFolderTitle').textContent = currentGamelistFolder;
+    saveGamelist();
+};
+
+// ── Otevřít editor (nová hra) ────────────────────────────────
+window.openGamelistEditor = function() {
+    editingGamelistIndex = -1;
+    document.getElementById('gamelistEditorTitle').textContent = 'Přidat hru';
+    document.getElementById('gamelistTitle').value    = '';
+    document.getElementById('gamelistStatus').value   = 'Chci hrát';
+    document.getElementById('gamelistPlatform').value = '';
+    document.getElementById('gamelistRating').value   = '';
+    document.getElementById('gamelistNotes').value    = '';
+    updateGamelistFolderSelect();
+    new bootstrap.Modal(document.getElementById('gamelistEditorModal')).show();
+};
+
+// ── Otevřít editor (editace) ─────────────────────────────────
+window.editGamelistItem = function(index) {
+    editingGamelistIndex = index;
+    const item = gamelistItems[index];
+    document.getElementById('gamelistEditorTitle').textContent = 'Upravit hru';
+    document.getElementById('gamelistTitle').value    = item.title    || '';
+    document.getElementById('gamelistStatus').value   = item.status   || 'Chci hrát';
+    document.getElementById('gamelistPlatform').value = item.platform || '';
+    document.getElementById('gamelistRating').value   = item.rating   || '';
+    document.getElementById('gamelistNotes').value    = item.notes    || '';
+    updateGamelistFolderSelect(item.folder);
+    new bootstrap.Modal(document.getElementById('gamelistEditorModal')).show();
+};
+
+// ── Synchronizovat folder select ─────────────────────────────
+function updateGamelistFolderSelect(selectedFolder) {
+    const sel = document.getElementById('gamelistFolderSelect');
+    if (!sel) return;
+    sel.innerHTML = gamelistFolders.map(f =>
+        `<option value="${f}" ${f === (selectedFolder || currentGamelistFolder) ? 'selected' : ''}>${f}</option>`
+    ).join('');
+}
+
+// ── Uložit položku ───────────────────────────────────────────
+window.saveGamelistItem = function() {
+    const title    = document.getElementById('gamelistTitle').value.trim();
+    const status   = document.getElementById('gamelistStatus').value;
+    const platform = document.getElementById('gamelistPlatform').value.trim();
+    const rating   = document.getElementById('gamelistRating').value;
+    const notes    = document.getElementById('gamelistNotes').value.trim();
+    const folder   = document.getElementById('gamelistFolderSelect').value;
+
+    if (!title) { alert('Zadej název hry!'); return; }
+
+    const item = { title, folder, status, platform, rating: rating ? parseInt(rating) : null, notes, id: Date.now() };
+
+    if (editingGamelistIndex === -1) {
+        gamelistItems.unshift(item);
+    } else {
+        item.id = gamelistItems[editingGamelistIndex].id;
+        gamelistItems[editingGamelistIndex] = item;
+    }
+
+    currentGamelistFolder = folder;
+    document.getElementById('currentGamelistFolderTitle').textContent = folder;
+
+    saveGamelist();
+    bootstrap.Modal.getInstance(document.getElementById('gamelistEditorModal'))?.hide();
+};
+
+// ── Smazat položku ───────────────────────────────────────────
+window.deleteGamelistItem = function(index) {
+    if (!confirm('Odebrat tuto hru z Gamelistu?')) return;
+    gamelistItems.splice(index, 1);
+    saveGamelist();
+};
+
+// ── Rozšíření switchDreamTab o gamelist ──────────────────────
+const _origSwitchDreamTab2 = window.switchDreamTab;
+window.switchDreamTab = function(tab) {
+    // Skrýt gamelist sekci (switchDreamTab ji nezná)
+    const secGamelist  = document.getElementById('sectionGamelist');
+    const btnGamelist  = document.getElementById('btnTabGamelist');
+
+    if (tab === 'gamelist') {
+        // Skrýt ostatní sekce
+        ['sectionDreams','sectionWatchlist'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) { el.classList.add('d-none'); el.classList.remove('d-flex'); }
+        });
+        ['btnTabDreams','btnTabWatchlist'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.className = el.className.replace('btn-info', 'btn-outline-info').replace('btn-outline-outline-info','btn-outline-info');
+        });
+        // Ukázat gamelist
+        if (secGamelist) { secGamelist.classList.remove('d-none'); secGamelist.classList.add('d-flex'); }
+        if (btnGamelist) {
+            btnGamelist.classList.remove('btn-outline-info');
+            btnGamelist.classList.add('btn-info');
+        }
+        renderGamelistUI();
+    } else {
+        // Skrýt gamelist, nechej původní funkci zbytek
+        if (secGamelist) { secGamelist.classList.add('d-none'); secGamelist.classList.remove('d-flex'); }
+        if (btnGamelist) {
+            btnGamelist.classList.remove('btn-info');
+            btnGamelist.classList.add('btn-outline-info');
+        }
+        if (_origSwitchDreamTab2) _origSwitchDreamTab2(tab);
+    }
+};
+
+// ── Init ─────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', loadGamelist);
+document.addEventListener('darkdash-reload',  loadGamelist);
