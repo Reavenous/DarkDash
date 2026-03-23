@@ -130,6 +130,41 @@
             </div>
         </div>
 
+        <!-- ═══════════════════════════════════════════════════
+             DAILY RITUALS – Denní návyky
+             ═══════════════════════════════════════════════════ -->
+        <div id="widget-habits" class="card bg-dark border-secondary text-light mb-4 shadow-lg w-75" style="max-width: 800px;">
+            <div class="card-body p-4">
+
+                <!-- Hlavička -->
+                <div class="d-flex align-items-center justify-content-between mb-3">
+                    <div class="d-flex align-items-center gap-2">
+                        <span style="font-size:1.3rem;"></span>
+                        <h6 class="text-uppercase mb-0" style="letter-spacing:2px; font-size:.8rem; color:#adb5bd;">Daily Rituals</h6>
+                    </div>
+                    <button class="btn btn-sm btn-outline-warning" style="border-color:rgba(255,193,7,0.35); font-size:.78rem;" onclick="openAddHabitModal()">
+                        <i class="bi bi-plus-lg"></i> Nový Rituál
+                    </button>
+                </div>
+
+                <!-- Progress bar -->
+                <div class="habits-progress-wrap mb-3">
+                    <div class="progress bg-black border border-secondary" style="height:7px; border-radius:4px;">
+                        <div id="habitsProgressBar" class="progress-bar" role="progressbar" style="width:0%; transition:width .5s;"></div>
+                    </div>
+                    <div id="habitsProgressText" class="mt-1 small text-muted"></div>
+                </div>
+
+                <!-- Týdenní mini-kalendář -->
+                <div id="habitsWeekCalendar" class="habits-week-calendar mb-4"></div>
+
+                <!-- Seznam rituálů -->
+                <div id="habitsList"></div>
+
+            </div>
+        </div>
+        <!-- ═══════════════════════════════════════════════════ -->
+
         <div id="widget-weather" class="card bg-dark border-secondary text-light mb-4 shadow-lg w-75" style="max-width: 800px;">
             <div class="card-header border-secondary d-flex justify-content-between align-items-center">
                 <span class="text-uppercase ls-2 small">Předpověď počasí</span>
@@ -1896,5 +1931,91 @@
 
 
     <script src="js/terminal.js" defer></script>
+    <script src="js/habits.js"></script>
+
+    <!-- ═══════════════════════════════════════════════
+         MODAL: PŘIDAT / UPRAVIT RITUÁL
+         ═══════════════════════════════════════════════ -->
+    <div class="modal fade" id="habitEditorModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content bg-dark text-light border border-secondary" style="border-radius:12px;">
+
+                <div class="modal-header border-secondary">
+                    <h5 class="modal-title" id="habitModalTitle" style="font-family:'Cinzel',serif; letter-spacing:1px;">+ Nový Rituál</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+
+                <div class="modal-body">
+
+                    <!-- Název -->
+                    <div class="mb-3">
+                        <label class="form-label text-muted small text-uppercase" style="letter-spacing:1px;">Název rituálu</label>
+                        <input id="habitNameInput" type="text" class="form-control bg-black text-light border-secondary"
+                               placeholder="Protáhnout se, Umýt nádobí…" maxlength="60">
+                    </div>
+
+                    <!-- Ikona -->
+                    <div class="mb-3">
+                        <label class="form-label text-muted small text-uppercase" style="letter-spacing:1px;">Ikona</label>
+                        <div class="d-flex align-items-center gap-3 mb-2">
+                            <span id="habitIconDisplay" style="font-size:2rem; line-height:1;">🔥</span>
+                            <input type="hidden" id="habitIconInput" value="🔥">
+                            <span class="text-muted small">Vyber níže:</span>
+                        </div>
+                        <div id="habitIconPicker" class="habit-icon-picker"></div>
+                    </div>
+
+                    <!-- Obtížnost -->
+                    <div class="mb-3">
+                        <label class="form-label text-muted small text-uppercase" style="letter-spacing:1px;">Obtížnost &amp; XP</label>
+                        <select id="habitDifficultySelect" class="form-select bg-black text-light border-secondary">
+                            <option value="easy"> Lehký – 10 XP</option>
+                            <option value="medium"> Střední – 20 XP</option>
+                            <option value="hard"> Těžký – 35 XP</option>
+                        </select>
+                    </div>
+
+                    <!-- Dny -->
+                    <div class="mb-3">
+                        <label class="form-label text-muted small text-uppercase" style="letter-spacing:1px;">Aktivní dny</label>
+                        <div class="d-flex flex-wrap gap-2 mt-1">
+                            <button type="button" class="habit-day-toggle selected" data-day="mon">Po</button>
+                            <button type="button" class="habit-day-toggle selected" data-day="tue">Út</button>
+                            <button type="button" class="habit-day-toggle selected" data-day="wed">St</button>
+                            <button type="button" class="habit-day-toggle selected" data-day="thu">Čt</button>
+                            <button type="button" class="habit-day-toggle selected" data-day="fri">Pá</button>
+                            <button type="button" class="habit-day-toggle selected" data-day="sat">So</button>
+                            <button type="button" class="habit-day-toggle selected" data-day="sun">Ne</button>
+                        </div>
+                        <div class="mt-2 d-flex gap-2">
+                            <button type="button" class="btn btn-sm btn-outline-secondary" style="font-size:.75rem;"
+                                    onclick="document.querySelectorAll('.habit-day-toggle').forEach(b=>b.classList.add('selected'))">
+                                Vybrat vše
+                            </button>
+                            <button type="button" class="btn btn-sm btn-outline-secondary" style="font-size:.75rem;"
+                                    onclick="['mon','tue','wed','thu','fri'].forEach(d=>{const b=document.querySelector('[data-day='+d+']');if(b)b.classList.add('selected')});['sat','sun'].forEach(d=>{const b=document.querySelector('[data-day='+d+']');if(b)b.classList.remove('selected')})">
+                                Prac. dny
+                            </button>
+                            <button type="button" class="btn btn-sm btn-outline-secondary" style="font-size:.75rem;"
+                                    onclick="document.querySelectorAll('.habit-day-toggle').forEach(b=>b.classList.remove('selected'))">
+                                Zrušit vše
+                            </button>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="modal-footer border-secondary">
+                    <button class="btn btn-outline-secondary" data-bs-dismiss="modal">Zrušit</button>
+                    <button class="btn btn-warning text-dark fw-bold" onclick="saveHabitFromModal()">
+                         Uložit Rituál
+                    </button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+    <!-- ═══════════════════════════════════════════════ -->
+
 </body>
 </html>

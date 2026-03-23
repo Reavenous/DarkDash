@@ -39,6 +39,7 @@ const ASSETS = [
   './js/cursor.js',
   './js/sound.js',
   './js/chat.js',
+  './js/habits.js',
 
 
   // --- IKONY (assets/icons/) ---
