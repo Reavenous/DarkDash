@@ -1,3 +1,11 @@
+// Načtení nových Google fontů
+(function() {
+    var link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = 'https://fonts.googleapis.com/css2?family=Black+Ops+One&family=Rye&family=Abril+Fatface&display=swap';
+    document.head.appendChild(link);
+})();
+
 // --- KONFIGURACE TÉMAT (Playlisty MP3) ---
 const themes = [
     {
@@ -57,7 +65,7 @@ const themes = [
         name: 'Dark Fantasy',
         author: 'Abyss',
         bg: 'linear-gradient(160deg, #4b0000 0%, #000000 70%)',
-        glow: '#ef4444',
+        glow: '#b45309',
         fontHead: "'Cinzel', serif",
         playlist: [
             { file: 'STXSTN - LITSAR PEKLA (feat. snxff).mp3', title: 'Litsár Pekla', author: 'STXSTN' },
@@ -154,6 +162,91 @@ const themes = [
             { file: 'The Rumjacks - An Irish Pub Song (Official Music Video).mp3', title: 'An Irish Pub Song', author: 'The Rumjacks' },
             { file: 'The High Kings, Rocky Road to Dublin.mp3', title: 'Rocky Road to Dublin', author: 'The High Kings' },
             { file: 'Star of the County Down.mp3', title: 'Star of the County Down', author: 'The Irish Rovers' }
+        ]
+    },
+    // ── WORLD OF TANKS ─────────────────────────────────────
+    {
+        id: 'worldoftanks',
+        name: 'World of Tanks',
+        author: 'Prokhorovka',
+        bg: 'linear-gradient(170deg, #0d1b0d 0%, #1a2e0a 35%, #0a0f08 70%, #060a04 100%)',
+        glow: '#84cc16',
+        fontHead: "'Black Ops One', cursive",
+        playlist: [
+            { file: 'wotprokhorovka.mp3',   title: 'Prokhorovka',   author: 'WoT Soundtrack' },
+            { file: 'wotstudzianki.mp3',     title: 'Studzianki',    author: 'WoT Soundtrack' },
+            { file: 'wotdefeat.mp3',         title: 'Defeat',        author: 'WoT Soundtrack' },
+            { file: 'wotoldmalinovka.mp3',   title: 'Old Malinovka', author: 'WoT Soundtrack' }
+        ]
+    },
+    // ── KINGDOM COME: DELIVERANCE ───────────────────────────
+    {
+        id: 'kingdomcome',
+        name: 'Kingdom Come',
+        author: 'Sázavská krajina',
+        bg: 'linear-gradient(180deg, #2c1810 0%, #4a2c0a 40%, #1a0f05 80%, #0d0805 100%)',
+        glow: '#d97706',
+        fontHead: "'MedievalSharp', cursive",
+        playlist: [
+            { file: 'kcdpovertyandfa mine.mp3', title: 'Poverty and Famine', author: 'Jan Valta' },
+            { file: 'kcdtavernmusic.mp3',        title: 'Tavern Music',       author: 'Jan Valta' },
+            { file: 'kcdthetrek.mp3',            title: 'The Trek',           author: 'Jan Valta' }
+        ]
+    },
+    // ── BERSERK ─────────────────────────────────────────────
+    {
+        id: 'berserk',
+        name: 'Berserk',
+        author: 'Griffith',
+        bg: 'linear-gradient(160deg, #000000 0%, #0d0800 25%, #1a1200 50%, #0a0800 75%, #000000 100%)',
+        glow: '#d97706',
+        fontHead: "'Pirata One', cursive",
+        playlist: [
+            { file: 'berserkthegodhand.mp3', title: 'The God Hand', author: 'Susumu Hirasawa' },
+            { file: 'berserkhaiyo.mp3',       title: 'Hai-Yo',       author: 'Susumu Hirasawa' },
+            { file: 'berserkaria.mp3',        title: 'Aria',         author: 'Susumu Hirasawa' }
+        ]
+    },
+    // ── WILD WEST ───────────────────────────────────────────
+    {
+        id: 'wildwest',
+        name: 'Wild West',
+        author: 'Ennio Morricone',
+        bg: 'linear-gradient(170deg, #3d1f00 0%, #7c3d00 30%, #b85c00 60%, #1a0d00 100%)',
+        glow: '#f59e0b',
+        fontHead: "'Rye', cursive",
+        playlist: [
+            { file: 'wildwestwildwestvalkiriasdecine.mp3', title: 'Wild West',                     author: 'Valkirias de Cine' },
+            { file: 'wildwestecstasyofgold.mp3',           title: 'The Ecstasy of Gold',           author: 'Ennio Morricone' },
+            { file: 'wildwestthegoodthebadandtheugly.mp3', title: 'The Good, the Bad and the Ugly', author: 'Ennio Morricone' }
+        ]
+    },
+    // ── HROT ────────────────────────────────────────────────
+    {
+        id: 'hrot',
+        name: 'HROT',
+        author: 'Spytihněv',
+        bg: 'linear-gradient(160deg, #2d1200 0%, #5c2800 20%, #3a3028 45%, #1a1a18 70%, #080807 100%)',
+        glow: '#b45309',
+        fontHead: "'Share Tech Mono', monospace",
+        playlist: [
+            { file: 'hrotbabicka.mp3',       title: 'Babička',         author: 'Spytihněv' },
+            { file: 'hrotluna.mp3',           title: 'Luna',            author: 'Spytihněv' },
+            { file: 'hrotthedegustation.mp3', title: 'The Degustation', author: 'Spytihněv' }
+        ]
+    },
+    // ── PADISLAVOVO DOPORUČENÍ ──────────────────────────────
+    {
+        id: 'padislav',
+        name: 'Padislavovo Doporučení',
+        author: 'Osobní kolekce',
+        bg: 'linear-gradient(160deg, #050a03 0%, #0d1a06 20%, #1a0505 50%, #2d0a0a 70%, #0a0000 100%)',
+        glow: '#9f1239',
+        fontHead: "'Abril Fatface', cursive",
+        playlist: [
+            { file: 'padislavwickedgame.mp3',      title: 'Wicked Game',          author: 'Chris Isaak' },
+            { file: 'padislavhorsewithnoname.mp3', title: 'A Horse With No Name',  author: 'America' },
+            { file: 'padislav7475.mp3',            title: '74-75',                author: 'The Connells' }
         ]
     }
 ];
@@ -370,3 +463,20 @@ document.addEventListener("DOMContentLoaded", () => {
         muteBtn.addEventListener("click", toggleMute);
     }
 });
+
+// ── Dynamické načtení nových fontů ──────────────────────────
+(function() {
+    const newFonts = "Black+Ops+One|Rye";
+    const existingLink = document.querySelector('link[href*="googleapis.com/css2"]');
+    if (existingLink) {
+        const url = existingLink.href;
+        if (!url.includes('Black+Ops+One')) {
+            existingLink.href = url.replace('display=swap', '') + '&family=' + newFonts + '&display=swap';
+        }
+    } else {
+        const link = document.createElement('link');
+        link.rel = 'stylesheet';
+        link.href = 'https://fonts.googleapis.com/css2?family=Black+Ops+One&family=Rye&display=swap';
+        document.head.appendChild(link);
+    }
+})();
