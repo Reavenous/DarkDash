@@ -251,49 +251,134 @@ window.saveUserProfile = async () => {
 
 
 window.loadLeaderboard = async () => {
-    const list = document.getElementById("leaderboardList");
-    if(!list) return;
-    
-    list.innerHTML = '<div class="text-center py-4"><div class="spinner-border text-warning"></div></div>';
+    const podium = document.getElementById("leaderboardPodium");
+    const list   = document.getElementById("leaderboardList");
+    if (!podium || !list) return;
+
+    // Loading state
+    podium.innerHTML = `<div class="text-center text-muted w-100 py-3"><div class="spinner-border spinner-border-sm text-warning me-2"></div>Načítám síň slávy...</div>`;
+    list.innerHTML = "";
 
     try {
-        // Dotaz: Seřadit podle stats.xp sestupně, limit 10
         const q = query(collection(db, "users"), orderBy("stats.xp", "desc"), limit(10));
-        const snapshot = await getDocs(q); // Pozor: Musíme nahoře importovat getDocs!
-        
-        list.innerHTML = "";
-        let rank = 1;
+        const snapshot = await getDocs(q);
 
-        snapshot.forEach((docSnap) => {
+        const players = [];
+        snapshot.forEach(docSnap => {
             const u = docSnap.data();
-            const stats = u.stats || { xp: 0, level: 1, rank: "Nováček" };
-            const isMe = (auth.currentUser && auth.currentUser.uid === docSnap.id);
-            
-            // Barva medaile
-            let medal = `<span class="badge bg-secondary rounded-pill me-3" style="width: 25px;">${rank}</span>`;
-            if(rank === 1) medal = `<span class="badge bg-warning text-dark rounded-pill me-3" style="width: 25px;">1</span>`;
-            if(rank === 2) medal = `<span class="badge bg-light text-dark rounded-pill me-3" style="width: 25px;">2</span>`;
-            if(rank === 3) medal = `<span class="badge bg-danger text-white rounded-pill me-3" style="width: 25px;">3</span>`;
+            players.push({
+                uid:   docSnap.id,
+                name:  u.name  || "Neznámý",
+                photo: u.photo || "assets/icons/dreams.png",
+                stats: u.stats || { xp: 0, level: 1, rank: "Bloudící duše" }
+            });
+        });
 
-            const html = `
-                <div class="list-group-item bg-transparent border-bottom border-secondary d-flex align-items-center py-3 ${isMe ? 'bg-white bg-opacity-10' : ''}">
-                    ${medal}
-                    <img src="${u.photo || 'assets/icons/dreams.png'}" class="rounded-circle border border-secondary me-3" width="40" height="40" style="object-fit:cover;">
-                    <div class="flex-grow-1 overflow-hidden">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <h6 class="mb-0 text-light text-truncate">${u.name}</h6>
-                            <span class="text-warning small fw-bold">${stats.xp} XP</span>
-                        </div>
-                        <small class="text-muted d-block text-truncate">Lvl ${stats.level} • ${stats.rank}</small>
-                    </div>
+        const myUID = auth.currentUser ? auth.currentUser.uid : null;
+
+        // ── PODIUM (top 3) ───────────────────────────────────
+        const podiumOrder = [players[1], players[0], players[2]]; // 2. | 1. | 3.
+        const podiumConfig = [
+            { place: 2, height: "90px",  icon: "🥈", color: "#adb5bd", glow: "rgba(173,181,189,0.3)", medalBg: "#6c757d" },
+            { place: 1, height: "120px", icon: "👑", color: "#ffc107", glow: "rgba(255,193,7,0.4)",   medalBg: "#ffc107" },
+            { place: 3, height: "70px",  icon: "🥉", color: "#cd7f32", glow: "rgba(205,127,50,0.3)",  medalBg: "#8B4513" },
+        ];
+
+        podium.innerHTML = "";
+        podiumConfig.forEach((cfg, i) => {
+            const p = podiumOrder[i];
+            if (!p) return;
+
+            const isMe = p.uid === myUID;
+            const col = document.createElement("div");
+            col.className = "d-flex flex-column align-items-center";
+            col.style.flex = "1";
+            col.style.maxWidth = "160px";
+
+            col.innerHTML = `
+                <div class="position-relative mb-2">
+                    <img src="${p.photo}" class="rounded-circle"
+                         style="width:${cfg.place===1?'64px':'52px'}; height:${cfg.place===1?'64px':'52px'};
+                                object-fit:cover;
+                                border: 2px solid ${cfg.color};
+                                box-shadow: 0 0 14px ${cfg.glow};
+                                ${isMe ? 'outline: 2px solid #9d4edd; outline-offset: 3px;' : ''}">
+                    <span class="position-absolute top-0 start-100 translate-middle"
+                          style="font-size:${cfg.place===1?'1.1rem':'0.9rem'}; line-height:1;">${cfg.icon}</span>
+                </div>
+                <div class="text-center mb-2" style="max-width:110px;">
+                    <div class="fw-bold text-truncate ${isMe ? 'text-warning' : 'text-light'}"
+                         style="font-size:${cfg.place===1?'.85rem':'.78rem'};">${p.name}${isMe ? ' (Ty)' : ''}</div>
+                    <div class="text-muted" style="font-size:.68rem;">${p.stats.rank}</div>
+                </div>
+                <div class="w-100 rounded-top text-center py-2 position-relative"
+                     style="height:${cfg.height};
+                            background: linear-gradient(180deg, ${cfg.color}22, ${cfg.color}08);
+                            border: 1px solid ${cfg.color}44;
+                            border-bottom: none;
+                            display:flex; flex-direction:column; align-items:center; justify-content:center;">
+                    <div style="font-size:.7rem; color:${cfg.color}; font-weight:700; letter-spacing:1px;">LVL ${p.stats.level}</div>
+                    <div style="font-size:.75rem; color:${cfg.color}; font-weight:800;">${p.stats.xp.toLocaleString()} XP</div>
                 </div>
             `;
-            list.insertAdjacentHTML('beforeend', html);
-            rank++;
+            podium.appendChild(col);
+        });
+
+        // ── ZBYTEK (4–10) ────────────────────────────────────
+        list.innerHTML = "";
+        const rest = players.slice(3);
+
+        if (rest.length === 0) {
+            list.innerHTML = `<div class="text-center text-muted small py-2">Zatím žádní další bojovníci</div>`;
+        }
+
+        // Pro XP bar potřebujeme max XP (hráč č. 1)
+        const maxXP = players[0]?.stats?.xp || 1;
+
+        rest.forEach((p, i) => {
+            const place = i + 4;
+            const isMe  = p.uid === myUID;
+            const xpPct = Math.round((p.stats.xp / maxXP) * 100);
+
+            const row = document.createElement("div");
+            row.style.cssText = `
+                display:flex; align-items:center; gap:12px;
+                padding:10px 14px; border-radius:8px;
+                background: ${isMe ? 'rgba(157,78,221,0.1)' : 'rgba(255,255,255,0.03)'};
+                border: 1px solid ${isMe ? 'rgba(157,78,221,0.4)' : 'rgba(255,255,255,0.06)'};
+                transition: background .2s;
+            `;
+
+            row.innerHTML = `
+                <!-- Pořadí -->
+                <div style="width:24px; text-align:center; font-size:.8rem; font-weight:700; color:#555; flex-shrink:0;">${place}.</div>
+
+                <!-- Avatar -->
+                <img src="${p.photo}" class="rounded-circle" style="width:36px; height:36px; object-fit:cover; border:1px solid #333; flex-shrink:0;">
+
+                <!-- Info + XP bar -->
+                <div style="flex:1; min-width:0;">
+                    <div class="d-flex justify-content-between align-items-baseline mb-1">
+                        <span class="text-truncate ${isMe ? 'text-warning fw-bold' : 'text-light'}"
+                              style="font-size:.83rem;">${p.name}${isMe ? ' 👤' : ''}</span>
+                        <span style="font-size:.72rem; color:#adb5bd; flex-shrink:0; margin-left:8px;">${p.stats.xp.toLocaleString()} XP</span>
+                    </div>
+                    <div style="height:3px; background:rgba(255,255,255,0.07); border-radius:2px; overflow:hidden;">
+                        <div style="height:100%; width:${xpPct}%;
+                                    background:linear-gradient(90deg, #6c757d, #adb5bd);
+                                    border-radius:2px; transition:width .6s;"></div>
+                    </div>
+                    <div style="font-size:.65rem; color:#555; margin-top:2px;">Lvl ${p.stats.level} · ${p.stats.rank}</div>
+                </div>
+            `;
+            list.appendChild(row);
         });
 
     } catch (e) {
         console.error(e);
-        list.innerHTML = `<div class="text-center text-danger py-3">Chyba načítání: ${e.message} (Možná chybí index v DB)</div>`;
+        podium.innerHTML = `<div class="text-center text-danger w-100 py-3">
+            <i class="fas fa-exclamation-triangle me-2"></i>Chyba načítání<br>
+            <small class="text-muted">${e.message}</small>
+        </div>`;
     }
 };

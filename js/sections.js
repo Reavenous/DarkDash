@@ -15,6 +15,7 @@ const SECTION_DEFS = [
     // ── Střed – widgety ─────────────────────────────────────
     { id: 'widget-music',    label: 'Hudební přehrávač',  icon: 'fa-music',          category: 'Střed – Widgety', def: true  },
     { id: 'widget-quote',    label: 'Temná moudrost',     icon: 'fa-scroll',         category: 'Střed – Widgety', def: true  },
+    { id: 'widget-habits',  label: 'Daily Rituals',      icon: 'fa-fire',           category: 'Střed – Widgety', def: true  },
     { id: 'widget-weather',  label: 'Předpověď počasí',   icon: 'fa-cloud-sun',      category: 'Střed – Widgety', def: true  },
     { id: 'widget-news',     label: 'Zprávy ze světa',    icon: 'fa-newspaper',      category: 'Střed – Widgety', def: true  },
     { id: 'widget-games',    label: 'Digihry',            icon: 'fa-gamepad',        category: 'Střed – Widgety', def: true  },

@@ -139,7 +139,7 @@
                 <!-- Hlavička -->
                 <div class="d-flex align-items-center justify-content-between mb-3">
                     <div class="d-flex align-items-center gap-2">
-                        <span style="font-size:1.3rem;"></span>
+                        <span style="font-size:1.3rem;">🔥</span>
                         <h6 class="text-uppercase mb-0" style="letter-spacing:2px; font-size:.8rem; color:#adb5bd;">Daily Rituals</h6>
                     </div>
                     <button class="btn btn-sm btn-outline-warning" style="border-color:rgba(255,193,7,0.35); font-size:.78rem;" onclick="openAddHabitModal()">
@@ -1724,16 +1724,46 @@
 
 
     <div class="modal fade" id="leaderboardModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content bg-dark text-light border-secondary shadow-lg">
-                <div class="modal-header border-secondary">
-                    <h5 class="modal-title brand-font text-warning"><i class="fas fa-crown me-2"></i>Síň Slávy</h5>
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content text-light border border-secondary shadow-lg"
+                 style="background: radial-gradient(ellipse at top, #0d0019 0%, #060606 70%); border-radius: 14px;">
+
+                <!-- Header -->
+                <div class="modal-header border-0 pb-0 pt-4 px-4">
+                    <div>
+                        <h4 class="modal-title brand-font text-warning mb-0" style="letter-spacing:3px;">
+                            <i class="fas fa-crown me-2"></i>Síň Slávy
+                        </h4>
+                        <p class="text-muted small mb-0 mt-1">Globální žebříček bojovníků DarkDash</p>
+                    </div>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
-                <div class="modal-body p-0">
-                    <div id="leaderboardList" class="list-group list-group-flush">
-                        <div class="text-center py-4"><div class="spinner-border text-warning"></div></div>
+
+                <div class="modal-body px-4 pb-4 pt-3">
+
+                    <!-- Podium top 3 -->
+                    <div id="leaderboardPodium" class="d-flex justify-content-center align-items-end gap-3 mb-4" style="min-height: 140px;">
+                        <div class="text-center text-muted small">Načítám žebříček...</div>
                     </div>
+
+                    <!-- Oddělovač -->
+                    <div class="d-flex align-items-center gap-2 mb-3">
+                        <div class="flex-grow-1" style="height:1px; background:linear-gradient(90deg, transparent, rgba(255,193,7,0.3), transparent);"></div>
+                        <span class="text-muted small text-uppercase" style="letter-spacing:2px; font-size:.65rem;">Ostatní bojovníci</span>
+                        <div class="flex-grow-1" style="height:1px; background:linear-gradient(90deg, transparent, rgba(255,193,7,0.3), transparent);"></div>
+                    </div>
+
+                    <!-- Zbytek žebříčku (4–10) -->
+                    <div id="leaderboardList" class="d-flex flex-column gap-2"></div>
+
+                    <!-- Refresh -->
+                    <div class="text-center mt-4">
+                        <button class="btn btn-sm btn-outline-warning" style="border-color:rgba(255,193,7,0.3); font-size:.78rem; letter-spacing:1px;"
+                                onclick="window.loadLeaderboard()">
+                            <i class="fas fa-sync-alt me-1"></i> Aktualizovat
+                        </button>
+                    </div>
+
                 </div>
             </div>
         </div>
@@ -1969,9 +1999,9 @@
                     <div class="mb-3">
                         <label class="form-label text-muted small text-uppercase" style="letter-spacing:1px;">Obtížnost &amp; XP</label>
                         <select id="habitDifficultySelect" class="form-select bg-black text-light border-secondary">
-                            <option value="easy"> Lehký – 10 XP</option>
-                            <option value="medium"> Střední – 20 XP</option>
-                            <option value="hard"> Těžký – 35 XP</option>
+                            <option value="easy">☀️ Lehký – 10 XP</option>
+                            <option value="medium">⚔️ Střední – 20 XP</option>
+                            <option value="hard">💀 Těžký – 35 XP</option>
                         </select>
                     </div>
 
@@ -2008,7 +2038,7 @@
                 <div class="modal-footer border-secondary">
                     <button class="btn btn-outline-secondary" data-bs-dismiss="modal">Zrušit</button>
                     <button class="btn btn-warning text-dark fw-bold" onclick="saveHabitFromModal()">
-                         Uložit Rituál
+                        ⚔️ Uložit Rituál
                     </button>
                 </div>
 
