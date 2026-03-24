@@ -17,10 +17,29 @@ window.userStats = {
     rank: RANKS[0]
 };
 
+// Flag: zabrání addXP přepsat cloud data dokud se nenačtou
+window.statsLoaded = false;
+
+// Okamžitě načti zálohu z localStorage (zobrazí se před příchodem cloudu)
+(function() {
+    const uid = window.currentUserUID;
+    const localKey = uid ? `user_${uid}_darkdash-gamification` : 'darkdash-gamification-guest';
+    try {
+        const saved = localStorage.getItem(localKey);
+        if (saved) {
+            const parsed = JSON.parse(saved);
+            if (parsed && parsed.xp !== undefined) {
+                window.userStats = parsed;
+            }
+        }
+    } catch(e) {}
+})();
+
 // --- 1. HLAVNÍ FUNKCE: PŘIDAT XP ---
 // Tuhle funkci budeš volat z ostatních souborů (todo.js, fitness.js...)
 window.addXP = function(amount, reason) {
     if (!window.currentUserUID) return; // XP jen pro přihlášené
+    if (!window.statsLoaded) return;    // Počkej na načtení dat z cloudu
 
     // Přidat XP
     window.userStats.xp += amount;
@@ -61,14 +80,30 @@ function updateRank() {
 
 // --- 3. UKLÁDÁNÍ A NAČÍTÁNÍ ---
 function saveStats() {
+    // Uložit do localStorage jako okamžitá záloha (nezávislá na cloudu)
+    if (window.currentUserUID) {
+        localStorage.setItem(
+            `user_${window.currentUserUID}_darkdash-gamification`,
+            JSON.stringify(window.userStats)
+        );
+    }
     if (window.saveToCloud) window.saveToCloud('gamification', window.userStats);
 }
 
 // Volá se automaticky po načtení z Firebase
 window.loadStats = function(data) {
-    if (data) {
+    if (data && data.xp !== undefined) {
         window.userStats = data;
     }
+    // Uložit do localStorage jako záloha pro příští load
+    if (window.currentUserUID) {
+        localStorage.setItem(
+            `user_${window.currentUserUID}_darkdash-gamification`,
+            JSON.stringify(window.userStats)
+        );
+    }
+    // Teprve TEĎ povol addXP — data jsou načtena z cloudu
+    window.statsLoaded = true;
     renderProfileHUD();
 };
 
