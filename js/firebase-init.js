@@ -112,7 +112,18 @@ onAuthStateChanged(auth, async (user) => {
         // 2. Mobil UI
         if(mobileLoginContainer) mobileLoginContainer.innerHTML = `<button onclick="logout()" class="btn btn-outline-danger w-100 fw-bold">Odpojit</button>`;
 
-        // 3. Vykreslit RPG Profil (pokud je skript načtený)
+        // 3. Načíst stats ze zálohy v localStorage (okamžitě, před cloudem)
+        try {
+            const localStatsKey = `user_${user.uid}_darkdash-gamification`;
+            const localStats = localStorage.getItem(localStatsKey);
+            if (localStats) {
+                const parsed = JSON.parse(localStats);
+                if (parsed && parsed.xp !== undefined) {
+                    window.userStats = parsed;
+                }
+            }
+        } catch(e) {}
+        // Vykreslit RPG Profil s lokálními daty (cloud přijde za chvíli)
         if(window.renderProfileHUD) window.renderProfileHUD();
 
         // 4. Chat povolení
@@ -135,6 +146,8 @@ onAuthStateChanged(auth, async (user) => {
     } else {
         // == ODHLÁŠEN ==
         window.currentUserUID = null;
+        window.statsLoaded = false; // Reset flagu — při příštím loginu čekáme na cloud
+        window.userStats = { xp: 0, level: 1, rank: 'Bloudící duše' }; // Reset v paměti
         
         // 1. Desktop UI
         if(loginBtn) loginBtn.innerHTML = `<button onclick="openModal('authModal')" class="btn btn-warning btn-sm fw-bold"><i class="fas fa-sign-in-alt me-2"></i>Login</button>`;

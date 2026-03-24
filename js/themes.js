@@ -230,9 +230,9 @@ const themes = [
         glow: '#b45309',
         fontHead: "'Share Tech Mono', monospace",
         playlist: [
-            { file: 'hrotbabicka.mp3',       title: 'Babička',         author: 'Spytihněv' },
-            { file: 'hrotluna.mp3',           title: 'Luna',            author: 'Spytihněv' },
-            { file: 'hrotthedegustation.mp3', title: 'The Degustation', author: 'Spytihněv' }
+            { file: 'hrotbabicka.mp3',       title: 'Babička',         author: 'Sjellos' },
+            { file: 'hrotluna.mp3',           title: 'Luna',            author: 'Sjellos' },
+            { file: 'hrotthedegustation.mp3', title: 'The Degustation', author: 'Sjelloss' }
         ]
     },
     // ── PADISLAVOVO DOPORUČENÍ ──────────────────────────────
