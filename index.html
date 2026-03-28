@@ -136,51 +136,30 @@
         <div id="widget-habits" class="card bg-dark border-secondary text-light mb-4 shadow-lg w-75" style="max-width: 800px;">
             <div class="card-body p-4">
 
-                <!-- Hlavička s tab navigací -->
+                <!-- Hlavička -->
                 <div class="d-flex align-items-center justify-content-between mb-3">
                     <div class="d-flex align-items-center gap-2">
                         <span style="font-size:1.3rem;">🔥</span>
                         <h6 class="text-uppercase mb-0" style="letter-spacing:2px; font-size:.8rem; color:#adb5bd;">Daily Rituals</h6>
                     </div>
-                    <div class="d-flex gap-2">
-                        <div class="btn-group btn-group-sm">
-                            <button class="btn btn-outline-secondary active" id="btnHabTab" onclick="switchHabTab('habits')" style="font-size:.75rem;">🔥 Rituály</button>
-                            <button class="btn btn-outline-secondary" id="btnChalTab" onclick="switchHabTab('challenge')" style="font-size:.75rem;">🎲 Výzva</button>
-                            <button class="btn btn-outline-secondary" id="btnStatsTab" onclick="switchHabTab('stats')" style="font-size:.75rem;">📊 Statistiky</button>
-                            <button class="btn btn-outline-secondary" id="btnQuestsTab" onclick="switchHabTab('quests')" style="font-size:.75rem;">🎯 Epické questy</button>
-                        </div>
-                        <button class="btn btn-sm btn-outline-warning" id="btnAddHabit" style="border-color:rgba(255,193,7,0.35); font-size:.78rem;" onclick="openAddHabitModal()">
-                            + Rituál
-                        </button>
+                    <button class="btn btn-sm btn-outline-warning" style="border-color:rgba(255,193,7,0.35); font-size:.78rem;" onclick="openAddHabitModal()">
+                        <i class="bi bi-plus-lg"></i> Nový Rituál
+                    </button>
+                </div>
+
+                <!-- Progress bar -->
+                <div class="habits-progress-wrap mb-3">
+                    <div class="progress bg-black border border-secondary" style="height:7px; border-radius:4px;">
+                        <div id="habitsProgressBar" class="progress-bar" role="progressbar" style="width:0%; transition:width .5s;"></div>
                     </div>
+                    <div id="habitsProgressText" class="mt-1 small text-muted"></div>
                 </div>
 
-                <!-- ── TAB: Rituály ── -->
-                <div id="tabHabits">
-                    <div class="habits-progress-wrap mb-3">
-                        <div class="progress bg-black border border-secondary" style="height:7px; border-radius:4px;">
-                            <div id="habitsProgressBar" class="progress-bar" role="progressbar" style="width:0%; transition:width .5s;"></div>
-                        </div>
-                        <div id="habitsProgressText" class="mt-1 small text-muted"></div>
-                    </div>
-                    <div id="habitsWeekCalendar" class="habits-week-calendar mb-4"></div>
-                    <div id="habitsList"></div>
-                </div>
+                <!-- Týdenní mini-kalendář -->
+                <div id="habitsWeekCalendar" class="habits-week-calendar mb-4"></div>
 
-                <!-- ── TAB: Denní výzva ── -->
-                <div id="tabChallenge" class="d-none">
-                    <div id="dailyChallengeContent"></div>
-                </div>
-
-                <!-- ── TAB: Statistiky ── -->
-                <div id="tabStats" class="d-none">
-                    <div id="weeklyStatsContent"></div>
-                </div>
-
-                <!-- ── TAB: Epické questy ── -->
-                <div id="tabQuests" class="d-none">
-                    <div id="epicQuestsContent"></div>
-                </div>
+                <!-- Seznam rituálů -->
+                <div id="habitsList"></div>
 
             </div>
         </div>
@@ -1097,6 +1076,7 @@
                 <button type="button" class="btn btn-info fw-bold" id="btnTabDreams" onclick="switchDreamTab('dreams')">🌙 Kniha Snů</button>
                 <button type="button" class="btn btn-outline-info fw-bold" id="btnTabWatchlist" onclick="switchDreamTab('watchlist')">🎬 Watchlist</button>
                 <button type="button" class="btn btn-outline-info fw-bold" id="btnTabGamelist" onclick="switchDreamTab('gamelist')">🎮 Gamelist</button>
+                <button type="button" class="btn btn-outline-info fw-bold" id="btnTabBooklist" onclick="switchDreamTab('booklist')">📚 Booklist</button>
             </div>
             <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
         </div>
@@ -1166,6 +1146,27 @@
             </div>
         </div>
 
+        <div class="offcanvas-body p-0 d-none flex-row w-100" id="sectionBooklist">
+            <div class="bg-dark border-end border-secondary d-flex flex-column" style="width: 250px;">
+                <div class="p-3 border-bottom border-secondary">
+                    <button class="btn btn-sm btn-outline-info w-100 d-flex justify-content-center align-items-center" onclick="createNewBooklistFolder()">
+                        + Nová kategorie
+                    </button>
+                </div>
+                <div class="p-2 border-bottom border-secondary">
+                    <p class="text-muted small mb-0 text-center">Co si přečíst příště...</p>
+                </div>
+                <div id="booklistFolderTreeList" class="list-group list-group-flush flex-grow-1 overflow-auto rounded-0 custom-scrollbar"></div>
+            </div>
+            <div class="flex-grow-1 p-3 d-flex flex-column bg-black">
+                <h4 id="currentBooklistFolderTitle" class="mb-3 text-info">Fantasy</h4>
+                <div id="booklistGrid" class="row g-3 flex-grow-1 overflow-auto mb-3 align-content-start custom-scrollbar"></div>
+                <div class="mt-auto pt-3 border-top border-secondary">
+                    <button class="btn btn-info w-100" onclick="openBooklistEditor()">+ Přidat knihu</button>
+                </div>
+            </div>
+        </div>
+
     </div>
 
     <div class="modal fade" id="dreamEditorModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
@@ -1201,6 +1202,62 @@
                 <div class="modal-footer border-secondary justify-content-end">
                     <button type="button" class="btn btn-secondary me-2" data-bs-dismiss="modal">Zrušit</button>
                     <button type="button" class="btn btn-info" onclick="saveDream()">Uložit sen</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="booklistEditorModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content bg-dark text-light border-secondary shadow-lg">
+                <div class="modal-header border-secondary">
+                    <h5 class="modal-title text-info" id="booklistEditorTitle">Přidat knihu</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row mb-3">
+                        <div class="col-md-8">
+                            <label class="form-label text-secondary">Název knihy</label>
+                            <input type="text" id="booklistTitle" class="form-control bg-dark text-light border-secondary" placeholder="Např. Pán prstenů">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label text-info small">Kategorie</label>
+                            <select id="booklistFolderSelect" class="form-select bg-dark text-light border-secondary"></select>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-8">
+                            <label class="form-label text-secondary">Autor</label>
+                            <input type="text" id="booklistAuthor" class="form-control bg-dark text-light border-secondary" placeholder="Např. J. R. R. Tolkien">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label text-secondary">Stav</label>
+                            <select id="booklistStatus" class="form-select bg-dark text-light border-secondary">
+                                <option value="Chci číst">Chci číst</option>
+                                <option value="Čtu">Čtu</option>
+                                <option value="Přečteno">Přečteno</option>
+                                <option value="Odloženo">Odloženo</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label text-secondary">Hodnocení (1–10)</label>
+                            <input type="number" id="booklistRating" class="form-control bg-dark text-light border-secondary" min="1" max="10" placeholder="Nechej prázdné pokud jsi nečetl">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label text-secondary">Počet stran</label>
+                            <input type="number" id="booklistPages" class="form-control bg-dark text-light border-secondary" min="1" placeholder="Nepovinné">
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label text-secondary">Poznámka / Dojmy</label>
+                        <textarea id="booklistNotes" class="form-control bg-dark text-light border-secondary custom-scrollbar" rows="3" placeholder="Dojmy, citáty, doporučení..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer border-secondary justify-content-end">
+                    <button type="button" class="btn btn-secondary me-2" data-bs-dismiss="modal">Zrušit</button>
+                    <button type="button" class="btn btn-info" onclick="saveBooklistItem()">Uložit knihu</button>
                 </div>
             </div>
         </div>
@@ -2059,7 +2116,7 @@
                 <div class="modal-footer border-secondary">
                     <button class="btn btn-outline-secondary" data-bs-dismiss="modal">Zrušit</button>
                     <button class="btn btn-warning text-dark fw-bold" onclick="saveHabitFromModal()">
-                        ⚔️ Uložit Rituál
+                         Uložit Rituál
                     </button>
                 </div>
 
@@ -2068,8 +2125,5 @@
     </div>
     <!-- ═══════════════════════════════════════════════ -->
 
-    <script src="js/dailychallenge.js" defer></script>
-    <script src="js/epicquests.js" defer></script>
-    <script src="js/weeklystats.js" defer></script>
 </body>
 </html>
