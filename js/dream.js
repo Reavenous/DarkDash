@@ -745,3 +745,271 @@ window.switchDreamTab = function(tab) {
 // ── Init ─────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', loadGamelist);
 document.addEventListener('darkdash-reload',  loadGamelist);
+// ============================================================
+//  BOOKLIST — kompletní modul
+// ============================================================
+
+let booklistItems   = [];
+let booklistFolders = ['Fantasy', 'Sci-Fi', 'Horor', 'Non-Fiction', 'Klasika'];
+let currentBooklistFolder = 'Fantasy';
+let editingBooklistIndex  = -1;
+
+// ── Storage helpers ──────────────────────────────────────────
+function blKey(base) {
+    return window.getAppKey ? window.getAppKey(base) : base;
+}
+
+// ── Načtení dat ──────────────────────────────────────────────
+function loadBooklist() {
+    const items   = localStorage.getItem(blKey('darkdash-booklist'));
+    const folders = localStorage.getItem(blKey('darkdash-booklist-folders'));
+    booklistItems   = items   ? JSON.parse(items)   : [];
+    booklistFolders = folders ? JSON.parse(folders) : ['Fantasy', 'Sci-Fi', 'Horor', 'Non-Fiction', 'Klasika'];
+    if (!booklistFolders.length) booklistFolders = ['Ostatní'];
+    currentBooklistFolder = booklistFolders[0];
+    renderBooklistUI();
+}
+
+// ── Uložení dat ──────────────────────────────────────────────
+function saveBooklist() {
+    localStorage.setItem(blKey('darkdash-booklist'),         JSON.stringify(booklistItems));
+    localStorage.setItem(blKey('darkdash-booklist-folders'), JSON.stringify(booklistFolders));
+    if (window.saveToCloud) window.saveToCloud('booklist', booklistItems);
+    renderBooklistUI();
+}
+
+// ── Vykreslit celé UI ────────────────────────────────────────
+function renderBooklistUI() {
+    renderBooklistFolders();
+    renderBooklistGrid();
+}
+
+// ── Sidebar složky ───────────────────────────────────────────
+function renderBooklistFolders() {
+    const list = document.getElementById('booklistFolderTreeList');
+    if (!list) return;
+    list.innerHTML = '';
+
+    booklistFolders.forEach(folder => {
+        const count  = booklistItems.filter(i => i.folder === folder).length;
+        const active = folder === currentBooklistFolder;
+        const a      = document.createElement('a');
+        a.href        = '#';
+        a.className   = `list-group-item list-group-item-action bg-transparent border-0 d-flex justify-content-between align-items-center px-3 py-2 ${active ? 'text-info fw-bold' : 'text-light'}`;
+        a.style.borderLeft = active ? '3px solid #0dcaf0' : '3px solid transparent';
+        a.innerHTML = `
+            <span class="text-truncate small">${folder}</span>
+            <div class="d-flex align-items-center gap-1">
+                <span class="badge bg-secondary rounded-pill">${count}</span>
+                <button class="btn btn-link p-0 text-danger opacity-0 hover-show"
+                        style="font-size:0.7rem;line-height:1;"
+                        onclick="event.preventDefault();event.stopPropagation();deleteBooklistFolder('${folder.replace(/'/g,"\\'")}')">✕</button>
+            </div>`;
+        a.addEventListener('mouseenter', () => a.querySelector('.hover-show').style.opacity = '1');
+        a.addEventListener('mouseleave', () => a.querySelector('.hover-show').style.opacity = '0');
+        a.addEventListener('click', e => {
+            e.preventDefault();
+            currentBooklistFolder = folder;
+            document.getElementById('currentBooklistFolderTitle').textContent = folder;
+            renderBooklistUI();
+        });
+        list.appendChild(a);
+    });
+}
+
+// ── Grid s kartičkami ────────────────────────────────────────
+function renderBooklistGrid() {
+    const grid = document.getElementById('booklistGrid');
+    if (!grid) return;
+
+    const items = booklistItems.filter(i => i.folder === currentBooklistFolder);
+    grid.innerHTML = '';
+
+    if (!items.length) {
+        grid.innerHTML = `<div class="col-12 text-center text-muted py-5 fst-italic">
+            Žádné knihy v této kategorii.<br>
+            <small>Klikni na "+ Přidat knihu"</small>
+        </div>`;
+        return;
+    }
+
+    const statusConfig = {
+        'Chci číst': { color: 'secondary', icon: '📋' },
+        'Čtu':       { color: 'warning',   icon: '📖' },
+        'Přečteno':  { color: 'success',   icon: '✅' },
+        'Odloženo':  { color: 'danger',    icon: '⏸️'  },
+    };
+
+    items.forEach(item => {
+        const globalIdx = booklistItems.indexOf(item);
+        const cfg       = statusConfig[item.status] || { color: 'secondary', icon: '📋' };
+        const ratingBadge = item.rating
+            ? `<span class="badge bg-warning text-dark ms-1">★ ${item.rating}/10</span>`
+            : '';
+        const pagesBadge = item.pages
+            ? `<span class="badge bg-dark border border-secondary text-muted small">📄 ${item.pages} str.</span>`
+            : '';
+
+        const col = document.createElement('div');
+        col.className = 'col-md-4 col-sm-6';
+        col.innerHTML = `
+            <div class="card bg-dark border-secondary h-100 shadow-sm" style="border-left: 3px solid #0dcaf0 !important;">
+                <div class="card-body p-3 d-flex flex-column gap-2">
+                    <div class="d-flex justify-content-between align-items-start flex-wrap gap-1">
+                        <h6 class="text-info m-0 fw-bold" style="word-break:break-word;">${item.title}</h6>
+                        <span class="badge bg-${cfg.color} flex-shrink-0">${cfg.icon} ${item.status}</span>
+                    </div>
+                    ${item.author ? `<div class="text-muted small fst-italic">— ${item.author}</div>` : ''}
+                    <div class="d-flex align-items-center gap-2 flex-wrap">
+                        ${pagesBadge}
+                        ${ratingBadge}
+                    </div>
+                    ${item.notes ? `<p class="text-muted small m-0" style="font-size:0.8rem;">${item.notes}</p>` : ''}
+                </div>
+                <div class="card-footer bg-transparent border-top border-secondary d-flex gap-2 p-2">
+                    <button class="btn btn-sm btn-outline-info flex-grow-1" onclick="editBooklistItem(${globalIdx})">
+                        ✎ Upravit
+                    </button>
+                    <button class="btn btn-sm btn-outline-danger" onclick="deleteBooklistItem(${globalIdx})">
+                        ✕
+                    </button>
+                </div>
+            </div>`;
+        grid.appendChild(col);
+    });
+}
+
+// ── Nová složka ──────────────────────────────────────────────
+window.createNewBooklistFolder = function() {
+    const name = prompt('Název nové kategorie:');
+    if (!name || !name.trim()) return;
+    const trimmed = name.trim();
+    if (booklistFolders.includes(trimmed)) { alert('Tato kategorie už existuje.'); return; }
+    booklistFolders.push(trimmed);
+    currentBooklistFolder = trimmed;
+    document.getElementById('currentBooklistFolderTitle').textContent = trimmed;
+    saveBooklist();
+};
+
+// ── Smazat složku ────────────────────────────────────────────
+window.deleteBooklistFolder = function(folder) {
+    if (booklistFolders.length <= 1) { alert('Musí existovat alespoň jedna kategorie.'); return; }
+    const count = booklistItems.filter(i => i.folder === folder).length;
+    if (!confirm(`Smazat kategorii "${folder}" i s ${count} knihami?`)) return;
+    booklistFolders      = booklistFolders.filter(f => f !== folder);
+    booklistItems        = booklistItems.filter(i => i.folder !== folder);
+    currentBooklistFolder = booklistFolders[0];
+    document.getElementById('currentBooklistFolderTitle').textContent = currentBooklistFolder;
+    saveBooklist();
+};
+
+// ── Otevřít editor (nová kniha) ──────────────────────────────
+window.openBooklistEditor = function() {
+    editingBooklistIndex = -1;
+    document.getElementById('booklistEditorTitle').textContent = 'Přidat knihu';
+    document.getElementById('booklistTitle').value  = '';
+    document.getElementById('booklistAuthor').value = '';
+    document.getElementById('booklistStatus').value = 'Chci číst';
+    document.getElementById('booklistRating').value = '';
+    document.getElementById('booklistPages').value  = '';
+    document.getElementById('booklistNotes').value  = '';
+    updateBooklistFolderSelect();
+    new bootstrap.Modal(document.getElementById('booklistEditorModal')).show();
+};
+
+// ── Otevřít editor (editace) ─────────────────────────────────
+window.editBooklistItem = function(index) {
+    editingBooklistIndex = index;
+    const item = booklistItems[index];
+    document.getElementById('booklistEditorTitle').textContent = 'Upravit knihu';
+    document.getElementById('booklistTitle').value  = item.title  || '';
+    document.getElementById('booklistAuthor').value = item.author || '';
+    document.getElementById('booklistStatus').value = item.status || 'Chci číst';
+    document.getElementById('booklistRating').value = item.rating || '';
+    document.getElementById('booklistPages').value  = item.pages  || '';
+    document.getElementById('booklistNotes').value  = item.notes  || '';
+    updateBooklistFolderSelect(item.folder);
+    new bootstrap.Modal(document.getElementById('booklistEditorModal')).show();
+};
+
+// ── Synchronizovat folder select ─────────────────────────────
+function updateBooklistFolderSelect(selectedFolder) {
+    const sel = document.getElementById('booklistFolderSelect');
+    if (!sel) return;
+    sel.innerHTML = booklistFolders.map(f =>
+        `<option value="${f}" ${f === (selectedFolder || currentBooklistFolder) ? 'selected' : ''}>${f}</option>`
+    ).join('');
+}
+
+// ── Uložit položku ───────────────────────────────────────────
+window.saveBooklistItem = function() {
+    const title  = document.getElementById('booklistTitle').value.trim();
+    const author = document.getElementById('booklistAuthor').value.trim();
+    const status = document.getElementById('booklistStatus').value;
+    const rating = document.getElementById('booklistRating').value;
+    const pages  = document.getElementById('booklistPages').value;
+    const notes  = document.getElementById('booklistNotes').value.trim();
+    const folder = document.getElementById('booklistFolderSelect').value;
+
+    if (!title) { alert('Zadej název knihy!'); return; }
+
+    const item = {
+        title, author, folder, status,
+        rating: rating ? parseInt(rating) : null,
+        pages:  pages  ? parseInt(pages)  : null,
+        notes,
+        id: Date.now()
+    };
+
+    if (editingBooklistIndex === -1) {
+        booklistItems.unshift(item);
+    } else {
+        item.id = booklistItems[editingBooklistIndex].id;
+        booklistItems[editingBooklistIndex] = item;
+    }
+
+    currentBooklistFolder = folder;
+    document.getElementById('currentBooklistFolderTitle').textContent = folder;
+
+    saveBooklist();
+    bootstrap.Modal.getInstance(document.getElementById('booklistEditorModal'))?.hide();
+};
+
+// ── Smazat položku ───────────────────────────────────────────
+window.deleteBooklistItem = function(index) {
+    if (!confirm('Odebrat tuto knihu z Booklistu?')) return;
+    booklistItems.splice(index, 1);
+    saveBooklist();
+};
+
+// ── Rozšíření switchDreamTab o booklist ──────────────────────
+const _origSwitchDreamTab3 = window.switchDreamTab;
+window.switchDreamTab = function(tab) {
+    const secBooklist  = document.getElementById('sectionBooklist');
+    const btnBooklist  = document.getElementById('btnTabBooklist');
+
+    if (tab === 'booklist') {
+        ['sectionDreams','sectionWatchlist','sectionGamelist'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) { el.classList.add('d-none'); el.classList.remove('d-flex'); }
+        });
+        ['btnTabDreams','btnTabWatchlist','btnTabGamelist'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) {
+                el.classList.remove('btn-info');
+                el.classList.add('btn-outline-info');
+            }
+        });
+        if (secBooklist) { secBooklist.classList.remove('d-none'); secBooklist.classList.add('d-flex'); }
+        if (btnBooklist) { btnBooklist.classList.remove('btn-outline-info'); btnBooklist.classList.add('btn-info'); }
+        renderBooklistUI();
+    } else {
+        if (secBooklist) { secBooklist.classList.add('d-none'); secBooklist.classList.remove('d-flex'); }
+        if (btnBooklist) { btnBooklist.classList.remove('btn-info'); btnBooklist.classList.add('btn-outline-info'); }
+        if (_origSwitchDreamTab3) _origSwitchDreamTab3(tab);
+    }
+};
+
+// ── Init ─────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', loadBooklist);
+document.addEventListener('darkdash-reload',  loadBooklist);

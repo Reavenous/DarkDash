@@ -55,8 +55,8 @@ function updateClockAndDate() {
 let isBossKeyActive = false;
 
 document.addEventListener('keydown', (e) => {
-    // Klávesa 'B' nebo 'Esc' (pokud není otevřený modal)
-    if (e.key.toLowerCase() === 'b' && !document.querySelector('.modal.show')) {
+    // Klávesa ';' (české klávesnici) nebo Esc (pokud není otevřený modal)
+    if (e.key === ';' && !document.querySelector('.modal.show')) {
         toggleBossKey();
     }
 });

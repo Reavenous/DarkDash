@@ -453,3 +453,32 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 document.addEventListener('darkdash-reload', loadHabits);
+// ── Tab přepínání v Daily Rituals widgetu ────────────────────
+window.switchHabTab = function(tab) {
+    const tabs = ['habits', 'challenge', 'stats', 'quests'];
+    const tabMap = {
+        habits:    { el: 'tabHabits',    btn: 'btnHabTab'    },
+        challenge: { el: 'tabChallenge', btn: 'btnChalTab'   },
+        stats:     { el: 'tabStats',     btn: 'btnStatsTab'  },
+        quests:    { el: 'tabQuests',    btn: 'btnQuestsTab' },
+    };
+    const btnAddHabit = document.getElementById('btnAddHabit');
+
+    tabs.forEach(t => {
+        const cfg = tabMap[t];
+        const el  = document.getElementById(cfg.el);
+        const btn = document.getElementById(cfg.btn);
+        if (el)  el.classList.toggle('d-none', t !== tab);
+        if (btn) {
+            btn.classList.toggle('active', t === tab);
+        }
+    });
+
+    // Zobraz/skryj tlačítko "Přidat rituál" jen na záložce Rituály
+    if (btnAddHabit) btnAddHabit.style.display = tab === 'habits' ? '' : 'none';
+
+    // Refresh obsahu při přepnutí
+    if (tab === 'challenge' && window.renderDailyChallenge) window.renderDailyChallenge();
+    if (tab === 'stats'     && window.renderWeeklyStats)    window.renderWeeklyStats();
+    if (tab === 'quests'    && window.renderEpicQuests)     window.renderEpicQuests();
+};

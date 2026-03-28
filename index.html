@@ -136,30 +136,51 @@
         <div id="widget-habits" class="card bg-dark border-secondary text-light mb-4 shadow-lg w-75" style="max-width: 800px;">
             <div class="card-body p-4">
 
-                <!-- Hlavička -->
+                <!-- Hlavička s tab navigací -->
                 <div class="d-flex align-items-center justify-content-between mb-3">
                     <div class="d-flex align-items-center gap-2">
                         <span style="font-size:1.3rem;">🔥</span>
                         <h6 class="text-uppercase mb-0" style="letter-spacing:2px; font-size:.8rem; color:#adb5bd;">Daily Rituals</h6>
                     </div>
-                    <button class="btn btn-sm btn-outline-warning" style="border-color:rgba(255,193,7,0.35); font-size:.78rem;" onclick="openAddHabitModal()">
-                        <i class="bi bi-plus-lg"></i> Nový Rituál
-                    </button>
-                </div>
-
-                <!-- Progress bar -->
-                <div class="habits-progress-wrap mb-3">
-                    <div class="progress bg-black border border-secondary" style="height:7px; border-radius:4px;">
-                        <div id="habitsProgressBar" class="progress-bar" role="progressbar" style="width:0%; transition:width .5s;"></div>
+                    <div class="d-flex gap-2">
+                        <div class="btn-group btn-group-sm">
+                            <button class="btn btn-outline-secondary active" id="btnHabTab" onclick="switchHabTab('habits')" style="font-size:.75rem;">🔥 Rituály</button>
+                            <button class="btn btn-outline-secondary" id="btnChalTab" onclick="switchHabTab('challenge')" style="font-size:.75rem;">🎲 Výzva</button>
+                            <button class="btn btn-outline-secondary" id="btnStatsTab" onclick="switchHabTab('stats')" style="font-size:.75rem;">📊 Statistiky</button>
+                            <button class="btn btn-outline-secondary" id="btnQuestsTab" onclick="switchHabTab('quests')" style="font-size:.75rem;">🎯 Epické questy</button>
+                        </div>
+                        <button class="btn btn-sm btn-outline-warning" id="btnAddHabit" style="border-color:rgba(255,193,7,0.35); font-size:.78rem;" onclick="openAddHabitModal()">
+                            + Rituál
+                        </button>
                     </div>
-                    <div id="habitsProgressText" class="mt-1 small text-muted"></div>
                 </div>
 
-                <!-- Týdenní mini-kalendář -->
-                <div id="habitsWeekCalendar" class="habits-week-calendar mb-4"></div>
+                <!-- ── TAB: Rituály ── -->
+                <div id="tabHabits">
+                    <div class="habits-progress-wrap mb-3">
+                        <div class="progress bg-black border border-secondary" style="height:7px; border-radius:4px;">
+                            <div id="habitsProgressBar" class="progress-bar" role="progressbar" style="width:0%; transition:width .5s;"></div>
+                        </div>
+                        <div id="habitsProgressText" class="mt-1 small text-muted"></div>
+                    </div>
+                    <div id="habitsWeekCalendar" class="habits-week-calendar mb-4"></div>
+                    <div id="habitsList"></div>
+                </div>
 
-                <!-- Seznam rituálů -->
-                <div id="habitsList"></div>
+                <!-- ── TAB: Denní výzva ── -->
+                <div id="tabChallenge" class="d-none">
+                    <div id="dailyChallengeContent"></div>
+                </div>
+
+                <!-- ── TAB: Statistiky ── -->
+                <div id="tabStats" class="d-none">
+                    <div id="weeklyStatsContent"></div>
+                </div>
+
+                <!-- ── TAB: Epické questy ── -->
+                <div id="tabQuests" class="d-none">
+                    <div id="epicQuestsContent"></div>
+                </div>
 
             </div>
         </div>
@@ -2047,5 +2068,8 @@
     </div>
     <!-- ═══════════════════════════════════════════════ -->
 
+    <script src="js/dailychallenge.js" defer></script>
+    <script src="js/epicquests.js" defer></script>
+    <script src="js/weeklystats.js" defer></script>
 </body>
 </html>
