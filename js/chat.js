@@ -541,3 +541,46 @@ function _esc(str) {
         .replace(/>/g, "&gt;")
         .replace(/"/g, "&quot;");
 }
+
+// Nezapomeň si nahoru k importům z firebase/firestore přidat 'onSnapshot' a 'collection', pokud už tam nejsou.
+
+export function listenToUsers() {
+  const usersListContainer = document.getElementById("chatUsersList");
+  const onlineCountBadge = document.getElementById("onlineCount");
+
+  if (!usersListContainer || !onlineCountBadge) return;
+
+  // Tady předpokládám, že máš v databázi kolekci "users"
+  const usersRef = collection(db, "users");
+
+  // Posloucháme změny v kolekci uživatelů
+  onSnapshot(usersRef, (snapshot) => {
+    let html = "";
+    let count = 0;
+
+    snapshot.forEach((doc) => {
+      const userData = doc.data();
+      
+      // Vygenerujeme HTML pro každého uživatele (agenta)
+      html += `
+        <a href="#" class="list-group-item list-group-item-action bg-dark text-white border-secondary d-flex align-items-center">
+          <div class="me-3">
+             <i class="fas fa-user-ninja text-danger"></i>
+          </div>
+          <div>
+            <strong>${userData.name || userData.displayName || "Neznámý Agent"}</strong>
+          </div>
+        </a>
+      `;
+      count++;
+    });
+
+    // Aktualizujeme HTML a počítadlo
+    if (count === 0) {
+      usersListContainer.innerHTML = `<div class="p-3 text-muted text-center">Žádní agenti nenalezeni</div>`;
+    } else {
+      usersListContainer.innerHTML = html;
+    }
+    onlineCountBadge.innerText = count;
+  });
+}
