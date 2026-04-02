@@ -188,7 +188,7 @@ const themes = [
         glow: '#d97706',
         fontHead: "'MedievalSharp', cursive",
         playlist: [
-            { file: 'kcdpovertyandfa mine.mp3', title: 'Poverty and Famine', author: 'Jan Valta' },
+            { file: 'kcdpovertyandfamine.mp3', title: 'Poverty and Famine', author: 'Jan Valta' },
             { file: 'kcdtavernmusic.mp3',        title: 'Tavern Music',       author: 'Jan Valta' },
             { file: 'kcdthetrek.mp3',            title: 'The Trek',           author: 'Jan Valta' }
         ]
