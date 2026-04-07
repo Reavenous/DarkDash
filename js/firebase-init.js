@@ -134,10 +134,15 @@ onAuthStateChanged(auth, async (user) => {
         }
 
         // 5. Uložit uživatele do DB (pro chat seznam)
+        // Uložit user dokument + stats pro leaderboard
+        const statsForDB = window.userStats
+            ? { xp: window.userStats.xp || 0, level: window.userStats.level || 1, rank: window.userStats.rank || 'Bloudící duše' }
+            : { xp: 0, level: 1, rank: 'Bloudící duše' };
         await setDoc(doc(db, "users", user.uid), {
             name: user.displayName,
             photo: user.photoURL,
-            lastActive: serverTimestamp()
+            lastActive: serverTimestamp(),
+            stats: statsForDB
         }, { merge: true });
 
         // 6. Stáhnout data z Cloudu
@@ -189,7 +194,7 @@ window.saveToCloud = async (moduleName, data) => {
 // Funkce: Stáhnout data z Cloudu (volá se automaticky po loginu)
 async function loadCloudData(uid) {
     // Seznam modulů vč. gamifikace
-    const modules = ['todos', 'fitness-v2', 'journal', 'notes', 'links', 'recipes', 'dreams', 'countdowns', 'events', 'gamification'];
+    const modules = ['todos', 'fitness-v2', 'journal', 'notes', 'links', 'recipes', 'dreams', 'countdowns', 'events', 'gamification', 'watchlist', 'watchlist-folders', 'gamelist', 'gamelist-folders', 'booklist', 'booklist-folders', 'habits', 'epic-quests'];
     
     for (const mod of modules) {
         try {
@@ -201,9 +206,15 @@ async function loadCloudData(uid) {
             if (docSnap.exists()) {
                 const cloudData = docSnap.data().data;
                 
-                // Specialita pro Gamifikaci - rovnou načíst do paměti
+                // Specialita pro Gamifikaci - rovnou načíst do paměti + aktualizovat user doc pro leaderboard
                 if (mod === 'gamification' && window.loadStats) {
                     window.loadStats(cloudData);
+                    // Sync stats do user dokumentu (leaderboard je čte odtud)
+                    if (cloudData && cloudData.xp !== undefined) {
+                        setDoc(doc(db, "users", uid), {
+                            stats: { xp: cloudData.xp || 0, level: cloudData.level || 1, rank: cloudData.rank || 'Bloudící duše' }
+                        }, { merge: true }).catch(() => {});
+                    }
                 }
 
                 // Uložíme do localStorage pod USER klíčem
@@ -273,12 +284,14 @@ window.loadLeaderboard = async () => {
     list.innerHTML = "";
 
     try {
-        const q = query(collection(db, "users"), orderBy("stats.xp", "desc"), limit(10));
-        const snapshot = await getDocs(q);
+        // Načíst všechny uživatele a seřadit lokálně (nevyžaduje Firestore composite index)
+        const snapshot = await getDocs(collection(db, "users"));
 
         const players = [];
         snapshot.forEach(docSnap => {
             const u = docSnap.data();
+            // Přeskočit uživatele bez stats (ještě se nepřihlásili po aktualizaci)
+            if (!u.stats && !u.name) return;
             players.push({
                 uid:   docSnap.id,
                 name:  u.name  || "Neznámý",
@@ -286,6 +299,10 @@ window.loadLeaderboard = async () => {
                 stats: u.stats || { xp: 0, level: 1, rank: "Bloudící duše" }
             });
         });
+        // Seřadit podle XP sestupně
+        players.sort((a, b) => (b.stats.xp || 0) - (a.stats.xp || 0));
+        // Omezit na top 10
+        players.splice(10);
 
         const myUID = auth.currentUser ? auth.currentUser.uid : null;
 
